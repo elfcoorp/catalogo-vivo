@@ -14,7 +14,7 @@ export const CONFIG: Config = {
     enlace: "elfcoorp",
   },
   vendedores: [
-    { slug: "araceli", nombre: "Araceli Castillon", whatsapp: "5216221453333" },
+    { slug: "araceli", nombre: "Araceli Castillon", whatsapp: "526221453333" },
   ],
   categorias: ["Líneas de empaque usadas", "Materiales de embalaje", "Servicios"],
   mensajePlantilla:
