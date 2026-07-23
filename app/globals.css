@@ -1,0 +1,243 @@
+@import "tailwindcss";
+
+/* ============================================================
+   CATÁLOGO VIVO — sistema de diseño
+   Club Sinergético · Manuel de León
+   La MARCA es configurable: --marca y --marca-2 se inyectan desde
+   lib/config.ts en el <html> (ver app/layout.tsx). Cambia 2 colores
+   y todo el catálogo se repinta. Default: tema claro (favorece fotos
+   de producto). Tema oscuro con .tema-oscuro en el <body>.
+   ============================================================ */
+
+:root {
+  /* Estos dos los pisa el layout con los colores de tu marca. */
+  --marca: #0f766e;
+  --marca-2: #c98a2b;
+
+  /* Tema CLARO (por defecto) */
+  --bg: #faf8f5;
+  --bg-2: #ffffff;
+  --surface: rgba(255, 255, 255, 0.9);
+  --ink: #17201d;
+  --ink-soft: #4b5852;
+  --ink-mute: #8a958f;
+  --line: rgba(23, 32, 29, 0.1);
+  --line-strong: rgba(23, 32, 29, 0.16);
+  --shadow: 0 20px 50px -28px rgba(23, 32, 29, 0.35);
+
+  --radius: 20px;
+  --font-fraunces: "Fraunces", ui-serif, Georgia, serif;
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tema OSCURO (si marca.fondo === "oscuro") */
+.tema-oscuro {
+  --bg: #0c0f0e;
+  --bg-2: #141a18;
+  --surface: rgba(255, 255, 255, 0.05);
+  --ink: #eef4f1;
+  --ink-soft: #b9c4bf;
+  --ink-mute: #7c8781;
+  --line: rgba(238, 244, 241, 0.1);
+  --line-strong: rgba(238, 244, 241, 0.18);
+  --shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.7);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-mute: var(--ink-mute);
+  --color-marca: var(--marca);
+  --color-marca-2: var(--marca-2);
+  --color-line: var(--line);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+  --radius-card: 20px;
+}
+
+* {
+  border-color: var(--line);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Fondo ambiental teñido con la marca (suave) */
+.bg-marca {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(820px 560px at 12% -8%, color-mix(in srgb, var(--marca) 16%, transparent), transparent 60%),
+    radial-gradient(760px 560px at 100% 6%, color-mix(in srgb, var(--marca-2) 14%, transparent), transparent 60%),
+    var(--bg);
+}
+
+/* ---------- Tipografía ---------- */
+.font-display {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+}
+.text-marca {
+  color: var(--marca);
+}
+.text-gradient-marca {
+  background: linear-gradient(100deg, var(--marca), var(--marca-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Tarjetas / superficies ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.card-hover {
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--marca) 45%, var(--line));
+  box-shadow: 0 30px 60px -30px color-mix(in srgb, var(--marca) 45%, rgba(0, 0, 0, 0.4));
+}
+
+/* ---------- Chips / etiquetas ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--marca) 8%, transparent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--marca);
+}
+.chip-escasez {
+  background: color-mix(in srgb, #e0533a 12%, transparent);
+  border-color: color-mix(in srgb, #e0533a 30%, transparent);
+  color: #c23c22;
+}
+.tema-oscuro .chip-escasez {
+  color: #ff8a6b;
+}
+.chip-destacado {
+  background: color-mix(in srgb, var(--marca-2) 16%, transparent);
+  border-color: color-mix(in srgb, var(--marca-2) 34%, transparent);
+  color: color-mix(in srgb, var(--marca-2) 82%, #000);
+}
+.tema-oscuro .chip-destacado {
+  color: var(--marca-2);
+}
+
+/* ---------- Botones ---------- */
+.btn-marca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(120deg, var(--marca), color-mix(in srgb, var(--marca) 70%, var(--marca-2)));
+  color: #fff;
+  font-weight: 650;
+  border-radius: 999px;
+  padding: 0.85rem 1.4rem;
+  box-shadow: 0 16px 36px -16px color-mix(in srgb, var(--marca) 70%, transparent);
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-marca:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 22px 46px -16px color-mix(in srgb, var(--marca) 80%, transparent);
+}
+.btn-wa {
+  background: linear-gradient(120deg, #25d366, #128c7e);
+  color: #fff;
+  box-shadow: 0 16px 36px -16px rgba(18, 140, 126, 0.7);
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.8rem 1.3rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.btn-ghost:hover {
+  border-color: var(--marca);
+  transform: translateY(-2px);
+}
+
+/* ---------- Animaciones ---------- */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+.anim-floaty { animation: floaty 7s ease-in-out infinite; }
+.anim-pulse-glow { animation: pulseGlow 4s ease-in-out infinite; }
+.anim-spin-slow { animation: spinSlow 26s linear infinite; }
+
+/* ---------- Placeholder de foto (cuando aún no hay imagen) ---------- */
+.foto-placeholder {
+  background:
+    radial-gradient(120% 120% at 20% 10%, color-mix(in srgb, var(--marca) 22%, transparent), transparent 60%),
+    linear-gradient(160deg, color-mix(in srgb, var(--marca) 12%, var(--bg-2)), var(--bg-2));
+}
+
+/* Barra de scroll discreta */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink) 18%, transparent); border-radius: 999px; }
+::selection { background: color-mix(in srgb, var(--marca) 28%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   IMPRESIÓN → PDF (el botón "Descargar PDF" usa window.print()).
+   Ocultamos lo interactivo y dejamos el catálogo limpio en hoja.
+   ============================================================ */
+@media print {
+  .no-print { display: none !important; }
+  .bg-marca { display: none !important; }
+  body { background: #fff; color: #000; }
+  .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  .print-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+}
