@@ -9,7 +9,7 @@ export const CONFIG: Config = {
     primario: "#31502e",
     secundario: "#66a73d",
     fondo: "claro",
-    whatsappPrincipal: "5214521300840",
+    whatsappPrincipal: "524521300840",
     ciudad: "Ciudad Obregón",
     enlace: "elfcoorp",
   },
