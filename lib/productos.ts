@@ -33,7 +33,7 @@ export const PRODUCTOS: Producto[] = [
     caracteristicas: ["Marca CIU · 4 líneas x 12 salidas", "Capacidad 4 kg/línea/hora", "Software actualizado"],
     precio: "$2,700,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. No incluye instalación.",
-    bono: "Ahorra hasta 55% vs. equipo nuevo · Te conectamos con técnico especializado para instalación.",
+    bono: "Te conectamos con técnico especializado para instalación.",
     destacado: true,
   },
   {
@@ -56,7 +56,6 @@ export const PRODUCTOS: Producto[] = [
     caracteristicas: ["Marca SIAI · Todo en acero inoxidable", "Calibrador de tubos ajustables", "Semi-nueva · Solo 1 temporada de uso"],
     precio: "$4,500,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. Sin instalar.",
-    bono: "Ahorra +30% vs. mercado ($7M + IVA con instalación en Sonora), sin instalar.",
   },
   {
     slug: "clasificadora-6-lineas",
@@ -78,7 +77,7 @@ export const PRODUCTOS: Producto[] = [
     caracteristicas: ["Marca CIU · 6 líneas x 12 salidas x 1 de error", "Capacidad 1.9 ton/hora", "Motor nuevo, apto para salidas adicionales"],
     precio: "$1,500,000 MXN",
     facilidades: "Pago de contado antes de embarque. Sin instalación.",
-    bono: "Ahorra ~45% vs. nueva ($2,736,710) · Incluye caseta de vigilancia.",
+    bono: "Incluye caseta de vigilancia.",
   },
   {
     slug: "linea-tomate-roma-bola",
@@ -99,7 +98,6 @@ export const PRODUCTOS: Producto[] = [
       "Clasifica por tamaño y color; incluye singulador, cepilladora, elevador con base para caja llena y bancos para cajas ya empacadas.",
     caracteristicas: ["Marca CIU · 2 líneas x 12 salidas (expandible)", "Capacidad 7.2 ton/línea", "Incluye elevador y bancos de descanso"],
     precio: "$1,300,000 MXN",
-    bono: "Ahorra ~28% vs. nueva ($1.8M).",
   },
   {
     slug: "clasificadora-4x12-morron-mango-aguacate",
@@ -107,16 +105,16 @@ export const PRODUCTOS: Producto[] = [
     categoria: "Líneas de empaque usadas",
     imagen: "/productos/clasificadora-4x12-morron-1.jpg",
     galeria: [
-      "/productos/clasificadora-4x12-morron-2.jpg",
       "/productos/clasificadora-4x12-morron-3.jpg",
-      "/productos/clasificadora-4x12-morron-4.jpg",
-      "/productos/clasificadora-4x12-morron-5.jpg",
-      "/productos/clasificadora-4x12-morron-6.jpg",
       "/productos/clasificadora-4x12-morron-7.jpg",
+      "/productos/clasificadora-4x12-morron-6.jpg",
+      "/productos/clasificadora-4x12-morron-11.jpg",
       "/productos/clasificadora-4x12-morron-8.jpg",
       "/productos/clasificadora-4x12-morron-9.jpg",
+      "/productos/clasificadora-4x12-morron-4.jpg",
+      "/productos/clasificadora-4x12-morron-2.jpg",
+      "/productos/clasificadora-4x12-morron-5.jpg",
       "/productos/clasificadora-4x12-morron-10.jpg",
-      "/productos/clasificadora-4x12-morron-11.jpg",
     ],
     paraQuien:
       "Empacadoras de chile morrón, mango, cebolla o aguacate que clasifican a mano y quieren pasar a clasificación automática por peso, sin pagar precio de una nueva.",

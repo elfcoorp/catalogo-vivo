@@ -4,6 +4,7 @@ import { MessageCircle } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
 import { GaleriaProducto } from "@/components/catalogo/GaleriaProducto";
 import { BotonPdf } from "@/components/catalogo/BotonPdf";
+import { BotonCompartirLink } from "@/components/catalogo/BotonCompartirLink";
 import { ProductoCard } from "@/components/catalogo/ProductoCard";
 import { CONFIG } from "@/lib/config";
 import { PRODUCTOS, productoPorSlug } from "@/lib/productos";
@@ -100,6 +101,7 @@ export default async function FichaProducto({
             <a href={href} target="_blank" rel="noopener noreferrer" className="btn-marca btn-wa mt-2 w-full sm:w-auto">
               <MessageCircle size={22} /> Lo quiero
             </a>
+            <BotonCompartirLink etiqueta="Compartir liga" className="btn-ghost mt-2 w-full sm:w-auto" />
             <BotonPdf
               productos={[producto]}
               etiqueta="Compartir esta máquina en PDF"
