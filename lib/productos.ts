@@ -52,8 +52,8 @@ export const PRODUCTOS: Producto[] = [
     paraQuien:
       "Empacadoras de cítricos que buscan una línea completa (selección, lavado, encerado y calibrado) en acero inoxidable, sin pagar precio de una línea nueva instalada.",
     beneficio:
-      "Volteadora de bins, descanicador, 2 mesas de selección manual, 2 cepilladoras de lavado/encerado, 2 secadoras de cera (gas LP) y calibrador de tubos ajustables.",
-    caracteristicas: ["Marca SIAI · Todo en acero inoxidable", "Calibrador de tubos ajustables", "Doble cepilladora + doble secadora de cera"],
+      "Volteadora de bins, descanicador, 2 mesas de selección manual, 2 cepilladoras de lavado/encerado, 2 secadoras de cera (gas LP) y calibrador de tubos ajustables. Semi-nueva, con solo 1 temporada de uso.",
+    caracteristicas: ["Marca SIAI · Todo en acero inoxidable", "Calibrador de tubos ajustables", "Semi-nueva · Solo 1 temporada de uso"],
     precio: "$4,500,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. Sin instalar.",
     bono: "Ahorra +30% vs. mercado ($7M + IVA con instalación en Sonora), sin instalar.",
@@ -100,6 +100,31 @@ export const PRODUCTOS: Producto[] = [
     caracteristicas: ["Marca CIU · 2 líneas x 12 salidas (expandible)", "Capacidad 7.2 ton/línea", "Incluye elevador y bancos de descanso"],
     precio: "$1,300,000 MXN",
     bono: "Ahorra ~28% vs. nueva ($1.8M).",
+  },
+  {
+    slug: "clasificadora-4x12-morron-mango-aguacate",
+    nombre: "Clasificadora morrón, mango, cebolla y aguacate — 4 líneas x 12 salidas",
+    categoria: "Líneas de empaque usadas",
+    imagen: "/productos/clasificadora-4x12-morron-1.jpg",
+    galeria: [
+      "/productos/clasificadora-4x12-morron-2.jpg",
+      "/productos/clasificadora-4x12-morron-3.jpg",
+      "/productos/clasificadora-4x12-morron-4.jpg",
+      "/productos/clasificadora-4x12-morron-5.jpg",
+      "/productos/clasificadora-4x12-morron-6.jpg",
+      "/productos/clasificadora-4x12-morron-7.jpg",
+      "/productos/clasificadora-4x12-morron-8.jpg",
+      "/productos/clasificadora-4x12-morron-9.jpg",
+      "/productos/clasificadora-4x12-morron-10.jpg",
+      "/productos/clasificadora-4x12-morron-11.jpg",
+    ],
+    paraQuien:
+      "Empacadoras de chile morrón, mango, cebolla o aguacate que clasifican a mano y quieren pasar a clasificación automática por peso, sin pagar precio de una nueva.",
+    beneficio:
+      "Clasifica por peso; incluye elevador con mesa de selección manual (para sacar segunda calidad), 2 bandas de bajada para dirigir la fruta a un bin, básculas, transportadores de caja vacía y llena, y caseta de vigilancia.",
+    caracteristicas: ["Marca CIU · 4 líneas x 12 salidas", "Semi-nueva · Solo 1 temporada de uso", "Incluye caseta de vigilancia"],
+    precio: "$3,500,000 MXN",
+    facilidades: "Incluye instalación en Sinaloa o Sonora (aplican restricciones; se revisa antes de autorizar).",
   },
 ];
 
