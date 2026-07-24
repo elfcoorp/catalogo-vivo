@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
+import { CONFIG } from "@/lib/config";
+import { PRODUCTOS } from "@/lib/productos";
+import { BotonPdf } from "@/components/catalogo/BotonPdf";
 
 /** Barra bajo el encabezado: compartir el catálogo y descargarlo en PDF. */
 export function BarraAcciones() {
@@ -33,9 +36,11 @@ export function BarraAcciones() {
         <Icon name={copiado ? "lucide:check" : "lucide:share-2"} size={18} />
         {copiado ? "¡Liga copiada!" : "Compartir catálogo"}
       </button>
-      <button onClick={() => window.print()} className="btn-ghost">
-        <Icon name="lucide:download" size={18} /> Descargar en PDF
-      </button>
+      <BotonPdf
+        productos={PRODUCTOS}
+        etiqueta="Descargar en PDF"
+        nombreArchivo={`catalogo-${CONFIG.marca.negocio}.pdf`}
+      />
       <Link href="/configurar" className="btn-ghost">
         <Icon name="lucide:settings-2" size={18} /> Es mío: configurarlo
       </Link>

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { MessageCircle } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
 import { GaleriaProducto } from "@/components/catalogo/GaleriaProducto";
+import { BotonPdf } from "@/components/catalogo/BotonPdf";
 import { ProductoCard } from "@/components/catalogo/ProductoCard";
 import { CONFIG } from "@/lib/config";
 import { PRODUCTOS, productoPorSlug } from "@/lib/productos";
@@ -95,9 +96,17 @@ export default async function FichaProducto({
             {producto.facilidades && <span className="text-ink-soft">· {producto.facilidades}</span>}
           </div>
 
-          <a href={href} target="_blank" rel="noopener noreferrer" className="btn-marca btn-wa mt-2 w-full sm:w-auto">
-            <MessageCircle size={22} /> Lo quiero
-          </a>
+          <div className="flex flex-wrap gap-3">
+            <a href={href} target="_blank" rel="noopener noreferrer" className="btn-marca btn-wa mt-2 w-full sm:w-auto">
+              <MessageCircle size={22} /> Lo quiero
+            </a>
+            <BotonPdf
+              productos={[producto]}
+              etiqueta="Compartir esta máquina en PDF"
+              nombreArchivo={`${producto.slug}.pdf`}
+              className="btn-ghost mt-2 w-full sm:w-auto"
+            />
+          </div>
         </div>
       </div>
 
