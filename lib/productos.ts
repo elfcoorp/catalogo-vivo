@@ -35,6 +35,14 @@ export const PRODUCTOS: Producto[] = [
     facilidades: "Pago de contado antes de embarque. No incluye instalación.",
     bono: "Te conectamos con técnico especializado para instalación.",
     destacado: true,
+    fichaTecnica: [
+      { etiqueta: "Paso de rodillo", valor: "1¼\"" },
+      { etiqueta: "Velocidad", valor: "Hasta 25 rodillos por segundo" },
+      { etiqueta: "Capacidad", valor: "700 kg/hora por línea (peso promedio 13 g por fruta)" },
+      { etiqueta: "Clasifica por", valor: "Medida, color y forma" },
+      { etiqueta: "Rango de medida", valor: "15-29 mm" },
+    ],
+    garantia: "Puedes venir a probar la máquina, previa cita. La subimos a tus camiones antes del pago — hasta que la veas cargada y lista, depositas y te la llevas.",
   },
   {
     slug: "linea-citricos",
@@ -56,6 +64,19 @@ export const PRODUCTOS: Producto[] = [
     caracteristicas: ["Marca SIAI · Todo en acero inoxidable", "Calibrador de tubos ajustables", "Semi-nueva · Solo 1 temporada de uso"],
     precio: "$4,500,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. Sin instalar.",
+    fichaTecnica: [
+      { etiqueta: "Volteadora de bins (ancho)", valor: "51\" · 450 kg/minuto" },
+      { etiqueta: "Selección manual", valor: "4 x 1.7 m" },
+      { etiqueta: "Descanicador fijo", valor: "2.5 x 1.8 m" },
+      { etiqueta: "Cepilladora de lavado", valor: "4.8 x 1.5 m" },
+      { etiqueta: "Secado de lavado", valor: "4 x 1.5 m y 4.47 x 1.5 m" },
+      { etiqueta: "Cepilladora de encerado", valor: "2.23 x 1.5 m" },
+      { etiqueta: "Secado de encerado", valor: "7.4 x 1.5 m" },
+      { etiqueta: "Selección manual (jugo)", valor: "6 x 1.5 m" },
+      { etiqueta: "Calibrador de tubos", valor: "6.2 x 2 m" },
+      { etiqueta: "Bandas distribuidoras", valor: "16.1 x 0.92 m y 7.85 x 0.92 m" },
+    ],
+    garantia: "Puedes venir a probar la máquina, previa cita. La subimos a tus camiones antes del pago — hasta que la veas cargada y lista, depositas y te la llevas.",
   },
   {
     slug: "clasificadora-6-lineas",
@@ -78,6 +99,14 @@ export const PRODUCTOS: Producto[] = [
     precio: "$1,500,000 MXN",
     facilidades: "Pago de contado antes de embarque. Sin instalación.",
     bono: "Incluye caseta de vigilancia.",
+    fichaTecnica: [
+      { etiqueta: "Tipo", valor: "Clasificadora de charolas 7½\"" },
+      { etiqueta: "Velocidad", valor: "Hasta 3.5 tazas por segundo" },
+      { etiqueta: "Capacidad nominal", valor: "4 ton/hora por línea (peso promedio 450 g por fruta)" },
+      { etiqueta: "Clasifica por", valor: "Peso, medida, color y forma" },
+      { etiqueta: "Rango de medida", valor: "85-150 mm" },
+    ],
+    garantia: "Puedes venir a probar la máquina, previa cita. La subimos a tus camiones antes del pago — hasta que la veas cargada y lista, depositas y te la llevas.",
   },
   {
     slug: "linea-tomate-roma-bola",
@@ -98,6 +127,14 @@ export const PRODUCTOS: Producto[] = [
       "Clasifica por tamaño y color; incluye singulador, cepilladora, elevador con base para caja llena y bancos para cajas ya empacadas.",
     caracteristicas: ["Marca CIU · 2 líneas x 12 salidas (expandible)", "Capacidad 7.2 ton/línea", "Incluye elevador y bancos de descanso"],
     precio: "$1,300,000 MXN",
+    fichaTecnica: [
+      { etiqueta: "Paso de rodillo", valor: "3¾\" (sin peso)" },
+      { etiqueta: "Velocidad", valor: "Hasta 12 rodillos por segundo" },
+      { etiqueta: "Capacidad", valor: "~7.2 ton/hora por línea (ajustado a fruta de 280 g, 60% de llenado)" },
+      { etiqueta: "Clasifica por", valor: "Medida, color y forma" },
+      { etiqueta: "Rango de medida", valor: "54-86 mm" },
+    ],
+    garantia: "Puedes venir a probar la máquina, previa cita. La subimos a tus camiones antes del pago — hasta que la veas cargada y lista, depositas y te la llevas.",
   },
   {
     slug: "clasificadora-4x12-morron-mango-aguacate",
@@ -123,6 +160,14 @@ export const PRODUCTOS: Producto[] = [
     caracteristicas: ["Marca CIU · 4 líneas x 12 salidas", "Semi-nueva · Solo 1 temporada de uso", "Incluye caseta de vigilancia"],
     precio: "$3,500,000 MXN",
     facilidades: "Incluye instalación en Sinaloa o Sonora (aplican restricciones; se revisa antes de autorizar).",
+    fichaTecnica: [
+      { etiqueta: "Paso de rodillo", valor: "4½\" (con peso)" },
+      { etiqueta: "Velocidad", valor: "Hasta 9 rodillos por segundo" },
+      { etiqueta: "Capacidad", valor: "8 ton/hora por línea (peso promedio 400 g por fruta)" },
+      { etiqueta: "Clasifica por", valor: "Solo peso (sin cámaras: no clasifica color, defecto ni forma)" },
+      { etiqueta: "Rango de medida", valor: "58-103 mm" },
+    ],
+    garantia: "Puedes venir a probar la máquina, previa cita. La subimos a tus camiones antes del pago — hasta que la veas cargada y lista, depositas y te la llevas.",
   },
 ];
 

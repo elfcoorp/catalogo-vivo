@@ -80,6 +80,13 @@ export default async function FichaProducto({
 
           {producto.prueba && <p className="italic text-ink-mute">{producto.prueba}</p>}
 
+          {producto.garantia && (
+            <p className="flex items-start gap-1.5 text-sm text-ink-soft">
+              <Icon name="lucide:shield-check" size={15} className="mt-0.5 shrink-0 text-marca" />
+              {producto.garantia}
+            </p>
+          )}
+
           {producto.bono && (
             <div
               className="rounded-2xl border px-4 py-3"
