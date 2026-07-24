@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { GaleriaProducto } from "@/components/catalogo/GaleriaProducto";
 import { BotonPdf } from "@/components/catalogo/BotonPdf";
 import { BotonCompartirLink } from "@/components/catalogo/BotonCompartirLink";
+import { FichaTecnica } from "@/components/catalogo/FichaTecnica";
 import { ProductoCard } from "@/components/catalogo/ProductoCard";
 import { CONFIG } from "@/lib/config";
 import { PRODUCTOS, productoPorSlug } from "@/lib/productos";
@@ -111,6 +112,8 @@ export default async function FichaProducto({
           </div>
         </div>
       </div>
+
+      {producto.fichaTecnica && <FichaTecnica datos={producto.fichaTecnica} />}
 
       {/* Relacionados */}
       {relacionados.length > 0 && (

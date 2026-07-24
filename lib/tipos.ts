@@ -90,6 +90,12 @@ export interface Producto {
   prueba?: string;
   /** Marca el producto estrella de su categoría ("el más vendido"). */
   destacado?: boolean;
+  /**
+   * Ficha técnica estilo fabricante (dimensiones, potencia, capacidad, peso, etc.)
+   * para el comprador técnico que quiere verificar datos duros. Opcional — aparece
+   * como sección aparte, no cuenta contra el máximo de 3 `caracteristicas`.
+   */
+  fichaTecnica?: { etiqueta: string; valor: string }[];
 }
 
 /** La configuración completa del catálogo. */
