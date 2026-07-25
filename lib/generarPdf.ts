@@ -1,94 +1,271 @@
 import { jsPDF } from "jspdf";
 import type { Config, Producto } from "./tipos";
 
-async function imagenABase64(src: string): Promise<string | null> {
+interface ImagenCargada {
+  data: string;
+  formato: "JPEG" | "PNG";
+}
+
+async function cargarImagen(src: string): Promise<ImagenCargada | null> {
   try {
     const res = await fetch(src);
     const blob = await res.blob();
-    return await new Promise((resolve, reject) => {
+    const formato = blob.type.includes("png") ? "PNG" : "JPEG";
+    const data = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
+    return { data, formato };
   } catch {
     return null;
   }
 }
 
-/** Arma un PDF real del catálogo (marca + productos) para descargar o compartir. */
+function hexARgb(hex: string): [number, number, number] {
+  const limpio = hex.replace("#", "");
+  return [
+    parseInt(limpio.slice(0, 2), 16),
+    parseInt(limpio.slice(2, 4), 16),
+    parseInt(limpio.slice(4, 6), 16),
+  ];
+}
+
+const ALTO_PIE = 20;
+
+/** Arma un PDF real (marca + ficha completa de cada producto) para descargar o compartir. */
 export async function generarCatalogoPdf(config: Config, productos: Producto[], nombreArchivo?: string): Promise<File> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
-  const marginX = 15;
-  const imgSize = 38;
-  let y = 20;
+  const marginX = 16;
+  const contentWidth = pageWidth - marginX * 2;
+  const bottomLimit = pageHeight - ALTO_PIE - 8;
+  const [pr, pg, pb] = hexARgb(config.marca.primario);
+  const [sr, sg, sb] = hexARgb(config.marca.secundario);
+  let y = 0;
 
-  doc.setFontSize(22);
-  doc.setTextColor(0);
-  doc.text(config.marca.negocio, pageWidth / 2, y, { align: "center" });
-  y += 8;
-
-  doc.setFontSize(11);
-  doc.setTextColor(90);
-  const descLines = doc.splitTextToSize(config.marca.descripcion, pageWidth - marginX * 2);
-  doc.text(descLines, pageWidth / 2, y, { align: "center" });
-  y += descLines.length * 5 + 10;
-
-  for (const p of productos) {
-    if (y + imgSize + 15 > pageHeight - 15) {
-      doc.addPage();
-      y = 20;
-    }
-
-    const imgData = p.imagen ? await imagenABase64(p.imagen) : null;
-    if (imgData) {
-      try {
-        doc.addImage(imgData, "JPEG", marginX, y, imgSize, imgSize);
-      } catch {
-        /* si la imagen falla, seguimos sin ella */
-      }
-    }
-
-    const textX = marginX + imgSize + 6;
-    const textWidth = pageWidth - textX - marginX;
-    let ty = y + 5;
-
-    doc.setFontSize(9);
-    doc.setTextColor(120);
-    doc.text(p.categoria.toUpperCase(), textX, ty);
-    ty += 6;
-
-    doc.setFontSize(13);
-    doc.setTextColor(0);
-    const nombreLines = doc.splitTextToSize(p.nombre, textWidth);
-    doc.text(nombreLines, textX, ty);
-    ty += nombreLines.length * 6;
-
-    doc.setFontSize(9);
-    doc.setTextColor(80);
-    const beneficioLines = doc.splitTextToSize(p.beneficio, textWidth).slice(0, 2);
-    doc.text(beneficioLines, textX, ty);
-    ty += beneficioLines.length * 4.5 + 3;
-
-    doc.setFontSize(13);
-    doc.setTextColor(0);
-    doc.text(p.precio, textX, ty);
-
-    y += imgSize + 12;
-    doc.setDrawColor(225);
-    doc.line(marginX, y - 6, pageWidth - marginX, y - 6);
-  }
-
-  if (y + 10 > pageHeight - 10) {
+  function nuevaPagina() {
     doc.addPage();
     y = 20;
   }
-  doc.setFontSize(10);
-  doc.setTextColor(90);
-  const pie = [`Pide por WhatsApp: ${config.marca.whatsappPrincipal}`, config.marca.ciudad].filter(Boolean).join(" · ");
-  doc.text(pie, pageWidth / 2, y + 4, { align: "center" });
+
+  function espacioDisponible(alto: number) {
+    if (y + alto > bottomLimit) nuevaPagina();
+  }
+
+  const logo = config.marca.logo ? await cargarImagen(config.marca.logo) : null;
+
+  function encabezadoMarca() {
+    y = 16;
+    if (logo) {
+      const alto = 16;
+      const ancho = alto; // el logo es cuadrado
+      try {
+        doc.addImage(logo.data, logo.formato, pageWidth / 2 - ancho / 2, y, ancho, alto);
+      } catch {
+        /* si falla, seguimos sin logo */
+      }
+      y += alto + 4;
+    } else {
+      doc.setFontSize(20);
+      doc.setTextColor(pr, pg, pb);
+      doc.text(config.marca.negocio, pageWidth / 2, y + 6, { align: "center" });
+      y += 12;
+    }
+    doc.setDrawColor(sr, sg, sb);
+    doc.setLineWidth(0.6);
+    doc.line(marginX, y, pageWidth - marginX, y);
+    y += 8;
+  }
+
+  for (let i = 0; i < productos.length; i++) {
+    const p = productos[i];
+    if (i === 0) {
+      encabezadoMarca();
+    } else {
+      nuevaPagina();
+      encabezadoMarca();
+    }
+
+    // Categoría + nombre
+    doc.setFontSize(9.5);
+    doc.setTextColor(sr, sg, sb);
+    doc.text(p.categoria.toUpperCase(), marginX, y);
+    y += 7;
+
+    doc.setFontSize(18);
+    doc.setTextColor(20, 20, 20);
+    const nombreLines = doc.splitTextToSize(p.nombre, contentWidth);
+    doc.text(nombreLines, marginX, y);
+    y += nombreLines.length * 7.5 + 4;
+
+    // Galería completa de fotos, en cuadrícula
+    const fotos = [p.imagen, ...(p.galeria ?? [])].filter((f): f is string => Boolean(f));
+    if (fotos.length > 0) {
+      const columnas = 3;
+      const gap = 4;
+      const celda = (contentWidth - gap * (columnas - 1)) / columnas;
+      for (let idx = 0; idx < fotos.length; idx++) {
+        const col = idx % columnas;
+        if (col === 0) espacioDisponible(celda + gap);
+        const imgCargada = await cargarImagen(fotos[idx]);
+        const x = marginX + col * (celda + gap);
+        if (imgCargada) {
+          try {
+            doc.addImage(imgCargada.data, imgCargada.formato, x, y, celda, celda);
+          } catch {
+            /* si una foto falla, seguimos con las demás */
+          }
+        }
+        if (col === columnas - 1 || idx === fotos.length - 1) y += celda + gap;
+      }
+      y += 2;
+    }
+
+    // Para quién / beneficio
+    espacioDisponible(16);
+    doc.setFontSize(10.5);
+    doc.setTextColor(90, 90, 90);
+    const paraLines = doc.splitTextToSize(`Para ${p.paraQuien.replace(/^para\s+/i, "")}`, contentWidth);
+    doc.text(paraLines, marginX, y);
+    y += paraLines.length * 5 + 3;
+
+    espacioDisponible(14);
+    doc.setFontSize(12.5);
+    doc.setTextColor(20, 20, 20);
+    const beneficioLines = doc.splitTextToSize(p.beneficio, contentWidth);
+    doc.text(beneficioLines, marginX, y);
+    y += beneficioLines.length * 6 + 5;
+
+    // Características
+    espacioDisponible(6);
+    for (const c of p.caracteristicas) {
+      espacioDisponible(6);
+      doc.setFontSize(10.5);
+      doc.setTextColor(sr, sg, sb);
+      doc.text("✓", marginX, y);
+      doc.setTextColor(40, 40, 40);
+      const cLines = doc.splitTextToSize(c, contentWidth - 6);
+      doc.text(cLines, marginX + 6, y);
+      y += cLines.length * 5.2 + 1;
+    }
+    y += 3;
+
+    // Ficha técnica: filas numeradas con insignia verde, estilo cotización
+    if (p.fichaTecnica && p.fichaTecnica.length > 0) {
+      espacioDisponible(12);
+      doc.setFontSize(13);
+      doc.setTextColor(pr, pg, pb);
+      doc.text("Ficha técnica", marginX, y);
+      y += 8;
+
+      const badge = 7;
+      p.fichaTecnica.forEach((d, idx) => {
+        const valorLines = doc.splitTextToSize(d.valor, contentWidth - badge - 45);
+        const filaAlto = Math.max(valorLines.length * 5, badge) + 4;
+        espacioDisponible(filaAlto);
+
+        if (idx % 2 === 0) {
+          doc.setFillColor(240, 246, 236);
+          doc.rect(marginX, y, contentWidth, filaAlto, "F");
+        }
+
+        doc.setFillColor(sr, sg, sb);
+        doc.roundedRect(marginX + 2, y + filaAlto / 2 - badge / 2, badge, badge, 1.5, 1.5, "F");
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text(String(idx + 1), marginX + 2 + badge / 2, y + filaAlto / 2 + 1.3, { align: "center" });
+
+        doc.setFontSize(10);
+        doc.setTextColor(90, 90, 90);
+        doc.text(d.etiqueta, marginX + badge + 6, y + filaAlto / 2 + 1.3);
+
+        doc.setFontSize(10);
+        doc.setTextColor(30, 30, 30);
+        doc.text(valorLines, pageWidth - marginX - 2, y + filaAlto / 2 - (valorLines.length - 1) * 2.3 + 1.3, {
+          align: "right",
+        });
+
+        y += filaAlto;
+      });
+      y += 5;
+    }
+
+    // Garantía
+    if (p.garantia) {
+      const garantiaLines = doc.splitTextToSize(p.garantia, contentWidth - 8);
+      const alto = garantiaLines.length * 5 + 8;
+      espacioDisponible(alto);
+      doc.setFillColor(245, 249, 242);
+      doc.roundedRect(marginX, y, contentWidth, alto, 3, 3, "F");
+      doc.setFontSize(9.5);
+      doc.setTextColor(sr, sg, sb);
+      doc.text("✓ Garantía", marginX + 4, y + 5.5);
+      doc.setTextColor(60, 70, 55);
+      doc.text(garantiaLines, marginX + 4, y + 10.5);
+      y += alto + 6;
+    }
+
+    // Bono
+    if (p.bono) {
+      espacioDisponible(10);
+      doc.setFontSize(10);
+      doc.setTextColor(sr, sg, sb);
+      doc.text("Además:", marginX, y);
+      doc.setTextColor(60, 60, 60);
+      const bonoLines = doc.splitTextToSize(p.bono, contentWidth - 20);
+      doc.text(bonoLines, marginX + 20, y);
+      y += bonoLines.length * 5 + 4;
+    }
+
+    // Precio
+    espacioDisponible(14);
+    let px = marginX;
+    if (p.precioAntes) {
+      doc.setFontSize(11);
+      doc.setTextColor(160, 160, 160);
+      doc.text(p.precioAntes, px, y + 8);
+      px += doc.getTextWidth(p.precioAntes) + 5;
+    }
+    doc.setFontSize(20);
+    doc.setTextColor(20, 20, 20);
+    doc.text(p.precio, px, y + 8);
+    y += 12;
+    if (p.facilidades) {
+      doc.setFontSize(9.5);
+      doc.setTextColor(120, 120, 120);
+      const facLines = doc.splitTextToSize(p.facilidades, contentWidth);
+      doc.text(facLines, marginX, y);
+      y += facLines.length * 5;
+    }
+  }
+
+  // Pie de página verde, igual en todas las hojas
+  const totalPaginas = doc.getNumberOfPages();
+  for (let pagina = 1; pagina <= totalPaginas; pagina++) {
+    doc.setPage(pagina);
+    doc.setFillColor(pr, pg, pb);
+    doc.rect(0, pageHeight - ALTO_PIE, pageWidth, ALTO_PIE, "F");
+
+    doc.setFontSize(11);
+    doc.setTextColor(255, 255, 255);
+    doc.text(config.marca.negocio, marginX, pageHeight - ALTO_PIE / 2 - 2);
+
+    doc.setFontSize(8.5);
+    const contacto = [
+      `WhatsApp ${config.marca.whatsappPrincipal}`,
+      config.marca.ciudad,
+      config.marca.enlace && `catalogo-vivo-kappa.vercel.app`,
+    ]
+      .filter(Boolean)
+      .join("  ·  ");
+    doc.text(contacto, marginX, pageHeight - ALTO_PIE / 2 + 3);
+
+    doc.setFontSize(8);
+    doc.text(`${pagina}/${totalPaginas}`, pageWidth - marginX, pageHeight - ALTO_PIE / 2, { align: "right" });
+  }
 
   const blob = doc.output("blob");
   return new File([blob], nombreArchivo ?? `catalogo-${config.marca.negocio}.pdf`, { type: "application/pdf" });
