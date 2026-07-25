@@ -1,5 +1,4 @@
 import { MarcaHeader } from "@/components/catalogo/MarcaHeader";
-import { BarraAcciones } from "@/components/catalogo/BarraAcciones";
 import { CatalogoGrid } from "@/components/catalogo/CatalogoGrid";
 import { Pie } from "@/components/catalogo/Pie";
 
@@ -16,7 +15,6 @@ export default async function Home({
   return (
     <main className="min-h-screen">
       <MarcaHeader />
-      <BarraAcciones />
       <CatalogoGrid vendedorSlug={v ?? null} />
       <Pie />
     </main>

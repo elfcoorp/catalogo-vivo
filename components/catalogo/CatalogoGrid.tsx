@@ -16,36 +16,39 @@ export function CatalogoGrid({ vendedorSlug }: CatalogoGridProps) {
   const [filtro, setFiltro] = useState<string>("Todas");
   const [expandidas, setExpandidas] = useState<Record<string, boolean>>({});
 
-  // Une el orden de config con cualquier categoría real de los productos,
-  // para que nunca quede un producto huérfano (catálogo vacío).
-  const categoriasReales = Array.from(
-    new Set([...CONFIG.categorias, ...PRODUCTOS.map((p) => p.categoria)])
+  // Solo categorías que de verdad tienen productos — una categoría vacía
+  // (ej. "Servicios" sin nada cargado todavía) no sirve como filtro.
+  const categoriasReales = Array.from(new Set(PRODUCTOS.map((p) => p.categoria))).sort(
+    (a, b) => CONFIG.categorias.indexOf(a) - CONFIG.categorias.indexOf(b)
   );
   const categorias = ["Todas", ...categoriasReales];
   const visibles = filtro === "Todas" ? categoriasReales : [filtro];
+  const mostrarFiltro = categoriasReales.length > 1;
 
   return (
     <section className="mx-auto max-w-6xl px-5 pb-24">
-      {/* Filtro por categoría */}
-      <div className="mb-10 flex flex-wrap justify-center gap-2 no-print">
-        {categorias.map((cat) => {
-          const activa = filtro === cat;
-          return (
-            <button
-              key={cat}
-              onClick={() => setFiltro(cat)}
-              className="rounded-full border px-4 py-2 text-sm font-medium transition"
-              style={
-                activa
-                  ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
-                  : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
-              }
-            >
-              {cat}
-            </button>
-          );
-        })}
-      </div>
+      {/* Filtro por categoría (solo si hay más de una con productos) */}
+      {mostrarFiltro && (
+        <div className="mb-10 flex flex-wrap justify-center gap-2 no-print">
+          {categorias.map((cat) => {
+            const activa = filtro === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => setFiltro(cat)}
+                className="rounded-full border px-4 py-2 text-sm font-medium transition"
+                style={
+                  activa
+                    ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
+                    : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                }
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Secciones por categoría */}
       <div className="flex flex-col gap-14">
