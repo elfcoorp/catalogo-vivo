@@ -96,14 +96,15 @@ export const PRODUCTOS: Producto[] = [
       "Empacadoras de mango, chile morrón o aguacate que clasifican a mano y quieren pasar a clasificación automática por peso, sin pagar precio de una nueva.",
     beneficio:
       "Clasifica por peso con singulador de cepillos; motor, cadenas, cableado y sistema de pesaje nuevos.",
-    caracteristicas: ["Marca CIU · 6 líneas x 12 salidas x 1 de error", "Capacidad 1.9 ton/hora", "Motor nuevo, apto para salidas adicionales"],
+    caracteristicas: ["Marca CIU · 6 líneas x 12 salidas x 1 de error", "Capacidad 2.5 ton/línea", "Pintura electrostática nueva (gris)"],
     precio: "$1,500,000 MXN",
     facilidades: "Pago de contado antes de embarque. Sin instalación.",
     bono: "Incluye caseta de vigilancia.",
     fichaTecnica: [
       { etiqueta: "Tipo", valor: "Clasificadora de charolas 7½\"" },
+      { etiqueta: "Acabado", valor: "Pintura electrostática nueva, color gris" },
       { etiqueta: "Velocidad", valor: "3 tazas por segundo (equipo usado; nueva corre ~4.5)" },
-      { etiqueta: "Capacidad nominal", valor: "4 ton/hora por línea (peso promedio 450 g por fruta)" },
+      { etiqueta: "Capacidad", valor: "2.5 ton/línea" },
       { etiqueta: "Clasifica por", valor: "Solo medida" },
       { etiqueta: "Rango de medida", valor: "85-150 mm" },
     ],
