@@ -35,10 +35,7 @@ export default function Imprimir() {
               <p className="text-[11px] font-semibold uppercase tracking-wide text-marca">{p.categoria}</p>
               <h3 className="font-display text-lg leading-tight">{p.nombre}</h3>
               <p className="mt-1 text-xs text-ink-soft line-clamp-2">{p.beneficio}</p>
-              <div className="mt-auto flex items-baseline gap-2 pt-2">
-                {p.precioAntes && <span className="text-xs text-ink-mute line-through">{p.precioAntes}</span>}
-                <span className="font-display text-xl font-semibold">{p.precio}</span>
-              </div>
+              <p className="mt-auto pt-2 text-xs text-ink-mute">Precio y disponibilidad: pregunta por WhatsApp.</p>
             </div>
           </article>
         ))}

@@ -60,7 +60,7 @@ export async function generarCatalogoPdf(config: Config, productos: Producto[], 
   function encabezadoMarca() {
     y = 16;
     if (logo) {
-      const alto = 16;
+      const alto = 22;
       const ancho = alto; // el logo es cuadrado
       try {
         doc.addImage(logo.data, logo.formato, pageWidth / 2 - ancho / 2, y, ancho, alto);
@@ -101,27 +101,19 @@ export async function generarCatalogoPdf(config: Config, productos: Producto[], 
     doc.text(nombreLines, marginX, y);
     y += nombreLines.length * 7.5 + 4;
 
-    // Galería completa de fotos, en cuadrícula
-    const fotos = [p.imagen, ...(p.galeria ?? [])].filter((f): f is string => Boolean(f));
-    if (fotos.length > 0) {
-      const columnas = 3;
-      const gap = 4;
-      const celda = (contentWidth - gap * (columnas - 1)) / columnas;
-      for (let idx = 0; idx < fotos.length; idx++) {
-        const col = idx % columnas;
-        if (col === 0) espacioDisponible(celda + gap);
-        const imgCargada = await cargarImagen(fotos[idx]);
-        const x = marginX + col * (celda + gap);
-        if (imgCargada) {
-          try {
-            doc.addImage(imgCargada.data, imgCargada.formato, x, y, celda, celda);
-          } catch {
-            /* si una foto falla, seguimos con las demás */
-          }
+    // Solo la foto principal (compacta): la galería completa ya se ve en la página web
+    if (p.imagen) {
+      const lado = 42;
+      espacioDisponible(lado + 4);
+      const imgCargada = await cargarImagen(p.imagen);
+      if (imgCargada) {
+        try {
+          doc.addImage(imgCargada.data, imgCargada.formato, marginX, y, lado, lado);
+        } catch {
+          /* si la foto falla, seguimos sin ella */
         }
-        if (col === columnas - 1 || idx === fotos.length - 1) y += celda + gap;
       }
-      y += 2;
+      y += lado + 4;
     }
 
     // Para quién / beneficio
@@ -153,44 +145,58 @@ export async function generarCatalogoPdf(config: Config, productos: Producto[], 
     }
     y += 3;
 
-    // Ficha técnica: filas numeradas con insignia verde, estilo cotización
+    // Ficha técnica: 2 columnas, compacta, para caber en 1 hoja aunque tenga muchos datos
     if (p.fichaTecnica && p.fichaTecnica.length > 0) {
       espacioDisponible(12);
       doc.setFontSize(13);
       doc.setTextColor(pr, pg, pb);
       doc.text("Ficha técnica", marginX, y);
-      y += 8;
+      y += 7;
 
-      const badge = 7;
+      const badge = 6;
+      const gapCol = 6;
+      const colWidth = (contentWidth - gapCol) / 2;
+      const colX = [marginX, marginX + colWidth + gapCol];
+      const textWidth = colWidth - badge - 4;
+      let yCol = [y, y];
+
+      function nuevaPaginaFicha() {
+        nuevaPagina();
+        yCol = [y, y];
+      }
+
       p.fichaTecnica.forEach((d, idx) => {
-        const valorLines = doc.splitTextToSize(d.valor, contentWidth - badge - 45);
-        const filaAlto = Math.max(valorLines.length * 5, badge) + 4;
-        espacioDisponible(filaAlto);
+        const etiquetaLines = doc.splitTextToSize(d.etiqueta, textWidth);
+        const valorLines = doc.splitTextToSize(d.valor, textWidth);
+        const altoEtiqueta = Math.max(etiquetaLines.length * 3.6, badge);
+        const filaAlto = altoEtiqueta + valorLines.length * 3.4 + 4;
 
-        if (idx % 2 === 0) {
-          doc.setFillColor(240, 246, 236);
-          doc.rect(marginX, y, contentWidth, filaAlto, "F");
+        const col = yCol[0] <= yCol[1] ? 0 : 1;
+        if (yCol[col] + filaAlto > bottomLimit) {
+          nuevaPaginaFicha();
         }
 
+        const x = colX[col];
+        const yy = yCol[col];
+
         doc.setFillColor(sr, sg, sb);
-        doc.roundedRect(marginX + 2, y + filaAlto / 2 - badge / 2, badge, badge, 1.5, 1.5, "F");
-        doc.setFontSize(9);
+        doc.roundedRect(x, yy, badge, badge, 1.3, 1.3, "F");
+        doc.setFontSize(7);
         doc.setTextColor(255, 255, 255);
-        doc.text(String(idx + 1), marginX + 2 + badge / 2, y + filaAlto / 2 + 1.3, { align: "center" });
+        doc.text(String(idx + 1), x + badge / 2, yy + badge / 2 + 1, { align: "center" });
 
-        doc.setFontSize(10);
-        doc.setTextColor(90, 90, 90);
-        doc.text(d.etiqueta, marginX + badge + 6, y + filaAlto / 2 + 1.3);
+        doc.setFontSize(8.5);
+        doc.setTextColor(sr, sg, sb);
+        doc.text(etiquetaLines, x + badge + 3, yy + 3.4);
 
-        doc.setFontSize(10);
-        doc.setTextColor(30, 30, 30);
-        doc.text(valorLines, pageWidth - marginX - 2, y + filaAlto / 2 - (valorLines.length - 1) * 2.3 + 1.3, {
-          align: "right",
-        });
+        doc.setFontSize(7.5);
+        doc.setTextColor(70, 70, 70);
+        doc.text(valorLines, x + badge + 3, yy + altoEtiqueta + 3);
 
-        y += filaAlto;
+        yCol[col] = yy + filaAlto;
       });
-      y += 5;
+
+      y = Math.max(yCol[0], yCol[1]) + 5;
     }
 
     // Garantía
@@ -220,26 +226,12 @@ export async function generarCatalogoPdf(config: Config, productos: Producto[], 
       y += bonoLines.length * 5 + 4;
     }
 
-    // Precio
-    espacioDisponible(14);
-    let px = marginX;
-    if (p.precioAntes) {
-      doc.setFontSize(11);
-      doc.setTextColor(160, 160, 160);
-      doc.text(p.precioAntes, px, y + 8);
-      px += doc.getTextWidth(p.precioAntes) + 5;
-    }
-    doc.setFontSize(20);
-    doc.setTextColor(20, 20, 20);
-    doc.text(p.precio, px, y + 8);
-    y += 12;
-    if (p.facilidades) {
-      doc.setFontSize(9.5);
-      doc.setTextColor(120, 120, 120);
-      const facLines = doc.splitTextToSize(p.facilidades, contentWidth);
-      doc.text(facLines, marginX, y);
-      y += facLines.length * 5;
-    }
+    // Precio: no se imprime (puede cambiar según demanda) — se pide por WhatsApp
+    espacioDisponible(10);
+    doc.setFontSize(11.5);
+    doc.setTextColor(pr, pg, pb);
+    doc.text(`Precio y disponibilidad: pregunta por WhatsApp ${config.marca.whatsappPrincipal}`, marginX, y + 4);
+    y += 10;
   }
 
   // Pie de página verde, igual en todas las hojas

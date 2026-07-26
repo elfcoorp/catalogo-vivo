@@ -99,10 +99,13 @@ export default async function FichaProducto({
             </div>
           )}
 
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pt-2">
-            {producto.precioAntes && <span className="text-lg text-ink-mute line-through">{producto.precioAntes}</span>}
-            <span className="font-display text-4xl font-semibold">{producto.precio}</span>
-            {producto.facilidades && <span className="text-ink-soft">· {producto.facilidades}</span>}
+          <div className="flex flex-col gap-1 pt-2">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              {producto.precioAntes && <span className="text-lg text-ink-mute line-through">{producto.precioAntes}</span>}
+              <span className="font-display text-4xl font-semibold">{producto.precio}</span>
+              {producto.facilidades && <span className="text-ink-soft">· {producto.facilidades}</span>}
+            </div>
+            <span className="text-sm text-ink-mute">Precio sujeto a cambios sin previo aviso.</span>
           </div>
 
           <div className="flex flex-wrap gap-3">
