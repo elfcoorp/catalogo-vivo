@@ -58,7 +58,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Clasificadora computarizada", valor: "Paso 1¼\", 4 líneas x 12 salidas @ 22½\" · Clasifica por tamaño y color, descarga a un solo lado, acero al carbón con pintura electrostática gris clásico, contacto en acero inoxidable 441, paros de emergencia, computadora y monitor LCD 19\", electrónica y software CIU, cámaras de color de alta velocidad, sistema de retorno de fruta no clasificada, motorreductor Sumitomo 2 HP con variador de velocidad, incluye no-break. No incluye compresor" },
       { etiqueta: "Tolva de recepción", valor: "0.90 m de ancho x 12 salidas a 22.5° · Acero al carbón, pintura electrostática gris clásico, dulona de 6 mm, puerta para llenado de cajas. No incluye instalación mecánica ni eléctrica" },
     ],
-    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (una pintura, una lámina, una pieza no esencial), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
+    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
   {
     slug: "linea-citricos",
@@ -101,7 +101,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Módulo para segunda calidad", valor: "2 transportadores de banda de 12\" de ancho x 7 ft de largo · Chasis en acero inoxidable y transmisión en acero negro" },
       { etiqueta: "Mesa giratoria de recepción", valor: "40\" de diámetro, para recepción del producto · Pared perimetral en lámina inoxidable, interior forrado con dulona de 6 mm, chasis en acero inoxidable y transmisión en acero negro" },
     ],
-    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (una pintura, una lámina, una pieza no esencial), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
+    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
   {
     slug: "clasificadora-6-lineas",
@@ -134,7 +134,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Singulador de cepillos", valor: "6 líneas x 3.05 m de longitud, para charolas @ 7.5\" · Acero al carbón, pintura electrostática, contacto en acero inoxidable" },
       { etiqueta: "Clasificadora computarizada", valor: "Descarga hacia ambos lados · Acero al carbón con pintura electrostática, contacto en acero inoxidable, paros de emergencia en ubicaciones estratégicas, computadora y monitor LCD 19\", electrónica y software CIU, sistema de protección a cortes de energía (no-break), motor trifásico 220-440V, incluye mesa de control. No incluye instalación eléctrica ni mecánica" },
     ],
-    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (una pintura, una lámina, una pieza no esencial), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
+    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
   {
     slug: "linea-tomate-roma-bola",
@@ -171,7 +171,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Tolva de recepción", valor: "1.20 m de ancho, 12 salidas a 22.5°" },
       { etiqueta: "Banco para llenado de caja", valor: "0.30 x 0.45 m (x12)" },
     ],
-    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (una pintura, una lámina, una pieza no esencial), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
+    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
   {
     slug: "clasificadora-4x12-morron-mango-aguacate",
@@ -209,7 +209,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Bandas de bajada (segunda calidad)", valor: "2 bandas con canjilones, ~4 m de largo (una de 1 pie de ancho, otra de 2 pies de ancho) · Contacto con la fruta en acero inoxidable, banda de PVC, canjilones de PVC o Nylamide. Bajan la segunda calidad de la mesa de selección hacia la segunda selección. No incluye la banda larga donde se selecciona la segunda calidad a mano" },
       { etiqueta: "Caseta de vigilancia", valor: "Incluida" },
     ],
-    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (una pintura, una lámina, una pieza no esencial), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
+    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
   {
     slug: "volteadora-bins-rochin",
@@ -225,24 +225,26 @@ export const PRODUCTOS: Producto[] = [
       "/productos/volteadora-bins-rochin-7.jpg",
     ],
     paraQuien:
-      "Empacadoras que ya trabajan con bins en campo (para no contar cubeta por cubeta y que la línea se llene más pareja que caja por caja) y necesitan vaciarlos rápido y sin riesgo, sin hacerlo a mano.",
+      "Empacadoras que todavía usan taras en campo y quieren dar el salto a bins: esta es tu oportunidad de dejar las taras, sin contar cubeta por cubeta y con un llenado de la línea de empaque más parejo.",
     beneficio:
-      "Voltea bins llenos de forma automática y continua: mientras uno se vacía en el tambor circular, hasta 3 más esperan en fila por sensor, y el bin ya vacío sale solo por gravedad a la banda de salida.",
-    caracteristicas: ["Marca Rochin · Nueva, nunca usada", "Capacidad: 3 bins en espera + 1 volteando", "Bin chico: no aplasta la fruta de abajo"],
+      "Voltea bins llenos de forma automática y continua, toda en acero inoxidable: mientras uno se vacía en el tambor circular, hasta 3 más esperan en fila por sensor, y los bins vacíos salen por un transportador de rodillos de gravedad.",
+    caracteristicas: ["Marca Rochin · Nueva, nunca usada", "Todo en acero inoxidable", "Programación remota, sin necesidad de técnico en planta"],
     precio: "$2,300,000 MXN",
     fichaTecnica: [
       { etiqueta: "Marca", valor: "Rochin" },
       { etiqueta: "Condición", valor: "Nueva, nunca usada" },
+      { etiqueta: "Material", valor: "Toda la máquina en acero inoxidable" },
       { etiqueta: "Mecanismo", valor: "Volteo circular · Entrada por cadena con sensor, salida por gravedad" },
-      { etiqueta: "Capacidad", valor: "3 bins en espera + 1 volteando" },
+      { etiqueta: "Programación", valor: "Remota, sin necesidad de que el técnico esté físicamente en la planta — útil en caso de apagón o crisis operativa durante temporada" },
+      { etiqueta: "Capacidad de rieles", valor: "3 bins llenos en espera (cadena + sensor) + 1 volteando + 3 bins vacíos en espera de salida (transportador de rodillos de gravedad, tubo inoxidable)" },
       { etiqueta: "Rendimiento", valor: "2 bins por minuto" },
       { etiqueta: "Requiere", valor: "Montacargas para cargar y descargar los bins" },
-      { etiqueta: "Banda de salida", valor: "Azul de PVC, 1.20 m de ancho x 1.50 m de largo, 1.20 m de alto del piso a la flecha" },
+      { etiqueta: "Banda de salida (producto)", valor: "Azul de PVC, 1.20 m de ancho x 1.50 m de largo, 1.20 m de alto del piso a la flecha" },
       { etiqueta: "Tamaño de fruta", valor: "Cualquier producto (jitomate, pepino, morrón, jalapeño, chile, etc.) de tamaño pepino o más chico. Al ser un bin chico, la fruta de abajo no se aplasta con el peso de la de arriba" },
       { etiqueta: "Dimensiones generales", valor: "8 m de largo x 3.70 m de ancho x 11 pies de alto (~3.35 m)" },
       { etiqueta: "Tablero eléctrico", valor: "Nuevo, con PLC y variadores Siemens" },
     ],
-    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (una pintura, una lámina, una pieza no esencial), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
+    garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
 ];
 
