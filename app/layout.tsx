@@ -4,14 +4,13 @@ import { CONFIG } from "@/lib/config";
 import { estiloMarca, claseTema } from "@/lib/marca";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://catalogo-vivo-gilt.vercel.app"),
+  metadataBase: new URL("https://catalogo-vivo-kappa.vercel.app"),
   title: `${CONFIG.marca.negocio} · Catálogo`,
   description: CONFIG.marca.descripcion,
   openGraph: {
     title: `${CONFIG.marca.negocio} · Catálogo`,
     description: CONFIG.marca.descripcion,
     type: "website",
-    images: [{ url: "/productos/vela.jpg", width: 1024, height: 1024, alt: CONFIG.marca.negocio }],
   },
 };
 

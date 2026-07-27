@@ -25,7 +25,7 @@ export function FotoProducto({ src, alt, className }: FotoProductoProps) {
         <img
           src={src}
           alt={alt}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
           loading="lazy"
           onError={() => setError(true)}
         />
