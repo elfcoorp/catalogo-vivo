@@ -217,7 +217,6 @@ export const PRODUCTOS: Producto[] = [
     categoria: "Líneas de empaque usadas",
     imagen: "/productos/volteadora-bins-rochin-4.jpg",
     galeria: [
-      "/productos/volteadora-bins-rochin-3.jpg",
       "/productos/volteadora-bins-rochin-2.jpg",
       "/productos/volteadora-bins-rochin-5.jpg",
       "/productos/volteadora-bins-rochin-6.jpg",
