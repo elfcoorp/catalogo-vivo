@@ -240,6 +240,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Rendimiento", valor: "2 bins por minuto" },
       { etiqueta: "Requiere", valor: "Montacargas para cargar y descargar los bins" },
       { etiqueta: "Banda de salida (producto)", valor: "Azul de PVC, 1.20 m de ancho x 1.50 m de largo, 1.20 m de alto del piso a la flecha" },
+      { etiqueta: "Bin compatible", valor: "1.20 x 1.20 m, 21½\" de alto · 544.3 litros de volumen interior" },
       { etiqueta: "Tamaño de fruta", valor: "Cualquier producto (jitomate, pepino, morrón, jalapeño, chile, etc.) de tamaño pepino o más chico. Al ser un bin chico, la fruta de abajo no se aplasta con el peso de la de arriba" },
       { etiqueta: "Dimensiones generales", valor: "8 m de largo x 3.70 m de ancho x 11 pies de alto (~3.35 m)" },
       { etiqueta: "Tablero eléctrico", valor: "Nuevo, con PLC y variadores Siemens" },
