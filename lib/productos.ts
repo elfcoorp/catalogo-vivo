@@ -215,9 +215,8 @@ export const PRODUCTOS: Producto[] = [
     slug: "volteadora-bins-rochin",
     nombre: "Volteadora de bins Rochin",
     categoria: "Líneas de empaque usadas",
-    imagen: "/productos/volteadora-bins-rochin-1.jpg",
+    imagen: "/productos/volteadora-bins-rochin-4.jpg",
     galeria: [
-      "/productos/volteadora-bins-rochin-4.jpg",
       "/productos/volteadora-bins-rochin-3.jpg",
       "/productos/volteadora-bins-rochin-2.jpg",
       "/productos/volteadora-bins-rochin-5.jpg",
