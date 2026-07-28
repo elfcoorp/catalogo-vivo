@@ -226,6 +226,35 @@ export async function generarCatalogoPdf(config: Config, productos: Producto[], 
       y += bonoLines.length * 5 + 4;
     }
 
+    // Fotos extra: si sobra espacio en la página actual, aprovechamos para mostrar más
+    const fotosExtra = (p.galeria ?? []).filter((f) => f !== p.imagen);
+    if (fotosExtra.length > 0) {
+      const celda = 36;
+      const gapFoto = 4;
+      const columnas = Math.max(1, Math.floor((contentWidth + gapFoto) / (celda + gapFoto)));
+      const espacioRestante = bottomLimit - y - 14; // deja lugar para la línea de precio/WhatsApp
+      const filasQueCaben = Math.floor((espacioRestante + gapFoto) / (celda + gapFoto));
+      const maxFotos = Math.min(fotosExtra.length, columnas * Math.max(0, filasQueCaben));
+
+      if (maxFotos > 0) {
+        y += 2;
+        for (let idx = 0; idx < maxFotos; idx++) {
+          const col = idx % columnas;
+          if (col === 0 && idx !== 0) y += celda + gapFoto;
+          const x = marginX + col * (celda + gapFoto);
+          const imgCargada = await cargarImagen(fotosExtra[idx]);
+          if (imgCargada) {
+            try {
+              doc.addImage(imgCargada.data, imgCargada.formato, x, y, celda, celda);
+            } catch {
+              /* si una foto falla, seguimos con las demás */
+            }
+          }
+        }
+        y += celda + gapFoto + 2;
+      }
+    }
+
     // Precio: no se imprime (puede cambiar según demanda) — se pide por WhatsApp
     espacioDisponible(10);
     doc.setFontSize(11.5);
