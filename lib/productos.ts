@@ -219,6 +219,8 @@ export const PRODUCTOS: Producto[] = [
     galeria: [
       "/productos/volteadora-bins-rochin-2.jpg",
       "/productos/volteadora-bins-rochin-5.jpg",
+      "/productos/volteadora-bins-rochin-1.jpg",
+      "/productos/volteadora-bins-rochin-3.jpg",
       "/productos/volteadora-bins-rochin-6.jpg",
       "/productos/volteadora-bins-rochin-7.jpg",
     ],
