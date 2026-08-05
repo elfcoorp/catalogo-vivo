@@ -132,6 +132,7 @@ export const PRODUCTOS: Producto[] = [
     slug: "linea-tomate-roma-bola",
     nombre: "Línea tomate roma / bola — Clasificadora 2 líneas x 12 salidas",
     categoria: "Líneas de empaque usadas",
+    plano: "/planos/linea-tomate-roma-bola.svg",
     imagen: "/productos/tomate-roma-bola.jpg",
     galeria: [
       "/productos/tomate-roma-bola-detalle-1.jpg",

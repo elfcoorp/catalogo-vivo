@@ -63,22 +63,7 @@ export default async function FichaProducto({
         {/* Info */}
         <div className="flex flex-col gap-4">
           <p className="text-sm font-semibold uppercase tracking-wide text-marca">{producto.categoria}</p>
-          <h1 className="font-display text-4xl font-semibold leading-tight sm:text-5xl">{producto.nombre}</h1>
-          <p className="text-lg text-ink-soft">
-            <span className="font-semibold text-ink">Para</span> {producto.paraQuien.replace(/^para\s+/i, "")}
-          </p>
-          <p className="text-xl leading-snug text-ink">{producto.beneficio}</p>
-
-          <ul className="flex flex-col gap-2">
-            {producto.caracteristicas.map((c) => (
-              <li key={c} className="flex items-start gap-2 text-ink-soft">
-                <Icon name="lucide:check" size={18} className="mt-0.5 shrink-0 text-marca" />
-                {c}
-              </li>
-            ))}
-          </ul>
-
-          {producto.prueba && <p className="italic text-ink-mute">{producto.prueba}</p>}
+          <h1 className="font-display text-4xl font-semibold uppercase leading-tight sm:text-5xl">{producto.nombre}</h1>
 
           {producto.garantia && (
             <p className="flex items-start gap-1.5 text-sm text-ink-soft">
@@ -87,23 +72,10 @@ export default async function FichaProducto({
             </p>
           )}
 
-          {producto.bono && (
-            <div
-              className="rounded-2xl border px-4 py-3"
-              style={{
-                background: "color-mix(in srgb, var(--marca-2) 12%, transparent)",
-                borderColor: "color-mix(in srgb, var(--marca-2) 30%, transparent)",
-              }}
-            >
-              <span className="font-semibold">Además te llevas:</span> {producto.bono}
-            </div>
-          )}
-
           <div className="flex flex-col gap-1 pt-2">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               {producto.precioAntes && <span className="text-lg text-ink-mute line-through">{producto.precioAntes}</span>}
               <span className="font-display text-4xl font-semibold">{producto.precio}</span>
-              {producto.facilidades && <span className="text-ink-soft">· {producto.facilidades}</span>}
             </div>
             <span className="text-sm text-ink-mute">Precio sujeto a cambios sin previo aviso.</span>
           </div>
@@ -124,6 +96,23 @@ export default async function FichaProducto({
       </div>
 
       {producto.fichaTecnica && <FichaTecnica datos={producto.fichaTecnica} />}
+
+      {producto.plano && (
+        <section className="mt-16">
+          <h2 className="mb-4 font-display text-2xl font-semibold">Plano de la máquina</h2>
+          <div className="overflow-hidden rounded-2xl border border-line bg-white">
+            <img
+              src={producto.plano}
+              alt={`Plano ELFCO de ${producto.nombre}`}
+              className="w-full select-none"
+              draggable={false}
+            />
+          </div>
+          <p className="mt-2 text-sm text-ink-mute">
+            Plano de referencia con marca ELFCO. El plano a detalle se entrega al concretar la compra.
+          </p>
+        </section>
+      )}
 
       {/* Relacionados */}
       {relacionados.length > 0 && (

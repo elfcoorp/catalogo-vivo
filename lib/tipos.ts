@@ -96,6 +96,12 @@ export interface Producto {
    * como sección aparte, no cuenta contra el máximo de 3 `caracteristicas`.
    */
   fichaTecnica?: { etiqueta: string; valor: string }[];
+  /**
+   * Plano ELFCO de la máquina (imagen en /public/planos, con marca de agua).
+   * Se muestra solo para ver en la ficha; el plano completo lo manda el vendedor
+   * cuando el cliente ya va en serio. Opcional.
+   */
+  plano?: string;
 }
 
 /** La configuración completa del catálogo. */

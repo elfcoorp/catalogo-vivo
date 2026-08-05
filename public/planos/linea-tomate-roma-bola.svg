@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" font-family="'Segoe UI', Arial, sans-serif">
+  <!-- Fondo y marco de plano -->
+  <rect x="0" y="0" width="1400" height="900" fill="#ffffff"/>
+  <rect x="18" y="18" width="1364" height="864" fill="none" stroke="#234" stroke-width="2"/>
+  <rect x="30" y="30" width="1340" height="840" fill="none" stroke="#234" stroke-width="1"/>
+
+  <!-- Marca de agua ELFCO -->
+  <g fill="#1E7A3D" opacity="0.06" font-weight="700" font-size="150" text-anchor="middle">
+    <text x="320" y="560" transform="rotate(-24 320 560)">ELFCO</text>
+    <text x="760" y="330" transform="rotate(-24 760 330)" font-size="95">ELFCO</text>
+    <text x="1030" y="470" transform="rotate(-24 1030 470)" font-size="95">ELFCO</text>
+  </g>
+
+  <!-- Encabezado -->
+  <text x="60" y="80" fill="#1E7A3D" font-size="30" font-weight="700">ELFCO</text>
+  <text x="165" y="80" fill="#234" font-size="15" font-weight="600" letter-spacing="1">TECNOLOGÍA POSTCOSECHA</text>
+  <text x="60" y="104" fill="#556" font-size="15">Plano de referencia — Línea de empaque para Tomate Roma / Bola</text>
+  <line x1="60" y1="118" x2="1150" y2="118" stroke="#1E7A3D" stroke-width="2"/>
+
+  <!-- ===== VISTA DE PLANTA EN ESCUADRA (L) ===== -->
+
+  <!-- Cota horizontal (tramo de alimentación) -->
+  <g stroke="#8a97a6" stroke-width="1" fill="#556" font-size="12">
+    <line x1="112" y1="150" x2="430" y2="150"/>
+    <line x1="112" y1="144" x2="112" y2="156"/>
+    <line x1="430" y1="144" x2="430" y2="156"/>
+    <text x="271" y="144" text-anchor="middle">5,579 mm</text>
+  </g>
+
+  <!-- Cota vertical (largo de la clasificadora) -->
+  <g stroke="#234" stroke-width="1" fill="#234" font-size="13">
+    <line x1="388" y1="250" x2="388" y2="752"/>
+    <line x1="381" y1="250" x2="395" y2="250"/>
+    <line x1="381" y1="752" x2="395" y2="752"/>
+    <text x="376" y="501" text-anchor="middle" font-weight="600" transform="rotate(-90 376 501)">18,745 mm</text>
+  </g>
+
+  <!-- TRAMO DE ALIMENTACIÓN (horizontal) -->
+  <g stroke="#26313d" stroke-width="1.6" fill="#eef3f7">
+    <!-- 1 Base -->
+    <rect x="112" y="200" width="44" height="44" rx="3"/>
+    <!-- 2-3 Elevador con andamio (inclinado) -->
+    <polygon points="156,236 268,200 292,212 180,248" fill="#e3edf3"/>
+    <!-- 4-5 Cepilladora -->
+    <rect x="300" y="200" width="112" height="44" rx="3"/>
+    <g stroke="#9fb1bf" stroke-width="1">
+      <line x1="310" y1="202" x2="310" y2="242"/><line x1="322" y1="202" x2="322" y2="242"/>
+      <line x1="334" y1="202" x2="334" y2="242"/><line x1="346" y1="202" x2="346" y2="242"/>
+      <line x1="358" y1="202" x2="358" y2="242"/><line x1="370" y1="202" x2="370" y2="242"/>
+      <line x1="382" y1="202" x2="382" y2="242"/><line x1="394" y1="202" x2="394" y2="242"/>
+    </g>
+  </g>
+  <!-- Transportador tramo alimentación -->
+  <line x1="156" y1="222" x2="418" y2="222" stroke="#26313d" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- 6 Banda transversal (la vuelta / esquina) -->
+  <rect x="416" y="200" width="80" height="52" rx="4" fill="#e3edf3" stroke="#26313d" stroke-width="1.6"/>
+
+  <!-- CLASIFICADORA (vertical, la vuelta en escuadra) -->
+  <g stroke="#26313d" stroke-width="1.6" fill="#eef3f7">
+    <!-- 7 Singulador en V -->
+    <rect x="430" y="252" width="66" height="78" rx="3"/>
+    <g stroke="#9fb1bf" stroke-width="1.2" fill="none">
+      <polyline points="434,258 463,300 492,258"/>
+      <polyline points="434,272 463,314 492,272"/>
+    </g>
+    <!-- 8-9 Clasificadora 2 líneas (cuerpo largo) -->
+    <rect x="430" y="330" width="66" height="422" rx="6" fill="#e3edf3"/>
+    <line x1="463" y1="330" x2="463" y2="752" stroke="#9fb1bf" stroke-width="1"/>
+  </g>
+
+  <!-- 10 Salidas (chutes hacia la derecha) -->
+  <g stroke="#26313d" stroke-width="1.3" fill="#cfe0d4">
+    <polygon points="496,338 496,358 516,348"/>
+    <polygon points="496,371 496,391 516,381"/>
+    <polygon points="496,404 496,424 516,414"/>
+    <polygon points="496,437 496,457 516,447"/>
+    <polygon points="496,470 496,490 516,480"/>
+    <polygon points="496,503 496,523 516,513"/>
+    <polygon points="496,536 496,556 516,546"/>
+    <polygon points="496,569 496,589 516,579"/>
+    <polygon points="496,602 496,622 516,612"/>
+    <polygon points="496,635 496,655 516,645"/>
+    <polygon points="496,668 496,688 516,678"/>
+    <polygon points="496,701 496,721 516,711"/>
+  </g>
+  <!-- 11 Bancos de llenado (x12) -->
+  <g stroke="#26313d" stroke-width="1.2" fill="#f4f7f9">
+    <rect x="522" y="335" width="28" height="26" rx="2"/>
+    <rect x="522" y="368" width="28" height="26" rx="2"/>
+    <rect x="522" y="401" width="28" height="26" rx="2"/>
+    <rect x="522" y="434" width="28" height="26" rx="2"/>
+    <rect x="522" y="467" width="28" height="26" rx="2"/>
+    <rect x="522" y="500" width="28" height="26" rx="2"/>
+    <rect x="522" y="533" width="28" height="26" rx="2"/>
+    <rect x="522" y="566" width="28" height="26" rx="2"/>
+    <rect x="522" y="599" width="28" height="26" rx="2"/>
+    <rect x="522" y="632" width="28" height="26" rx="2"/>
+    <rect x="522" y="665" width="28" height="26" rx="2"/>
+    <rect x="522" y="698" width="28" height="26" rx="2"/>
+  </g>
+
+  <!-- Globos de referencia -->
+  <g font-size="13" font-weight="700" text-anchor="middle">
+    <circle cx="134" cy="178" r="14" fill="#1E7A3D"/><text x="134" y="183" fill="#fff">1</text>
+    <circle cx="224" cy="178" r="14" fill="#1E7A3D"/><text x="224" y="183" fill="#fff">2-3</text>
+    <circle cx="356" cy="178" r="14" fill="#1E7A3D"/><text x="356" y="183" fill="#fff">4-5</text>
+    <circle cx="456" cy="178" r="14" fill="#1E7A3D"/><text x="456" y="183" fill="#fff">6</text>
+    <circle cx="398" cy="291" r="14" fill="#1E7A3D"/><text x="398" y="296" fill="#fff">7</text>
+    <circle cx="398" cy="541" r="14" fill="#1E7A3D"/><text x="398" y="546" fill="#fff">8-9</text>
+    <circle cx="590" cy="360" r="14" fill="#1E7A3D"/><text x="590" y="365" fill="#fff">10</text>
+    <circle cx="628" cy="360" r="14" fill="#1E7A3D"/><text x="628" y="365" fill="#fff">11</text>
+  </g>
+
+  <!-- ===== CUADRO DE MÁQUINAS (leyenda) ===== -->
+  <g font-size="14" fill="#26313d">
+    <text x="700" y="200" font-size="15" font-weight="700" fill="#1E7A3D">CUADRO DE MÁQUINAS</text>
+    <line x1="700" y1="210" x2="1320" y2="210" stroke="#c7d2dc" stroke-width="1"/>
+    <text x="700" y="238"><tspan font-weight="700">1.</tspan>  Base soporte para alimentación</text>
+    <text x="700" y="264"><tspan font-weight="700">2-3.</tspan>  Elevador 0.60 × 3.0 m con andamio a 15°</text>
+    <text x="700" y="290"><tspan font-weight="700">4-5.</tspan>  Cepilladora 0.60 m · 10 cepillos @ 115 mm, con charolas recolectoras</text>
+    <text x="700" y="316"><tspan font-weight="700">6.</tspan>  Banda transversal 12" × 2.0 m (vuelta de la línea)</text>
+    <text x="700" y="342"><tspan font-weight="700">7.</tspan>  Singulador de bandas en "V" · 2L × 3.0 m</text>
+    <text x="700" y="368"><tspan font-weight="700">8-9.</tspan>  Clasificadora 2 líneas × 12 salidas — por medida, color y forma</text>
+    <text x="700" y="394"><tspan font-weight="700">10.</tspan>  Tolva corrida de 12 salidas @ 22.5°</text>
+    <text x="700" y="420"><tspan font-weight="700">11.</tspan>  Banco para llenado de cajas 0.30 × 0.45 m (×12)</text>
+  </g>
+
+  <!-- ===== CUADRO DE ROTULACIÓN (title block) ===== -->
+  <g>
+    <rect x="900" y="560" width="440" height="290" fill="#ffffff" stroke="#234" stroke-width="1.5"/>
+    <rect x="900" y="560" width="440" height="54" fill="#1E7A3D"/>
+    <text x="920" y="595" fill="#fff" font-size="24" font-weight="700">ELFCO</text>
+    <text x="1015" y="588" fill="#fff" font-size="11" font-weight="600" letter-spacing="1">TECNOLOGÍA</text>
+    <text x="1015" y="602" fill="#fff" font-size="11" font-weight="600" letter-spacing="1">POSTCOSECHA</text>
+    <g font-size="13" fill="#26313d">
+      <text x="918" y="644"><tspan fill="#7a8894">PROYECTO:</tspan>  Línea de empaque</text>
+      <text x="918" y="668" font-weight="600">Tomate Roma / Bola</text>
+      <line x1="918" y1="684" x2="1322" y2="684" stroke="#dce3ea"/>
+      <text x="918" y="710"><tspan fill="#7a8894">EQUIPO:</tspan>  Clasificadora 2 líneas × 12 salidas</text>
+      <text x="918" y="734"><tspan fill="#7a8894">CLASIFICA POR:</tspan>  Medida, color y forma</text>
+      <text x="918" y="758"><tspan fill="#7a8894">LARGO CLASIFICADORA:</tspan>  18,745 mm</text>
+      <text x="918" y="782"><tspan fill="#7a8894">ESCALA:</tspan>  S/E     ·     <tspan fill="#7a8894">ACOTACIÓN:</tspan>  mm</text>
+      <line x1="918" y1="798" x2="1322" y2="798" stroke="#dce3ea"/>
+      <text x="918" y="824" font-size="12" fill="#7a8894">Documento de referencia — uso exclusivo ELFCO.</text>
+      <text x="918" y="840" font-size="12" fill="#7a8894">No apto para fabricación. Prohibida su reproducción.</text>
+    </g>
+  </g>
+</svg>

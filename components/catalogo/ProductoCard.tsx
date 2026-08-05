@@ -16,8 +16,8 @@ interface ProductoCardProps {
 }
 
 /**
- * La ficha que vende: sigue la anatomía (foto → para quién → beneficio →
- * 3 datos → prueba → precio con ancla → bono → una acción "Lo quiero").
+ * Tarjeta limpia y profesional: foto → nombre (en mayúsculas) →
+ * precio → una acción "Lo quiero". La ficha técnica va en el detalle.
  */
 export function ProductoCard({ producto, vendedorSlug }: ProductoCardProps) {
   const href = linkLoQuiero(CONFIG, producto, vendedorSlug);
@@ -59,62 +59,15 @@ export function ProductoCard({ producto, vendedorSlug }: ProductoCardProps) {
       {/* Cuerpo de la ficha */}
       <div className="flex flex-1 flex-col gap-3 p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-marca">{producto.categoria}</p>
-        <h3 className="font-display text-2xl leading-tight">{producto.nombre}</h3>
+        <h3 className="font-display text-2xl uppercase leading-tight">{producto.nombre}</h3>
 
-        {/* Para quién es (el "trabajo" que resuelve) */}
-        <p className="text-sm text-ink-soft">
-          <span className="font-semibold text-ink">Para</span> {quitarPara(producto.paraQuien)}
-        </p>
-
-        {/* El beneficio, en resultado */}
-        <p className="text-[15px] leading-snug text-ink">{producto.beneficio}</p>
-
-        {/* Las 3 que importan */}
-        <ul className="mt-1 flex flex-col gap-1.5">
-          {producto.caracteristicas.slice(0, 3).map((c) => (
-            <li key={c} className="flex items-start gap-2 text-sm text-ink-soft">
-              <Icon name="lucide:check" size={16} className="mt-0.5 shrink-0 text-marca" />
-              {c}
-            </li>
-          ))}
-        </ul>
-
-        {/* La prueba */}
-        {producto.prueba && (
-          <p className="text-sm text-ink-soft">{producto.prueba}</p>
-        )}
-
-        {/* El bono / lo que incluye */}
-        {producto.bono && (
-          <div
-            className="rounded-xl border px-3 py-2 text-sm"
-            style={{
-              background: "color-mix(in srgb, var(--marca-2) 12%, transparent)",
-              borderColor: "color-mix(in srgb, var(--marca-2) 30%, transparent)",
-            }}
-          >
-            <span className="font-semibold">Además te llevas:</span> {producto.bono}
-          </div>
-        )}
-
-        {/* La garantía: quita el miedo a comprar */}
-        {producto.garantia && (
-          <p className="flex items-start gap-1.5 text-sm text-ink-soft">
-            <Icon name="lucide:shield-check" size={15} className="mt-0.5 shrink-0 text-marca" />
-            {producto.garantia}
-          </p>
-        )}
-
-        {/* Precio con ancla + facilidades */}
+        {/* Precio con ancla */}
         <div className="mt-auto flex flex-col gap-0.5 pt-2">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
             {producto.precioAntes && (
               <span className="text-sm text-ink-mute line-through">{producto.precioAntes}</span>
             )}
             <span className="font-display text-3xl font-semibold text-ink">{producto.precio}</span>
-            {producto.facilidades && (
-              <span className="text-sm text-ink-soft">· {producto.facilidades}</span>
-            )}
           </div>
           <span className="text-xs text-ink-mute">Precio sujeto a cambios sin previo aviso.</span>
         </div>
@@ -140,9 +93,4 @@ export function ProductoCard({ producto, vendedorSlug }: ProductoCardProps) {
       </div>
     </motion.article>
   );
-}
-
-/** Evita "Para Para..." si el texto ya empieza con "Para". */
-function quitarPara(texto: string): string {
-  return texto.replace(/^para\s+/i, "");
 }
