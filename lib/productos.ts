@@ -248,6 +248,7 @@ export const PRODUCTOS: Producto[] = [
     nombre: "Clasificadora de pepino — 2 líneas x 7 salidas",
     categoria: "Líneas de empaque usadas",
     imagen: "/productos/clasificadora-pepino.jpg",
+    plano: "/planos/clasificadora-pepino-plano.png",
     galeria: [
       "/productos/clasificadora-pepino-detalle-1.jpg",
       "/productos/clasificadora-pepino-detalle-2.jpg",
@@ -308,7 +309,6 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Básculas", valor: "24 piezas de 100 kg, charola de 62 x 34 cm" },
       { etiqueta: "Transportador para caja llena (gravedad)", valor: "16\" de ancho" },
       { etiqueta: "Transportador de riel para caja vacía", valor: "16\" de ancho" },
-      { etiqueta: "Gabinete e instalación eléctrica", valor: "30 gabinetes de control y motores, instalación eléctrica/electrónica completa con cableado, tubería, charola y puesta en marcha" },
     ],
     garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
