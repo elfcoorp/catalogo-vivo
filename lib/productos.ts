@@ -277,13 +277,14 @@ export const PRODUCTOS: Producto[] = [
     slug: "linea-tomate-roma-4x24",
     nombre: "Línea completa para tomate Roma — Clasificadora 4 líneas x 24 salidas",
     categoria: "Líneas de empaque usadas",
-    imagen: "/productos/linea-tomate-roma-4x24.jpg",
+    imagen: "/productos/linea-tomate-roma-4x24-detalle-1.jpg",
+    plano: "/planos/linea-tomate-roma-4x24-plano.png",
     galeria: [
-      "/productos/linea-tomate-roma-4x24-detalle-1.jpg",
       "/productos/linea-tomate-roma-4x24-detalle-2.jpg",
       "/productos/linea-tomate-roma-4x24-detalle-3.jpg",
       "/productos/linea-tomate-roma-4x24-detalle-4.jpg",
       "/productos/linea-tomate-roma-4x24-detalle-5.jpg",
+      "/productos/linea-tomate-roma-4x24.jpg",
     ],
     paraQuien:
       "Empacadoras de tomate Roma que buscan una línea completa (selección, lavado, encerado, secado y clasificación) marca idepro, sin pagar precio de una línea nueva instalada.",
