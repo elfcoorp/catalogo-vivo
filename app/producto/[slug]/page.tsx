@@ -65,13 +65,6 @@ export default async function FichaProducto({
           <p className="text-sm font-semibold uppercase tracking-wide text-marca">{producto.categoria}</p>
           <h1 className="font-display text-4xl font-semibold uppercase leading-tight sm:text-5xl">{producto.nombre}</h1>
 
-          {producto.garantia && (
-            <p className="flex items-start gap-1.5 text-sm text-ink-soft">
-              <Icon name="lucide:shield-check" size={15} className="mt-0.5 shrink-0 text-marca" />
-              {producto.garantia}
-            </p>
-          )}
-
           <div className="flex flex-col gap-1 pt-2">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               {producto.precioAntes && <span className="text-lg text-ink-mute line-through">{producto.precioAntes}</span>}
@@ -99,18 +92,30 @@ export default async function FichaProducto({
 
       {producto.plano && (
         <section className="mt-16">
-          <h2 className="mb-4 font-display text-2xl font-semibold">Plano de la máquina</h2>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-display text-2xl font-semibold">Plano de la máquina</h2>
+            <a href={producto.plano} download className="btn-ghost inline-flex items-center gap-2 text-sm">
+              <Icon name="lucide:download" size={16} /> Descargar plano
+            </a>
+          </div>
           <div className="overflow-hidden rounded-2xl border border-line bg-white">
-            <img
-              src={producto.plano}
-              alt={`Plano ELFCO de ${producto.nombre}`}
-              className="w-full select-none"
-              draggable={false}
-            />
+            <img src={producto.plano} alt={`Plano ELFCO de ${producto.nombre}`} className="w-full" />
           </div>
           <p className="mt-2 text-sm text-ink-mute">
-            Plano de referencia con marca ELFCO. El plano a detalle se entrega al concretar la compra.
+            Plano de referencia ELFCO. El plano a detalle se entrega al concretar la compra.
           </p>
+        </section>
+      )}
+
+      {producto.garantia && (
+        <section
+          className="mt-16 rounded-2xl border border-line p-6 sm:p-7"
+          style={{ background: "color-mix(in srgb, var(--marca-2) 8%, transparent)" }}
+        >
+          <h2 className="mb-3 flex items-center gap-2 font-display text-2xl font-semibold">
+            <Icon name="lucide:shield-check" size={22} className="text-marca" /> Garantía
+          </h2>
+          <p className="text-ink-soft">{producto.garantia}</p>
         </section>
       )}
 
