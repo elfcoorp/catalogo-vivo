@@ -20,7 +20,11 @@ export default function Imprimir() {
       </div>
 
       {/* Encabezado del PDF */}
-      <div className="mb-8 text-center">
+      <div className="mb-8 flex flex-col items-center text-center">
+        {CONFIG.marca.logo && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={CONFIG.marca.logo} alt={CONFIG.marca.negocio} className="mb-3 h-20 w-20 rounded-full object-cover" />
+        )}
         <h1 className="font-display text-4xl font-semibold text-gradient-marca">{CONFIG.marca.negocio}</h1>
         <p className="mt-1 text-ink-soft">{CONFIG.marca.descripcion}</p>
         {CONFIG.marca.enlace && <p className="mt-1 text-sm text-ink-mute">{CONFIG.marca.enlace}</p>}

@@ -1,14 +1,18 @@
+"use client";
+
 import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
+import { useLang } from "@/lib/i18n";
 
 /** Encabezado del catálogo: logo o nombre, una línea de qué haces, y el sello 24/7. */
 export function MarcaHeader() {
   const { marca } = CONFIG;
+  const { t } = useLang();
   return (
     <header className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 pt-12 pb-8 text-center sm:pt-16">
       <span className="chip no-print">
         <span className="anim-pulse-glow inline-block h-2 w-2 rounded-full" style={{ background: "var(--marca)" }} />
-        Catálogo disponible 24/7
+        {t("catalogoDisponible")}
       </span>
 
       {marca.logo ? (

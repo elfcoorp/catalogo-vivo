@@ -102,6 +102,33 @@ export interface Producto {
    * cuando el cliente ya va en serio. Opcional.
    */
   plano?: string;
+  /** Frutas para las que sirve (filtro lateral "Por tu fruta"). Opcional. */
+  frutas?: string[];
+  /** Tipo de copita del clasificador (filtro lateral "Tipo de copita"). Opcional. */
+  tipoCopita?: "rodillo-clip" | "charola";
+  /** Cómo clasifica (filtro lateral "Clasifica por"). Opcional. */
+  clasificaPor?: ("peso" | "diametro" | "color")[];
+  /** Disponibilidad (filtro lateral "Estatus"). Por defecto "disponible". */
+  estatus?: "disponible" | "apartada";
+  /** Marca del fabricante (CIU, Idepro, Rochin…), visible como etiqueta en la tarjeta. Opcional. */
+  marcaFabricante?: string;
+  /** Zona general de ubicación (nunca ciudad ni domicilio exacto). Opcional. */
+  zona?: string;
+  /** URL de YouTube (shorts o normal) con el video de la máquina funcionando. Opcional. */
+  videoYoutube?: string;
+  /**
+   * Un dato corto para la tarjeta del listado (ej. "Capacidad 450 kg/hora").
+   * Debe decir algo que el nombre NO diga ya (nada de "líneas x salidas"
+   * repetido) — el espacio de la tarjeta es chico. Opcional.
+   */
+  resumenTarjeta?: string;
+  /**
+   * Título corto y técnico para la tarjeta (ej. "Calibrador · 4 líneas x 12
+   * salidas"). Si no hay, se usa `nombre` completo. Opcional.
+   */
+  nombreCorto?: string;
+  /** Paso/abertura de la copita (ej. "Rodillo 3¾\"", "Charola 6\"", "Clip 3¾\""). Opcional. */
+  pasoCopita?: string;
 }
 
 /** La configuración completa del catálogo. */

@@ -8,7 +8,7 @@ export const CONFIG: Config = {
     logo: "/logo.png",
     primario: "#31502e",
     secundario: "#66a73d",
-    fondo: "claro",
+    fondo: "oscuro",
     whatsappPrincipal: "524521300840",
     ciudad: "Ciudad Obregón",
     enlace: "elfcoorp",

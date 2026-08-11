@@ -13,7 +13,15 @@ export function BotonCompartirLink({ etiqueta, className }: BotonCompartirLinkPr
   const [copiado, setCopiado] = useState(false);
 
   async function compartir() {
-    const url = typeof window !== "undefined" ? window.location.href.split("?")[0] : "";
+    let url = "";
+    if (typeof window !== "undefined") {
+      const actual = new URL(window.location.href);
+      // Se comparte la liga limpia (sin el ?v= del vendedor referido), pero
+      // si es la versión para técnicos (?modo=tecnico) esa sí se conserva.
+      url = actual.searchParams.get("modo") === "tecnico"
+        ? `${actual.origin}${actual.pathname}?modo=tecnico`
+        : `${actual.origin}${actual.pathname}`;
+    }
     if (navigator.share) {
       try {
         await navigator.share({ title: document.title, url });

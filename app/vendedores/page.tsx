@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
+import { LogoChico } from "@/components/catalogo/LogoChico";
 import { CONFIG } from "@/lib/config";
 import { linkWhatsApp } from "@/lib/whatsapp";
 
@@ -31,9 +32,12 @@ export default function Vendedores() {
 
   return (
     <main className="mx-auto min-h-screen max-w-4xl px-5 py-12">
-      <Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm text-ink-soft hover:text-marca">
-        <Icon name="lucide:arrow-left" size={16} /> Volver al catálogo
-      </Link>
+      <div className="mb-8 flex items-center justify-between gap-4">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-marca">
+          <Icon name="lucide:arrow-left" size={16} /> Volver al catálogo
+        </Link>
+        <LogoChico className="h-10 w-10 shrink-0 rounded-full object-cover" />
+      </div>
 
       <header className="mb-10">
         <span className="chip mb-3">

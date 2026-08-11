@@ -3,6 +3,7 @@ import "./globals.css";
 import { CONFIG } from "@/lib/config";
 import { estiloMarca, claseTema } from "@/lib/marca";
 import { ScrollAlCambiarPagina } from "@/components/ui/ScrollAlCambiarPagina";
+import { LangProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://catalogo-vivo-kappa.vercel.app"),
@@ -44,7 +45,7 @@ export default function RootLayout({
       <body className={`${claseTema(CONFIG.marca)} min-h-full`}>
         <div className="bg-marca" />
         <ScrollAlCambiarPagina />
-        {children}
+        <LangProvider>{children}</LangProvider>
       </body>
     </html>
   );

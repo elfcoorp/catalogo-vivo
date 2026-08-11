@@ -42,3 +42,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Documentos de trabajo del negocio (contratos, anuncios) — no son parte del sitio
+*.pdf
+*.docx
+/anuncios/
