@@ -87,6 +87,13 @@ export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico }: Barra
                 style={{ background: "var(--bg-2)" }}
               >
                 <Link
+                  href="/planeador"
+                  onClick={() => setMenuAbierto(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-ink-soft hover:bg-bg hover:text-marca"
+                >
+                  <Icon name="lucide:layout-grid" size={16} /> {t("planeador")}
+                </Link>
+                <Link
                   href="/personaliza"
                   onClick={() => setMenuAbierto(false)}
                   className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-ink-soft hover:bg-bg hover:text-marca"

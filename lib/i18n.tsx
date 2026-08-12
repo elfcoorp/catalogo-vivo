@@ -57,6 +57,10 @@ export const TEXTOS = {
     cerrarFiltros: "Cerrar filtros",
     todas: "Todas",
     catalogoDisponible: "Catálogo disponible 24/7",
+    planeador: "¿Cabe en tu empaque?",
+    planeadorTitulo: "Acomoda tu línea antes de comprarla",
+    planeadorSubtitulo:
+      "Pon el espacio que tienes, acomoda lo que ya tienes y lo que te falta, y ve si cabe — todo desde arriba y a escala. Si cabe, nos lo mandas y te cotizamos.",
   },
   en: {
     buscar: "Search by fruit or machine…",
@@ -107,6 +111,10 @@ export const TEXTOS = {
     cerrarFiltros: "Close filters",
     todas: "All",
     catalogoDisponible: "Catalog available 24/7",
+    planeador: "Does it fit your packing house?",
+    planeadorTitulo: "Lay out your line before you buy it",
+    planeadorSubtitulo:
+      "Enter the space you have, place what you already own and what you still need, and see if it fits — top-down and to scale. If it fits, send it over and we'll quote it.",
   },
   pt: {
     buscar: "Busque por fruta ou máquina…",
@@ -157,6 +165,10 @@ export const TEXTOS = {
     cerrarFiltros: "Fechar filtros",
     todas: "Todas",
     catalogoDisponible: "Catálogo disponível 24/7",
+    planeador: "Cabe na sua embaladora?",
+    planeadorTitulo: "Organize sua linha antes de comprar",
+    planeadorSubtitulo:
+      "Informe o espaço que você tem, posicione o que já possui e o que falta, e veja se cabe — visto de cima e em escala. Se couber, mande para nós e cotamos.",
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 
