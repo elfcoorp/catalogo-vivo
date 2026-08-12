@@ -69,14 +69,15 @@ export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico }: Barra
 
         <div className="relative shrink-0">
           {/* z-50 para que el boton quede ARRIBA de la capa que cierra el menu:
-              si no, el dedo toca la capa y nunca al boton. */}
+              si no, el dedo toca la capa y nunca al boton. El icono no cambia:
+              el menu se cierra solo al tocar fuera, sin necesidad de una "X". */}
           <button
             onClick={() => setMenuAbierto((v) => !v)}
             className="btn-ghost relative z-50 !p-2.5"
-            aria-label={menuAbierto ? t("cerrarMenu") : t("masOpciones")}
+            aria-label={t("masOpciones")}
             aria-expanded={menuAbierto}
           >
-            <Icon name={menuAbierto ? "lucide:x" : "lucide:menu"} size={18} />
+            <Icon name="lucide:menu" size={18} />
           </button>
           {menuAbierto && (
             <>
@@ -85,6 +86,13 @@ export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico }: Barra
                 className="absolute right-0 top-full z-50 mt-2 flex w-64 flex-col gap-1 rounded-2xl border border-line-strong p-2 shadow-2xl"
                 style={{ background: "var(--bg-2)" }}
               >
+                <Link
+                  href="/personaliza"
+                  onClick={() => setMenuAbierto(false)}
+                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-ink-soft hover:bg-bg hover:text-marca"
+                >
+                  <Icon name="lucide:ruler" size={16} /> {t("tabPersonalizadas")}
+                </Link>
                 {!modoTecnico && (
                   <>
                     <Link

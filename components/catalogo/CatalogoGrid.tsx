@@ -4,8 +4,6 @@ import { useState } from "react";
 import { ProductoCard } from "./ProductoCard";
 import { FiltrosLaterales, FILTROS_VACIOS, type FiltrosSeleccion } from "./FiltrosLaterales";
 import { BarraSuperior } from "./BarraSuperior";
-import { FormularioEmpaque } from "./FormularioEmpaque";
-import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
 import { PRODUCTOS } from "@/lib/productos";
 import { useLang } from "@/lib/i18n";
@@ -16,20 +14,25 @@ interface CatalogoGridProps {
   modoTecnico?: boolean;
 }
 
-const TABS = ["usadas", "personalizadas"] as const;
-type Tab = (typeof TABS)[number];
-
 function normaliza(s: string): string {
   return s.toLowerCase().normalize("NFD").replace(new RegExp("[\\u0300-\\u036f]", "g"), "");
 }
 
-function cumpleBusqueda(p: (typeof PRODUCTOS)[number], busqueda: string) {
-  const q = normaliza(busqueda.trim());
-  if (!q) return true;
-  const campos = [p.nombre, p.nombreCorto, p.marcaFabricante, p.categoria, ...(p.frutas ?? [])].filter(
-    (v): v is string => Boolean(v)
-  );
-  return campos.some((v) => normaliza(v).includes(q));
+/** ¿Alguna palabra de este texto empieza con lo que se escribió? */
+function empiezaConPalabra(texto: string, q: string) {
+  return normaliza(texto)
+    .split(/[^a-z0-9]+/)
+    .some((palabra) => palabra.startsWith(q));
+}
+
+function coincidePorFruta(p: (typeof PRODUCTOS)[number], q: string) {
+  return (p.frutas ?? []).some((f) => empiezaConPalabra(f, q));
+}
+
+function coincidePorTexto(p: (typeof PRODUCTOS)[number], q: string) {
+  return [p.nombre, p.nombreCorto, p.marcaFabricante, p.categoria, p.pasoCopita]
+    .filter((v): v is string => Boolean(v))
+    .some((campo) => empiezaConPalabra(campo, q));
 }
 
 function cumpleFiltros(p: (typeof PRODUCTOS)[number], f: FiltrosSeleccion) {
@@ -42,7 +45,6 @@ function cumpleFiltros(p: (typeof PRODUCTOS)[number], f: FiltrosSeleccion) {
 
 export function CatalogoGrid({ vendedorSlug, modoTecnico }: CatalogoGridProps) {
   const { t, lang } = useLang();
-  const [tab, setTab] = useState<Tab>("usadas");
   const [filtro, setFiltro] = useState<string>("Todas");
   const [filtrosLaterales, setFiltrosLaterales] = useState<FiltrosSeleccion>(FILTROS_VACIOS);
   const [busqueda, setBusqueda] = useState("");
@@ -55,49 +57,22 @@ export function CatalogoGrid({ vendedorSlug, modoTecnico }: CatalogoGridProps) {
   const categorias = ["Todas", ...categoriasReales];
   const visibles = filtro === "Todas" ? categoriasReales : [filtro];
   const mostrarFiltro = categoriasReales.length > 1;
-  const productosFiltrados = PRODUCTOS.filter((p) => cumpleFiltros(p, filtrosLaterales) && cumpleBusqueda(p, busqueda));
+  // La fruta manda: si lo escrito coincide con alguna fruta, se muestran SOLO
+  // las máquinas de esa fruta. Si no (ej. "idepro", "charola"), se busca en el
+  // nombre y la marca. Sin esto, escribir "c" sacaba las 8 máquinas, porque
+  // todas empiezan con "Calibrador".
+  const q = normaliza(busqueda.trim());
+  const hayFrutaQueCoincide = q.length > 0 && PRODUCTOS.some((p) => coincidePorFruta(p, q));
+  const productosFiltrados = PRODUCTOS.filter(
+    (p) =>
+      cumpleFiltros(p, filtrosLaterales) &&
+      (q.length === 0 || (hayFrutaQueCoincide ? coincidePorFruta(p, q) : coincidePorTexto(p, q)))
+  );
 
   return (
     <>
       <BarraSuperior busqueda={busqueda} onBusquedaChange={setBusqueda} modoTecnico={modoTecnico} />
 
-      <div className="mx-auto max-w-6xl px-5 pt-8 no-print">
-        <div className="flex flex-wrap justify-center gap-2 md:justify-start">
-          {TABS.map((valor) => {
-            const activo = tab === valor;
-            const etiqueta = valor === "usadas" ? t("tabUsadas") : t("tabPersonalizadas");
-            return (
-              <button
-                key={valor}
-                onClick={() => setTab(valor)}
-                className="rounded-full border px-4 py-2 text-sm font-semibold transition"
-                style={
-                  activo
-                    ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
-                    : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
-                }
-              >
-                {etiqueta}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {tab === "personalizadas" && (
-        <section className="mx-auto max-w-2xl px-5 pb-24 pt-10">
-          <div className="mb-8 text-center">
-            <span className="chip mb-4">
-              <Icon name="fluent-emoji-flat:triangular-ruler" size={16} /> {t("tabPersonalizadas")}
-            </span>
-            <h2 className="font-display text-3xl font-semibold sm:text-4xl">{t("personalizadasTitulo")}</h2>
-            <p className="mt-3 text-lg text-ink-soft">{t("personalizadasSubtitulo")}</p>
-          </div>
-          <FormularioEmpaque modoTecnico={modoTecnico} />
-        </section>
-      )}
-
-      {tab === "usadas" && (
       <section className="mx-auto max-w-6xl px-5 pb-24 pt-8">
       <div className="md:grid md:grid-cols-[220px_1fr] md:items-start md:gap-10">
         <FiltrosLaterales productos={PRODUCTOS} seleccion={filtrosLaterales} onChange={setFiltrosLaterales} />
@@ -156,7 +131,6 @@ export function CatalogoGrid({ vendedorSlug, modoTecnico }: CatalogoGridProps) {
         </div>
       </div>
       </section>
-      )}
     </>
   );
 }

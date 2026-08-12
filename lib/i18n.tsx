@@ -41,7 +41,7 @@ export const TEXTOS = {
     precioSujeto: "Precio sujeto a cambios sin previo aviso.",
     fleteNota: "El flete se cotiza según tu destino — pregúntanos.",
     tabUsadas: "Usadas rehabilitadas",
-    tabPersonalizadas: "Personalizadas",
+    tabPersonalizadas: "Personaliza tu máquina",
     personalizadasTitulo: "¿Cabe en tu empaque?",
     personalizadasSubtitulo: "Mándanos las medidas de tu espacio y te dibujamos el plano gratis con la máquina que te interese.",
     masOpciones: "Más opciones",
@@ -57,7 +57,6 @@ export const TEXTOS = {
     cerrarFiltros: "Cerrar filtros",
     todas: "Todas",
     catalogoDisponible: "Catálogo disponible 24/7",
-    cerrarMenu: "Cerrar menú",
   },
   en: {
     buscar: "Search by fruit or machine…",
@@ -92,7 +91,7 @@ export const TEXTOS = {
     precioSujeto: "Price subject to change without notice.",
     fleteNota: "Freight is quoted based on your destination — just ask.",
     tabUsadas: "Refurbished used",
-    tabPersonalizadas: "Custom",
+    tabPersonalizadas: "Customize your machine",
     personalizadasTitulo: "Does it fit your packing house?",
     personalizadasSubtitulo: "Send us your space measurements and we'll draw you a free layout with the machine you're interested in.",
     masOpciones: "More options",
@@ -108,7 +107,6 @@ export const TEXTOS = {
     cerrarFiltros: "Close filters",
     todas: "All",
     catalogoDisponible: "Catalog available 24/7",
-    cerrarMenu: "Close menu",
   },
   pt: {
     buscar: "Busque por fruta ou máquina…",
@@ -143,7 +141,7 @@ export const TEXTOS = {
     precioSujeto: "Preço sujeito a alterações sem aviso prévio.",
     fleteNota: "O frete é cotado de acordo com seu destino — pergunte-nos.",
     tabUsadas: "Usadas reformadas",
-    tabPersonalizadas: "Personalizadas",
+    tabPersonalizadas: "Personalize sua máquina",
     personalizadasTitulo: "Cabe na sua embaladora?",
     personalizadasSubtitulo: "Mande as medidas do seu espaço e desenhamos grátis o layout com a máquina que te interessa.",
     masOpciones: "Mais opções",
@@ -159,7 +157,6 @@ export const TEXTOS = {
     cerrarFiltros: "Fechar filtros",
     todas: "Todas",
     catalogoDisponible: "Catálogo disponível 24/7",
-    cerrarMenu: "Fechar menu",
   },
 } as const satisfies Record<Lang, Record<string, string>>;
 
