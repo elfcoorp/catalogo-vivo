@@ -78,7 +78,10 @@ export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico }: Barra
           {menuAbierto && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setMenuAbierto(false)} />
-              <div className="card absolute right-0 top-full z-50 mt-2 flex w-64 flex-col gap-1 p-2">
+              <div
+                className="absolute right-0 top-full z-50 mt-2 flex w-64 flex-col gap-1 rounded-2xl border border-line-strong p-2 shadow-2xl"
+                style={{ background: "var(--bg-2)" }}
+              >
                 {!modoTecnico && (
                   <>
                     <Link

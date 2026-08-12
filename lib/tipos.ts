@@ -117,6 +117,12 @@ export interface Producto {
   /** URL de YouTube (shorts o normal) con el video de la máquina funcionando. Opcional. */
   videoYoutube?: string;
   /**
+   * Solo `true` cuando ELFCO ya vio y probó la máquina en persona. NO se
+   * deduce de tener video — hay videos de máquinas todavía sin verificar,
+   * y máquinas verificadas a las que aún les falta el video.
+   */
+  verificada?: boolean;
+  /**
    * Un dato corto para la tarjeta del listado (ej. "Capacidad 450 kg/hora").
    * Debe decir algo que el nombre NO diga ya (nada de "líneas x salidas"
    * repetido) — el espacio de la tarjeta es chico. Opcional.

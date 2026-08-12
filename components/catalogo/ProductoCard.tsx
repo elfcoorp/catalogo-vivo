@@ -60,9 +60,9 @@ export function ProductoCard({ producto: productoOriginal, vendedorSlug, modoTec
                 <Icon name="fluent-emoji-flat:star" size={12} /> {t("elMasPedido")}
               </span>
             )}
-            {producto.videoYoutube && (
+            {producto.verificada && (
               <span className="chip chip-verificada no-print !text-[11px]">
-                <Icon name="lucide:play-circle" size={12} /> {t("verificada")}
+                <Icon name="lucide:badge-check" size={12} /> {t("verificada")}
               </span>
             )}
           </div>
