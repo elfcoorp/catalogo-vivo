@@ -369,6 +369,7 @@ export const PRODUCTOS: Producto[] = [
     nombreCorto: "Calibrador · 4 líneas x 24 salidas",
     pasoCopita: "Clip 3¾\"",
     videoYoutube: "https://youtube.com/shorts/QSAoBBOE6hY",
+    verificada: true,
     zona: "Noroeste de México",
     precio: "Precio a consultar",
     facilidades: "Pago de contado antes de embarque. No incluye instalación.",
