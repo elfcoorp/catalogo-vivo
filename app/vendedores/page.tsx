@@ -52,6 +52,15 @@ export default function Vendedores() {
       </header>
 
       <div className="flex flex-col gap-5">
+        {CONFIG.vendedores.length === 0 && (
+          <div className="card p-6 text-center">
+            <p className="font-display text-2xl">Todavía no hay vendedores dados de alta</p>
+            <p className="mt-2 text-ink-soft">
+              Por ahora todos los &ldquo;Lo quiero&rdquo; del catálogo llegan directo al WhatsApp de{" "}
+              {CONFIG.marca.negocio}. Cuando sumes a alguien a tu equipo, aquí aparece su liga.
+            </p>
+          </div>
+        )}
         {CONFIG.vendedores.map((vend) => {
           const liga = `${origin}/?v=${vend.slug}`;
           const mensaje = `Hola 👋 Te comparto el catálogo de ${CONFIG.marca.negocio}. Aquí ves todo y pides directo por WhatsApp: ${liga}`;
