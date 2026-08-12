@@ -8,7 +8,6 @@ import { FormularioEmpaque } from "./FormularioEmpaque";
 import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
 import { PRODUCTOS } from "@/lib/productos";
-import { linkWhatsApp } from "@/lib/whatsapp";
 import { useLang } from "@/lib/i18n";
 import { traducirCategoria } from "@/lib/traducciones";
 
@@ -17,7 +16,7 @@ interface CatalogoGridProps {
   modoTecnico?: boolean;
 }
 
-const TABS = ["usadas", "nuevas", "personalizadas"] as const;
+const TABS = ["usadas", "personalizadas"] as const;
 type Tab = (typeof TABS)[number];
 
 function normaliza(s: string): string {
@@ -66,7 +65,7 @@ export function CatalogoGrid({ vendedorSlug, modoTecnico }: CatalogoGridProps) {
         <div className="flex flex-wrap justify-center gap-2 md:justify-start">
           {TABS.map((valor) => {
             const activo = tab === valor;
-            const etiqueta = valor === "usadas" ? t("tabUsadas") : valor === "nuevas" ? t("tabNuevas") : t("tabPersonalizadas");
+            const etiqueta = valor === "usadas" ? t("tabUsadas") : t("tabPersonalizadas");
             return (
               <button
                 key={valor}
@@ -84,27 +83,6 @@ export function CatalogoGrid({ vendedorSlug, modoTecnico }: CatalogoGridProps) {
           })}
         </div>
       </div>
-
-      {tab === "nuevas" && (
-        <section className="mx-auto max-w-3xl px-5 pb-24 pt-10 text-center">
-          <span className="chip mb-4">
-            <Icon name="fluent-emoji-flat:hammer-and-wrench" size={16} /> {t("tabNuevas")}
-          </span>
-          <h2 className="font-display text-3xl font-semibold sm:text-4xl">{t("nuevasTitulo")}</h2>
-          <p className="mt-3 text-lg text-ink-soft">{t("nuevasSubtitulo")}</p>
-          <p className="mt-6 text-ink-soft">{t("nuevasTexto")}</p>
-          {!modoTecnico && (
-            <a
-              href={linkWhatsApp(CONFIG.marca.whatsappPrincipal, "Hola, me interesa armar una línea nueva a pedido con fabricantes aliados.")}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-marca btn-wa mt-6"
-            >
-              <Icon name="logos:whatsapp-icon" size={20} /> {t("nuevasBoton")}
-            </a>
-          )}
-        </section>
-      )}
 
       {tab === "personalizadas" && (
         <section className="mx-auto max-w-2xl px-5 pb-24 pt-10">

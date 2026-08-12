@@ -68,12 +68,15 @@ export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico }: Barra
         </div>
 
         <div className="relative shrink-0">
+          {/* z-50 para que el boton quede ARRIBA de la capa que cierra el menu:
+              si no, el dedo toca la capa y nunca al boton. */}
           <button
             onClick={() => setMenuAbierto((v) => !v)}
-            className="btn-ghost !p-2.5"
-            aria-label={t("masOpciones")}
+            className="btn-ghost relative z-50 !p-2.5"
+            aria-label={menuAbierto ? t("cerrarMenu") : t("masOpciones")}
+            aria-expanded={menuAbierto}
           >
-            <Icon name="lucide:menu" size={18} />
+            <Icon name={menuAbierto ? "lucide:x" : "lucide:menu"} size={18} />
           </button>
           {menuAbierto && (
             <>
