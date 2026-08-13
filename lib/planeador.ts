@@ -112,18 +112,20 @@ export const LISTA_LINEA: { tipo: string; largo: number; dibujo: Dibujo }[] = [
   { tipo: "Llenadora", largo: 3, dibujo: "ninguno" },
 ];
 
-/** Las frutas que se trabajan, para arrancar el levantamiento por ahí. */
-export const FRUTAS_LINEA = [
-  "Tomate",
-  "Chile morrón",
-  "Pepino",
-  "Cítricos",
-  "Mango",
-  "Aguacate",
-  "Cebolla",
-  "Papa",
-  "Chile jalapeño",
-  "Otra",
+/**
+ * Las frutas que se trabajan, para arrancar el levantamiento por ahí.
+ * Las fotos salen del catálogo de CepaMex, con su permiso.
+ */
+export const FRUTAS_LINEA: { nombre: string; foto?: string }[] = [
+  { nombre: "Tomate", foto: "/frutas/f-tomate.png" },
+  { nombre: "Chile morrón", foto: "/frutas/f-morron.png" },
+  { nombre: "Pepino", foto: "/frutas/f-pepino.png" },
+  { nombre: "Cítricos", foto: "/frutas/f-citricos.png" },
+  { nombre: "Mango", foto: "/frutas/f-mango.png" },
+  { nombre: "Aguacate", foto: "/frutas/f-aguacate.png" },
+  { nombre: "Cebolla", foto: "/frutas/f-cebolla.png" },
+  { nombre: "Papa", foto: "/frutas/f-papa.png" },
+  { nombre: "Otra" },
 ];
 
 /** ¿Este módulo se sale del espacio disponible? */

@@ -407,22 +407,34 @@ export function Planeador() {
       {/* 2. La fruta: de ahí se desprende todo lo demás */}
       <div className="card flex flex-col gap-3 p-5">
         <p className="text-sm font-semibold text-ink">2. ¿Qué fruta trabaja?</p>
-        <div className="flex flex-wrap gap-2">
-          {FRUTAS_LINEA.map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFruta(fruta === f ? "" : f)}
-              className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
-              style={
-                fruta === f
-                  ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
-                  : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
-              }
-            >
-              {f}
-            </button>
-          ))}
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+          {FRUTAS_LINEA.map((f) => {
+            const elegida = fruta === f.nombre;
+            return (
+              <button
+                key={f.nombre}
+                type="button"
+                onClick={() => setFruta(elegida ? "" : f.nombre)}
+                className="flex flex-col items-center gap-1.5 rounded-2xl border p-2.5 text-xs font-semibold transition"
+                style={
+                  elegida
+                    ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
+                    : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                }
+              >
+                {f.foto ? (
+                  // Fondo claro: las fotos vienen recortadas en blanco.
+                  <span className="grid h-14 w-14 place-items-center rounded-xl bg-white p-1">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={f.foto} alt={f.nombre} className="h-full w-full" style={{ objectFit: "contain" }} />
+                  </span>
+                ) : (
+                  <span className="grid h-14 w-14 place-items-center rounded-xl bg-bg-2 text-2xl">🍃</span>
+                )}
+                {f.nombre}
+              </button>
+            );
+          })}
         </div>
       </div>
 
