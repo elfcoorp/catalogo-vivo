@@ -16,7 +16,36 @@ export interface Modulo {
   y: number;
   /** true = el cliente YA lo tiene (verde). false = es lo que se le va a vender. */
   yaLoTiene: boolean;
+  /** Dibujo en planta recortado del plano ELFCO. Si no hay, se ve como bloque. */
+  imagen?: string;
 }
+
+/**
+ * Módulos con su dibujo real, recortado de los planos de ELFCO. Las medidas
+ * salen de la lista de partes del mismo plano, así que no son inventadas —
+ * aun así el vendedor las puede corregir, porque cada empaque trae las suyas.
+ */
+export interface ModuloCatalogo {
+  tipo: string;
+  largo: number;
+  ancho: number;
+  imagen?: string;
+}
+
+export const CATALOGO_MODULOS: ModuloCatalogo[] = [
+  // De "LINEA CHAROLAS 6 x 12+1": medidas tal cual las lista el plano.
+  { tipo: "Cepilladora lavadora", largo: 2.27, ancho: 1.2, imagen: "/modulos/mod-cepilladora.png" },
+  { tipo: "Selección manual", largo: 3.4, ancho: 1.2, imagen: "/modulos/mod-seleccion.png" },
+  { tipo: "Clasificadora de charolas 6 líneas", largo: 15.34, ancho: 4.35, imagen: "/modulos/mod-clasificadora.png" },
+  { tipo: "Elevador de rodillos", largo: 3, ancho: 1.2 },
+  { tipo: "Banda de PVC", largo: 3, ancho: 1.8 },
+  { tipo: "Banda sanitaria", largo: 7, ancho: 0.77 },
+  { tipo: "Tolva de recepción", largo: 6, ancho: 1.2 },
+  { tipo: "Mesa descarnadora", largo: 3, ancho: 1.2 },
+  { tipo: "Volteadora de bins", largo: 8, ancho: 3.7 },
+  { tipo: "Módulo de empaque", largo: 3, ancho: 1.2 },
+  { tipo: "Otro", largo: 3, ancho: 1.2 },
+];
 
 /** Los tipos que un vendedor acomoda en un levantamiento. */
 export const TIPOS_MODULO = [

@@ -5,15 +5,14 @@ import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
 import { linkWhatsApp } from "@/lib/whatsapp";
 import {
-  ANCHO_INICIAL,
-  LARGO_INICIAL,
-  TIPOS_MODULO,
+  CATALOGO_MODULOS,
   areaOcupada,
   buscarHueco,
   modulosConProblema,
   resumenLevantamiento,
   type Espacio,
   type Modulo,
+  type ModuloCatalogo,
 } from "@/lib/planeador";
 
 /** Se redondea a 5 cm: mover al centímetro con el dedo es imposible. */
@@ -30,7 +29,8 @@ function nuevoId() {
 }
 
 export function Planeador() {
-  const [espacio, setEspacio] = useState<Espacio>({ largo: 12, ancho: 6 });
+  // Arranque parecido a un empaque real (el plano de charolas mide 50 x 19.3 m).
+  const [espacio, setEspacio] = useState<Espacio>({ largo: 30, ancho: 12 });
   const [modulos, setModulos] = useState<Modulo[]>([]);
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
   const [notas, setNotas] = useState("");
@@ -50,13 +50,16 @@ export function Planeador() {
   const ocupado = areaOcupada(modulos);
   const areaEspacio = espacio.largo * espacio.ancho;
 
-  function agregar(tipo: string) {
+  function agregar(mod: ModuloCatalogo) {
     setModulos((prev) => {
       const id = nuevoId();
       // Nace en el primer hueco libre, no encima de los demás.
-      const { x, y } = buscarHueco(prev, espacio, LARGO_INICIAL, ANCHO_INICIAL);
+      const { x, y } = buscarHueco(prev, espacio, mod.largo, mod.ancho);
       setSeleccionado(id);
-      return [...prev, { id, tipo, largo: LARGO_INICIAL, ancho: ANCHO_INICIAL, x, y, yaLoTiene: false }];
+      return [
+        ...prev,
+        { id, tipo: mod.tipo, largo: mod.largo, ancho: mod.ancho, x, y, yaLoTiene: false, imagen: mod.imagen },
+      ];
     });
   }
 
@@ -138,20 +141,23 @@ export function Planeador() {
       <div className="card flex flex-col gap-3 p-5">
         <p className="text-sm font-semibold text-ink">2. Agrega lo que hay y lo que se necesita</p>
         <div className="flex flex-wrap gap-2">
-          {TIPOS_MODULO.map((tipo) => (
+          {CATALOGO_MODULOS.map((mod) => (
             <button
-              key={tipo}
+              key={mod.tipo}
               type="button"
-              onClick={() => agregar(tipo)}
+              onClick={() => agregar(mod)}
               className="rounded-full border border-line-strong px-3 py-1.5 text-xs font-medium text-ink-soft transition hover:border-marca hover:text-marca"
             >
-              + {tipo}
+              {mod.imagen && "📐 "}+ {mod.tipo}
+              <span className="ml-1 text-ink-mute">
+                {mod.largo.toFixed(2)}×{mod.ancho.toFixed(2)}
+              </span>
             </button>
           ))}
         </div>
         <p className="text-xs text-ink-mute">
-          Cada módulo entra con una medida de arranque de {LARGO_INICIAL.toFixed(2)} x {ANCHO_INICIAL.toFixed(2)} m.
-          <b> Corrígela con la medida real</b> que traiga el cliente: tócalo en el dibujo y ajústala abajo.
+          Los que traen 📐 entran con su dibujo real del plano ELFCO. <b>Siempre confirma la medida</b> con la que traiga
+          el cliente: tócalo en el dibujo y ajústala abajo.
         </p>
       </div>
 
@@ -196,18 +202,33 @@ export function Planeador() {
                     top: pctY(m.y),
                     width: pctX(m.largo),
                     height: pctY(m.ancho),
-                    background: malo ? "#c92a2a" : m.yaLoTiene ? "#2f9e44" : "var(--marca)",
+                    background: m.imagen ? "#fff" : malo ? "#c92a2a" : m.yaLoTiene ? "#2f9e44" : "var(--marca)",
+                    // Con dibujo, el color va en el borde para no tapar la línea del plano.
+                    border: m.imagen
+                      ? `3px solid ${malo ? "#c92a2a" : m.yaLoTiene ? "#2f9e44" : "var(--marca)"}`
+                      : "none",
                     outline: elegido ? "3px solid #f7c530" : "none",
                     outlineOffset: "-1px",
                     touchAction: "none",
                   }}
                   title={`${m.tipo} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
                 >
-                  <span className="text-[10px] font-semibold leading-tight drop-shadow">
-                    {m.tipo.replace("Mesa de selección · ", "")}
-                    <br />
-                    {m.largo.toFixed(2)}×{m.ancho.toFixed(2)}
-                  </span>
+                  {m.imagen ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={m.imagen}
+                      alt={m.tipo}
+                      draggable={false}
+                      className="pointer-events-none h-full w-full"
+                      style={{ objectFit: "fill" }}
+                    />
+                  ) : (
+                    <span className="text-[10px] font-semibold leading-tight drop-shadow">
+                      {m.tipo}
+                      <br />
+                      {m.largo.toFixed(2)}×{m.ancho.toFixed(2)}
+                    </span>
+                  )}
                 </div>
               );
             })}
