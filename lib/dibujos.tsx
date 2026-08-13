@@ -44,7 +44,10 @@ export function nombreClasificadora(p: ClasificadoraParams): string {
   const copita =
     p.tipoCopita === "charola" ? "Charola" : p.tipoCopita === "clip" ? "Clip" : "Rodillo";
   const salidas = p.lado === "ambos" ? `${p.salidas * 2} salidas` : `${p.salidas} salidas`;
-  return `Clasificadora ${copita} ${p.medidaCopita} · ${p.lineas} líneas x ${salidas}${p.conPeso ? " · con peso" : ""}`;
+  // El lado va en el nombre: es lo primero que se pregunta al cotizar.
+  const lado =
+    p.lado === "ambos" ? "a los dos lados" : p.lado === "izquierda" ? "al lado izquierdo" : "al lado derecho";
+  return `Clasificadora ${copita} ${p.medidaCopita} · ${p.lineas} líneas x ${salidas} ${lado}${p.conPeso ? " · con peso" : ""}`;
 }
 
 /**

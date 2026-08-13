@@ -488,8 +488,8 @@ export function Planeador() {
               onChange={(e) => setClasif((c) => ({ ...c, lado: e.target.value as Lado }))}
               className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
             >
-              <option value="derecha">Un lado</option>
-              <option value="izquierda">El otro lado</option>
+              <option value="izquierda">Lado izquierdo</option>
+              <option value="derecha">Lado derecho</option>
               <option value="ambos">Los dos lados</option>
             </select>
           </label>
