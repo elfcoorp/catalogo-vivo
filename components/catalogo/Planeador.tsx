@@ -5,6 +5,15 @@ import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
 import { linkWhatsApp } from "@/lib/whatsapp";
 import {
+  comoDataUri,
+  medidaClasificadora,
+  nombreClasificadora,
+  svgClasificadora,
+  type ClasificadoraParams,
+  type Lado,
+  type TipoCopita,
+} from "@/lib/dibujos";
+import {
   CATALOGO_MODULOS,
   ORIGENES,
   POSTE,
@@ -64,6 +73,15 @@ export function Planeador() {
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
   const [notas, setNotas] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [clasif, setClasif] = useState<ClasificadoraParams>({
+    lineas: 6,
+    salidas: 12,
+    pasoSalidas: 36,
+    lado: "derecha",
+    tipoCopita: "charola",
+    medidaCopita: '6"',
+    conPeso: false,
+  });
 
   const lienzoRef = useRef<HTMLDivElement>(null);
   const arrastre = useRef<{ id: string; dx: number; dy: number } | null>(null);
@@ -100,6 +118,22 @@ export function Planeador() {
           rotacion: 0 as const,
           espejo: false,
         },
+      ];
+    });
+    setSeleccionado(id);
+  }
+
+  /** Mete al dibujo la clasificadora armada con lo que se pidió arriba. */
+  function agregarClasificadora() {
+    const id = nuevoId();
+    const { largo, ancho } = medidaClasificadora(clasif);
+    const imagen = comoDataUri(svgClasificadora(clasif));
+    const tipo = nombreClasificadora(clasif);
+    setModulos((prev) => {
+      const { x, y } = buscarHueco(prev, espacio, largo, ancho);
+      return [
+        ...prev,
+        { id, tipo, largo, ancho, x, y, origen: "nueva" as Origen, imagen, rotacion: 0 as const, espejo: false },
       ];
     });
     setSeleccionado(id);
@@ -236,6 +270,112 @@ export function Planeador() {
           Los que traen 📐 entran con su dibujo real del plano ELFCO. <b>Siempre confirma la medida</b> con la que traiga
           el cliente: tócalo en el dibujo y ajústala abajo.
         </p>
+      </div>
+
+      {/* 2b. La clasificadora a la medida */}
+      <div className="card flex flex-col gap-4 p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <p className="text-sm font-semibold text-ink">Arma la clasificadora que necesita</p>
+          <p className="text-sm text-ink-mute">
+            Queda de {medidaClasificadora(clasif).largo.toFixed(2)} x {medidaClasificadora(clasif).ancho.toFixed(2)} m
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Copita
+            <select
+              value={clasif.tipoCopita}
+              onChange={(e) => setClasif((c) => ({ ...c, tipoCopita: e.target.value as TipoCopita }))}
+              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+            >
+              <option value="charola">Charola</option>
+              <option value="clip">Clip</option>
+              <option value="rodillo">Rodillo</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Medida
+            <input
+              type="text"
+              value={clasif.medidaCopita}
+              onChange={(e) => setClasif((c) => ({ ...c, medidaCopita: e.target.value }))}
+              placeholder='Ej. 3¾"'
+              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Líneas
+            <input
+              type="number"
+              min={1}
+              max={12}
+              value={clasif.lineas}
+              onChange={(e) => setClasif((c) => ({ ...c, lineas: Math.max(1, Number(e.target.value) || 1) }))}
+              className="w-20 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Salidas por lado
+            <input
+              type="number"
+              min={1}
+              max={40}
+              value={clasif.salidas}
+              onChange={(e) => setClasif((c) => ({ ...c, salidas: Math.max(1, Number(e.target.value) || 1) }))}
+              className="w-20 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Salidas a cada (pulgadas)
+            <input
+              type="number"
+              min={6}
+              max={72}
+              value={clasif.pasoSalidas}
+              onChange={(e) => setClasif((c) => ({ ...c, pasoSalidas: Math.max(6, Number(e.target.value) || 6) }))}
+              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Salidas hacia
+            <select
+              value={clasif.lado}
+              onChange={(e) => setClasif((c) => ({ ...c, lado: e.target.value as Lado }))}
+              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+            >
+              <option value="derecha">Un lado</option>
+              <option value="izquierda">El otro lado</option>
+              <option value="ambos">Los dos lados</option>
+            </select>
+          </label>
+        </div>
+
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-soft">
+          <input
+            type="checkbox"
+            checked={clasif.conPeso}
+            onChange={(e) => setClasif((c) => ({ ...c, conPeso: e.target.checked }))}
+            className="h-4 w-4 accent-[var(--marca)]"
+          />
+          Con peso
+        </label>
+
+        {/* Vista previa: se ve antes de meterla al dibujo */}
+        <div className="overflow-hidden rounded-xl border border-line bg-white p-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={comoDataUri(svgClasificadora(clasif))}
+            alt={nombreClasificadora(clasif)}
+            className="mx-auto block w-full"
+            style={{ maxHeight: 260, objectFit: "contain" }}
+          />
+        </div>
+        <p className="text-center text-xs text-ink-mute">{nombreClasificadora(clasif)}</p>
+
+        <button type="button" onClick={agregarClasificadora} className="btn-marca self-start">
+          <Icon name="lucide:plus" size={18} /> Meterla al dibujo
+        </button>
       </div>
 
       {/* 3. El dibujo */}
