@@ -46,7 +46,14 @@ export interface Modulo {
   esPoste?: boolean;
 }
 
-/** Lado de un poste cuadrado, en metros. El vendedor lo ajusta si es más grueso. */
+/** Medidas típicas de poste, en metros. Hay postes mucho más gruesos que otros. */
+export const POSTES_TIPICOS: { etiqueta: string; largo: number; ancho: number }[] = [
+  { etiqueta: '6" x 6"', largo: 0.15, ancho: 0.15 },
+  { etiqueta: '1 pie x 6"', largo: 0.3, ancho: 0.15 },
+  { etiqueta: "1 pie x 1 pie", largo: 0.3, ancho: 0.3 },
+  { etiqueta: "40 x 20 cm", largo: 0.4, ancho: 0.2 },
+];
+
 export const POSTE = 0.3;
 
 /**

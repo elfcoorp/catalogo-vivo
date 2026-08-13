@@ -24,7 +24,7 @@ import {
 import {
   CATALOGO_MODULOS,
   ORIGENES,
-  POSTE,
+  POSTES_TIPICOS,
   areaOcupada,
   buscarHueco,
   colorDeOrigen,
@@ -49,6 +49,21 @@ let contador = 0;
 function nuevoId() {
   contador += 1;
   return `m${contador}`;
+}
+
+/** Nombre corto para que quepa encima del bloque y todavía se lea. */
+function abreviar(tipo: string): string {
+  const t = tipo.toLowerCase();
+  if (t.startsWith("clasificadora")) return "CLASIF";
+  if (t.startsWith("cepilladora")) return "CEPILL";
+  if (t.startsWith("selección")) return "SELECC";
+  if (t.startsWith("tolva")) return "TOLVA";
+  if (t.startsWith("banda")) return "BANDA";
+  if (t.startsWith("elevador")) return "ELEV";
+  if (t.startsWith("mesa descarnadora")) return "DESCARN";
+  if (t.startsWith("volteadora")) return "VOLTEAD";
+  if (t.startsWith("módulo de empaque")) return "EMPAQUE";
+  return tipo.slice(0, 7).toUpperCase();
 }
 
 /** Dibujo del módulo, girado y/o volteado dentro de su huella. */
@@ -162,8 +177,14 @@ function Separaciones({ m, espacio }: { m: Modulo; espacio: Espacio }) {
 }
 
 export function Planeador() {
-  // Arranque de un empaque típico; el vendedor lo cambia con lo que mida.
-  const [espacio, setEspacio] = useState<Espacio>({ largo: 25, ancho: 13 });
+  // Se guardan como texto para poder BORRAR el campo y teclear otra medida.
+  // Con número, al borrar quedaba "1" pegado y ya no se podía escribir "5".
+  const [largoTxt, setLargoTxt] = useState("25");
+  const [anchoTxt, setAnchoTxt] = useState("13");
+  const espacio: Espacio = {
+    largo: Math.max(1, Number(largoTxt) || 1),
+    ancho: Math.max(1, Number(anchoTxt) || 1),
+  };
   const [modulos, setModulos] = useState<Modulo[]>([]);
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
   const [notas, setNotas] = useState("");
@@ -173,6 +194,7 @@ export function Planeador() {
   const [largoLinea, setLargoLinea] = useState(3);
   const [tipoMesa, setTipoMesa] = useState<TipoMesa>("guia-central");
   const [cuantosPostes, setCuantosPostes] = useState(0);
+  const [medidaPoste, setMedidaPoste] = useState(POSTES_TIPICOS[2]);
   const [clasif, setClasif] = useState<ClasificadoraParams>({
     lineas: 6,
     salidas: 12,
@@ -280,7 +302,7 @@ export function Planeador() {
   }
 
   /** Pone de golpe los postes de la nave, repartidos parejo a lo largo. */
-  function ponerPostes(cuantos: number) {
+  function ponerPostes(cuantos: number, medida = medidaPoste) {
     setModulos((prev) => {
       const sinPostes = prev.filter((m) => !m.esPoste);
       if (cuantos <= 0) return sinPostes;
@@ -289,11 +311,11 @@ export function Planeador() {
       for (let i = 1; i <= cuantos; i++) {
         nuevos.push({
           id: nuevoId(),
-          tipo: "Poste",
-          largo: POSTE,
-          ancho: POSTE,
-          x: +(separacion * i - POSTE / 2).toFixed(2),
-          y: +(espacio.ancho / 2 - POSTE / 2).toFixed(2),
+          tipo: `Poste ${medida.etiqueta}`,
+          largo: medida.largo,
+          ancho: medida.ancho,
+          x: +(separacion * i - medida.largo / 2).toFixed(2),
+          y: +(espacio.ancho / 2 - medida.ancho / 2).toFixed(2),
           origen: "cliente" as Origen,
           rotacion: 0 as const,
           espejo: false,
@@ -368,10 +390,10 @@ export function Planeador() {
             Largo (metros)
             <input
               type="number"
-              min={1}
+              inputMode="decimal"
               step={0.5}
-              value={espacio.largo}
-              onChange={(e) => setEspacio((s) => ({ ...s, largo: Math.max(1, Number(e.target.value) || 0) }))}
+              value={largoTxt}
+              onChange={(e) => setLargoTxt(e.target.value)}
               className="w-28 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
             />
           </label>
@@ -379,10 +401,10 @@ export function Planeador() {
             Ancho (metros)
             <input
               type="number"
-              min={1}
+              inputMode="decimal"
               step={0.5}
-              value={espacio.ancho}
-              onChange={(e) => setEspacio((s) => ({ ...s, ancho: Math.max(1, Number(e.target.value) || 0) }))}
+              value={anchoTxt}
+              onChange={(e) => setAnchoTxt(e.target.value)}
               className="w-28 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
             />
           </label>
@@ -404,13 +426,38 @@ export function Planeador() {
               className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
             />
           </label>
-          {postes.length > 0 && (
-            <p className="pb-2.5 text-sm text-ink-mute">
-              Quedan a {(espacio.largo / (postes.length + 1)).toFixed(2)} m uno del otro. Arrástralos a donde estén de
-              verdad.
-            </p>
-          )}
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            ¿De qué medida?
+            <select
+              value={medidaPoste.etiqueta}
+              onChange={(e) => {
+                const m = POSTES_TIPICOS.find((p) => p.etiqueta === e.target.value) ?? POSTES_TIPICOS[2];
+                setMedidaPoste(m);
+                if (cuantosPostes > 0) ponerPostes(cuantosPostes, m);
+              }}
+              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
+            >
+              {POSTES_TIPICOS.map((p) => (
+                <option key={p.etiqueta} value={p.etiqueta}>
+                  {p.etiqueta}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
+        {postes.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              const girado = { ...medidaPoste, largo: medidaPoste.ancho, ancho: medidaPoste.largo };
+              setMedidaPoste(girado);
+              ponerPostes(cuantosPostes, girado);
+            }}
+            className="btn-ghost self-start !py-2 !text-sm"
+          >
+            <Icon name="lucide:rotate-cw" size={15} /> Girar los postes (horizontal / vertical)
+          </button>
+        )}
         <p className="text-xs text-ink-mute">
           Los postes salen repartidos parejo; muévelos a su lugar real. Nada puede quedar encima de uno, y abajo del
           dibujo te digo a qué distancia quedó cada uno.
@@ -672,7 +719,8 @@ export function Planeador() {
           {modulos.map((m) => {
             const malo = conProblema.has(m.id);
             const elegido = m.id === seleccionado;
-            const color = malo ? "#c92a2a" : m.esPoste ? "#495057" : colorDeOrigen(m.origen);
+            // Los postes van en rojo: son el estorbo, no una máquina.
+            const color = malo ? "#c92a2a" : m.esPoste ? "#e03131" : colorDeOrigen(m.origen);
             return (
               <div
                 key={m.id}
@@ -683,11 +731,16 @@ export function Planeador() {
                   top: pctY(m.y),
                   width: pctX(m.largo),
                   height: pctY(m.ancho),
+                  // Un poste real mide 30 cm: a escala son 3 px y el dedo no
+                  // lo alcanza. Se le da un mínimo para poder agarrarlo.
+                  minWidth: m.esPoste ? 18 : undefined,
+                  minHeight: m.esPoste ? 18 : undefined,
                   background: m.imagen ? "#fff" : color,
                   // Con dibujo, el color va en el borde para no tapar la línea.
-                  border: m.imagen ? `3px solid ${color}` : "none",
-                  outline: elegido ? "3px solid #f7c530" : "none",
+                  border: m.imagen ? `4px solid ${color}` : "none",
+                  outline: elegido ? "4px solid #f7c530" : "none",
                   outlineOffset: "-1px",
+                  boxShadow: elegido ? "0 0 0 3px rgba(247,197,48,0.35)" : "0 1px 4px rgba(0,0,0,0.35)",
                   touchAction: "none",
                 }}
                 title={`${m.tipo} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
@@ -697,10 +750,10 @@ export function Planeador() {
                     ven iguales y no se sabe cuál es cuál. */}
                 {!m.esPoste && (
                   <span
-                    className="pointer-events-none absolute left-0 top-0 max-w-full truncate rounded-br px-1 text-[9px] font-bold leading-[1.4]"
+                    className="pointer-events-none absolute left-0 top-0 max-w-full truncate rounded-br px-1 py-px text-[11px] font-extrabold leading-tight tracking-tight"
                     style={{ background: color, color: "#fff" }}
                   >
-                    {m.tipo}
+                    {abreviar(m.tipo)}
                   </span>
                 )}
               </div>
@@ -752,13 +805,20 @@ export function Planeador() {
 
           {/* Vista grande: para confirmar que es la máquina correcta */}
           {activo.imagen && (
-            <div className="overflow-hidden rounded-xl border border-line bg-white p-2">
-              <div
-                className="relative mx-auto"
-                style={{ width: "100%", aspectRatio: `${activo.largo} / ${activo.ancho}` }}
-              >
-                <DibujoModulo m={activo} />
-              </div>
+            <div className="grid place-items-center overflow-hidden rounded-xl border border-line bg-white p-2">
+              {/* Se muestra CONTENIDO, no estirado: si no, una pieza muy
+                  angosta se hacía larguísima y tapaba toda la pantalla. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={activo.imagen}
+                alt={activo.tipo}
+                style={{
+                  maxHeight: 180,
+                  maxWidth: "100%",
+                  objectFit: "contain",
+                  transform: `rotate(${activo.rotacion}deg) scaleX(${activo.espejo ? -1 : 1})`,
+                }}
+              />
             </div>
           )}
 
