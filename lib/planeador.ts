@@ -141,6 +141,47 @@ export function buscarHueco(
   return { x: 0, y: 0 }; // ya no cabe: se pone en la esquina y saldrá en rojo
 }
 
+/** Qué tan cerca hay que estar (en metros) para que una pieza se pegue a otra. */
+const IMAN = 0.22;
+
+function pegar(valor: number, candidatos: number[]): number {
+  let mejor = valor;
+  let distancia = IMAN;
+  for (const c of candidatos) {
+    const d = Math.abs(valor - c);
+    if (d < distancia) {
+      distancia = d;
+      mejor = c;
+    }
+  }
+  return mejor;
+}
+
+/**
+ * Ajusta la posición para que las piezas se alineen solas al acercarlas.
+ * Sin esto, alinear dos máquinas con el dedo en un teléfono es imposible.
+ */
+export function pegarAOtros(
+  arrastrado: { id: string; largo: number; ancho: number },
+  modulos: Modulo[],
+  espacio: Espacio,
+  x: number,
+  y: number
+): { x: number; y: number } {
+  const otros = modulos.filter((m) => m.id !== arrastrado.id);
+
+  const enX: number[] = [0, espacio.largo - arrastrado.largo];
+  const enY: number[] = [0, espacio.ancho - arrastrado.ancho];
+
+  for (const o of otros) {
+    // Orilla con orilla (pegadas) y también alineadas por el mismo borde.
+    enX.push(o.x, o.x + o.largo, o.x - arrastrado.largo, o.x + o.largo - arrastrado.largo);
+    enY.push(o.y, o.y + o.ancho, o.y - arrastrado.ancho, o.y + o.ancho - arrastrado.ancho);
+  }
+
+  return { x: pegar(x, enX), y: pegar(y, enY) };
+}
+
 /** Metros cuadrados que ocupan las máquinas (los postes no cuentan como equipo). */
 export function areaOcupada(modulos: Modulo[]): number {
   return modulos.filter((m) => !m.esPoste).reduce((total, m) => total + m.largo * m.ancho, 0);

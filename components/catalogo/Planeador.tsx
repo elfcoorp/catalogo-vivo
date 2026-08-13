@@ -5,13 +5,20 @@ import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
 import { linkWhatsApp } from "@/lib/whatsapp";
 import {
+  ANCHOS_EN_LINEA,
+  TIPOS_MESA,
   comoDataUri,
   medidaClasificadora,
   nombreClasificadora,
+  svgBanda,
+  svgCepilladora,
   svgClasificadora,
+  svgMesaSeleccion,
+  svgTolva,
   type ClasificadoraParams,
   type Lado,
   type TipoCopita,
+  type TipoMesa,
 } from "@/lib/dibujos";
 import {
   CATALOGO_MODULOS,
@@ -21,6 +28,7 @@ import {
   buscarHueco,
   colorDeOrigen,
   modulosConProblema,
+  pegarAOtros,
   puedeVoltearse,
   resumenLevantamiento,
   type Espacio,
@@ -66,6 +74,92 @@ function DibujoModulo({ m }: { m: Modulo }) {
   );
 }
 
+/**
+ * Las distancias del módulo elegido a las cuatro paredes. Es lo que el
+ * vendedor necesita ver mientras arrastra: "queda a dos metros de la pared".
+ * Se quedan puestas al soltar, para poder comparar con la siguiente pieza.
+ */
+function Separaciones({ m, espacio }: { m: Modulo; espacio: Espacio }) {
+  const izq = m.x;
+  const der = espacio.largo - (m.x + m.largo);
+  const arr = m.y;
+  const aba = espacio.ancho - (m.y + m.ancho);
+
+  const pct = (v: number, total: number) => `${(v / total) * 100}%`;
+  const etiqueta =
+    "absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-[10px] font-bold text-white whitespace-nowrap";
+  const fondo = { background: "#f7c530", color: "#3d2f00" };
+  const raya = "absolute z-10 border-dashed border-[#f7c530]";
+
+  return (
+    <>
+      {/* Izquierda */}
+      <div
+        className={`${raya} border-t-2`}
+        style={{ left: 0, width: pct(izq, espacio.largo), top: pct(m.y + m.ancho / 2, espacio.ancho) }}
+      />
+      <div
+        className={etiqueta}
+        style={{ ...fondo, left: pct(izq / 2, espacio.largo), top: pct(m.y + m.ancho / 2, espacio.ancho) }}
+      >
+        {izq.toFixed(2)}
+      </div>
+
+      {/* Derecha */}
+      <div
+        className={`${raya} border-t-2`}
+        style={{
+          left: pct(m.x + m.largo, espacio.largo),
+          width: pct(der, espacio.largo),
+          top: pct(m.y + m.ancho / 2, espacio.ancho),
+        }}
+      />
+      <div
+        className={etiqueta}
+        style={{
+          ...fondo,
+          left: pct(m.x + m.largo + der / 2, espacio.largo),
+          top: pct(m.y + m.ancho / 2, espacio.ancho),
+        }}
+      >
+        {der.toFixed(2)}
+      </div>
+
+      {/* Arriba */}
+      <div
+        className={`${raya} border-l-2`}
+        style={{ top: 0, height: pct(arr, espacio.ancho), left: pct(m.x + m.largo / 2, espacio.largo) }}
+      />
+      <div
+        className={etiqueta}
+        style={{ ...fondo, top: pct(arr / 2, espacio.ancho), left: pct(m.x + m.largo / 2, espacio.largo) }}
+      >
+        {arr.toFixed(2)}
+      </div>
+
+      {/* Abajo */}
+      <div
+        className={`${raya} border-l-2`}
+        style={{
+          top: pct(m.y + m.ancho, espacio.ancho),
+          height: pct(aba, espacio.ancho),
+          left: pct(m.x + m.largo / 2, espacio.largo),
+        }}
+      />
+      <div
+        className={etiqueta}
+        style={{
+          ...fondo,
+          top: pct(m.y + m.ancho + aba / 2, espacio.ancho),
+          left: pct(m.x + m.largo / 2, espacio.largo),
+        }}
+      >
+        {aba.toFixed(2)}
+      </div>
+    </>
+  );
+}
+
 export function Planeador() {
   // Arranque de un empaque típico; el vendedor lo cambia con lo que mida.
   const [espacio, setEspacio] = useState<Espacio>({ largo: 25, ancho: 13 });
@@ -73,6 +167,11 @@ export function Planeador() {
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
   const [notas, setNotas] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  // Ancho compartido: lo que hace que la línea quede alineada.
+  const [anchoLinea, setAnchoLinea] = useState(1.2);
+  const [largoLinea, setLargoLinea] = useState(3);
+  const [tipoMesa, setTipoMesa] = useState<TipoMesa>("guia-central");
+  const [cuantosPostes, setCuantosPostes] = useState(0);
   const [clasif, setClasif] = useState<ClasificadoraParams>({
     lineas: 6,
     salidas: 12,
@@ -93,6 +192,8 @@ export function Planeador() {
 
   const conProblema = modulosConProblema(modulos, espacio);
   const maquinas = modulos.filter((m) => !m.esPoste);
+  // Los postes, de izquierda a derecha, para poder medir entre uno y otro.
+  const postes = modulos.filter((m) => m.esPoste).sort((a, b) => a.x - b.x);
   const cabe = maquinas.length > 0 && conProblema.size === 0;
   const ocupado = areaOcupada(modulos);
   const areaEspacio = espacio.largo * espacio.ancho;
@@ -139,27 +240,68 @@ export function Planeador() {
     setSeleccionado(id);
   }
 
-  function agregarPoste() {
+  /** Los módulos que van en línea, todos con el mismo ancho para que alineen. */
+  function agregarEnLinea(que: "cepilladora" | "mesa" | "tolva" | "banda") {
     const id = nuevoId();
+    const largo = largoLinea;
+    const ancho = anchoLinea;
+    const { tipo, svg } =
+      que === "cepilladora"
+        ? { tipo: `Cepilladora ${ancho.toFixed(2)} m`, svg: svgCepilladora(largo, ancho) }
+        : que === "mesa"
+          ? {
+              tipo: `Selección manual · ${TIPOS_MESA.find((t) => t.valor === tipoMesa)?.etiqueta}`,
+              svg: svgMesaSeleccion(largo, ancho, tipoMesa),
+            }
+          : que === "tolva"
+            ? { tipo: `Tolva ${ancho.toFixed(2)} m`, svg: svgTolva(largo, ancho) }
+            : { tipo: `Banda ${ancho.toFixed(2)} m`, svg: svgBanda(largo, ancho) };
+
     setModulos((prev) => {
-      const { x, y } = buscarHueco(prev, espacio, POSTE, POSTE);
+      const { x, y } = buscarHueco(prev, espacio, largo, ancho);
       return [
         ...prev,
         {
           id,
-          tipo: "Poste",
-          largo: POSTE,
-          ancho: POSTE,
+          tipo,
+          largo,
+          ancho,
           x,
           y,
-          origen: "cliente" as Origen,
+          origen: "nueva" as Origen,
+          imagen: comoDataUri(svg),
           rotacion: 0 as const,
           espejo: false,
-          esPoste: true,
         },
       ];
     });
     setSeleccionado(id);
+  }
+
+  /** Pone de golpe los postes de la nave, repartidos parejo a lo largo. */
+  function ponerPostes(cuantos: number) {
+    setModulos((prev) => {
+      const sinPostes = prev.filter((m) => !m.esPoste);
+      if (cuantos <= 0) return sinPostes;
+      const separacion = espacio.largo / (cuantos + 1);
+      const nuevos: Modulo[] = [];
+      for (let i = 1; i <= cuantos; i++) {
+        nuevos.push({
+          id: nuevoId(),
+          tipo: "Poste",
+          largo: POSTE,
+          ancho: POSTE,
+          x: +(separacion * i - POSTE / 2).toFixed(2),
+          y: +(espacio.ancho / 2 - POSTE / 2).toFixed(2),
+          origen: "cliente" as Origen,
+          rotacion: 0 as const,
+          espejo: false,
+          esPoste: true,
+        });
+      }
+      return [...sinPostes, ...nuevos];
+    });
+    setSeleccionado(null);
   }
 
   function actualizar(id: string, cambios: Partial<Modulo>) {
@@ -200,7 +342,12 @@ export function Planeador() {
     if (!a) return;
     const p = aMetros(e);
     if (!p) return;
-    actualizar(a.id, { x: redondea(p.x - a.dx), y: redondea(p.y - a.dy) });
+    const m = modulos.find((x) => x.id === a.id);
+    if (!m) return;
+    // Se pega solo a las orillas de las otras piezas: alinear al centímetro
+    // con el dedo en un teléfono no se puede.
+    const pegado = pegarAOtros(m, modulos, espacio, redondea(p.x - a.dx), redondea(p.y - a.dy));
+    actualizar(a.id, pegado);
   }
 
   function alSoltarDedo() {
@@ -240,42 +387,39 @@ export function Planeador() {
           </label>
           <p className="pb-2.5 text-sm text-ink-mute">{areaEspacio.toFixed(1)} m² de piso</p>
         </div>
-        <button type="button" onClick={agregarPoste} className="btn-ghost self-start !py-2 !text-sm">
-          <Icon name="lucide:square" size={15} /> Marcar un poste
-        </button>
-        <p className="text-xs text-ink-mute">
-          Marca los postes de la nave: nada puede quedar encima de uno. Se arrastran igual que las máquinas.
-        </p>
-      </div>
-
-      {/* 2. Agregar módulos */}
-      <div className="card flex flex-col gap-3 p-5">
-        <p className="text-sm font-semibold text-ink">2. Agrega lo que hay y lo que se necesita</p>
-        <div className="flex flex-wrap gap-2">
-          {CATALOGO_MODULOS.map((mod) => (
-            <button
-              key={mod.tipo}
-              type="button"
-              onClick={() => agregar(mod)}
-              className="rounded-full border border-line-strong px-3 py-1.5 text-xs font-medium text-ink-soft transition hover:border-marca hover:text-marca"
-            >
-              {mod.imagen && "📐 "}+ {mod.tipo}
-              <span className="ml-1 text-ink-mute">
-                {mod.largo.toFixed(2)}×{mod.ancho.toFixed(2)}
-              </span>
-            </button>
-          ))}
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            ¿Cuántos postes hay?
+            <input
+              type="number"
+              min={0}
+              max={30}
+              value={cuantosPostes}
+              onChange={(e) => {
+                const n = Math.max(0, Math.min(30, Number(e.target.value) || 0));
+                setCuantosPostes(n);
+                ponerPostes(n);
+              }}
+              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
+            />
+          </label>
+          {postes.length > 0 && (
+            <p className="pb-2.5 text-sm text-ink-mute">
+              Quedan a {(espacio.largo / (postes.length + 1)).toFixed(2)} m uno del otro. Arrástralos a donde estén de
+              verdad.
+            </p>
+          )}
         </div>
         <p className="text-xs text-ink-mute">
-          Los que traen 📐 entran con su dibujo real del plano ELFCO. <b>Siempre confirma la medida</b> con la que traiga
-          el cliente: tócalo en el dibujo y ajústala abajo.
+          Los postes salen repartidos parejo; muévelos a su lugar real. Nada puede quedar encima de uno, y abajo del
+          dibujo te digo a qué distancia quedó cada uno.
         </p>
       </div>
 
-      {/* 2b. La clasificadora a la medida */}
+      {/* 2. La clasificadora a la medida — es el corazón de la venta */}
       <div className="card flex flex-col gap-4 p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="text-sm font-semibold text-ink">Arma la clasificadora que necesita</p>
+          <p className="text-sm font-semibold text-ink">2. Arma la clasificadora que necesita</p>
           <p className="text-sm text-ink-mute">
             Queda de {medidaClasificadora(clasif).largo.toFixed(2)} x {medidaClasificadora(clasif).ancho.toFixed(2)} m
           </p>
@@ -378,7 +522,95 @@ export function Planeador() {
         </button>
       </div>
 
-      {/* 3. El dibujo */}
+      {/* 3. Lo demás de la línea */}
+      <div className="card flex flex-col gap-4 p-5">
+        <p className="text-sm font-semibold text-ink">3. Agrega lo demás de la línea</p>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Ancho de la línea (m)
+            <select
+              value={anchoLinea}
+              onChange={(e) => setAnchoLinea(Number(e.target.value))}
+              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+            >
+              {ANCHOS_EN_LINEA.map((a) => (
+                <option key={a} value={a}>
+                  {a.toFixed(2)} m
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Largo (m)
+            <input
+              type="number"
+              min={0.5}
+              step={0.5}
+              value={largoLinea}
+              onChange={(e) => setLargoLinea(Math.max(0.5, Number(e.target.value) || 0.5))}
+              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Guía de la mesa
+            <select
+              value={tipoMesa}
+              onChange={(e) => setTipoMesa(e.target.value as TipoMesa)}
+              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+            >
+              {TIPOS_MESA.map((t) => (
+                <option key={t.valor} value={t.valor}>
+                  {t.etiqueta}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => agregarEnLinea("cepilladora")} className="btn-ghost !py-2 !text-sm">
+            + Cepilladora
+          </button>
+          <button type="button" onClick={() => agregarEnLinea("mesa")} className="btn-ghost !py-2 !text-sm">
+            + Mesa de selección
+          </button>
+          <button type="button" onClick={() => agregarEnLinea("tolva")} className="btn-ghost !py-2 !text-sm">
+            + Tolva
+          </button>
+          <button type="button" onClick={() => agregarEnLinea("banda")} className="btn-ghost !py-2 !text-sm">
+            + Banda
+          </button>
+        </div>
+
+        <p className="text-xs text-ink-mute">
+          Todas entran con el mismo ancho de línea, así se alinean con la clasificadora. Las tolvas típicas van a 0.90,
+          1.20 y 1.80 m.
+        </p>
+
+        <details className="text-sm text-ink-soft">
+          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-ink-mute">
+            Otros módulos
+          </summary>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {CATALOGO_MODULOS.filter((m) => !m.imagen).map((mod) => (
+              <button
+                key={mod.tipo}
+                type="button"
+                onClick={() => agregar(mod)}
+                className="rounded-full border border-line-strong px-3 py-1.5 text-xs font-medium text-ink-soft transition hover:border-marca hover:text-marca"
+              >
+                + {mod.tipo}
+                <span className="ml-1 text-ink-mute">
+                  {mod.largo.toFixed(2)}×{mod.ancho.toFixed(2)}
+                </span>
+              </button>
+            ))}
+          </div>
+        </details>
+      </div>
+
+      {/* 4. El dibujo */}
       <div className="card flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-semibold text-ink">3. Acomódalos arrastrando con el dedo</p>
@@ -405,6 +637,9 @@ export function Planeador() {
             </p>
           )}
 
+          {/* Las distancias a las paredes del que está elegido */}
+          {activo && !activo.esPoste && <Separaciones m={activo} espacio={espacio} />}
+
           {modulos.map((m) => {
             const malo = conProblema.has(m.id);
             const elegido = m.id === seleccionado;
@@ -429,11 +664,14 @@ export function Planeador() {
                 title={`${m.tipo} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
               >
                 <DibujoModulo m={m} />
-                {!m.imagen && !m.esPoste && (
-                  <span className="pointer-events-none p-1 text-[10px] font-semibold leading-tight drop-shadow">
+                {/* El nombre va SIEMPRE encima: si no, dos bloques chicos se
+                    ven iguales y no se sabe cuál es cuál. */}
+                {!m.esPoste && (
+                  <span
+                    className="pointer-events-none absolute left-0 top-0 max-w-full truncate rounded-br px-1 text-[9px] font-bold leading-[1.4]"
+                    style={{ background: color, color: "#fff" }}
+                  >
                     {m.tipo}
-                    <br />
-                    {m.largo.toFixed(2)}×{m.ancho.toFixed(2)}
                   </span>
                 )}
               </div>
@@ -445,6 +683,28 @@ export function Planeador() {
           A escala: {espacio.largo.toFixed(2)} m de largo x {espacio.ancho.toFixed(2)} m de ancho, visto desde arriba. En{" "}
           <span style={{ color: "#c92a2a" }}>rojo</span> lo que se encima o se sale.
         </p>
+
+        {/* Las distancias entre postes: eso decide qué cabe entre uno y otro */}
+        {postes.length > 0 && (
+          <div className="rounded-xl border border-line bg-bg-2 p-3">
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-ink-mute">Claro entre postes</p>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-soft">
+              <span>
+                Pared → poste 1: <b>{postes[0].x.toFixed(2)} m</b>
+              </span>
+              {postes.slice(1).map((p, i) => (
+                <span key={p.id}>
+                  Poste {i + 1} → {i + 2}:{" "}
+                  <b>{(p.x - (postes[i].x + postes[i].largo)).toFixed(2)} m</b>
+                </span>
+              ))}
+              <span>
+                Poste {postes.length} → pared:{" "}
+                <b>{(espacio.largo - (postes[postes.length - 1].x + postes[postes.length - 1].largo)).toFixed(2)} m</b>
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 4. Ajustes del módulo elegido */}
