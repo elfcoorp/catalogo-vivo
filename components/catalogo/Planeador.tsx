@@ -23,8 +23,9 @@ import {
 } from "@/lib/dibujos";
 import {
   CATALOGO_MODULOS,
+  FRUTAS_LINEA,
+  LISTA_LINEA,
   ORIGENES,
-  POSTES_TIPICOS,
   areaOcupada,
   buscarHueco,
   colorDeOrigen,
@@ -191,10 +192,11 @@ export function Planeador() {
   const [whatsapp, setWhatsapp] = useState("");
   // Ancho compartido: lo que hace que la línea quede alineada.
   const [anchoLinea, setAnchoLinea] = useState(1.2);
-  const [largoLinea, setLargoLinea] = useState(3);
   const [tipoMesa, setTipoMesa] = useState<TipoMesa>("guia-central");
-  const [cuantosPostes, setCuantosPostes] = useState(0);
-  const [medidaPoste, setMedidaPoste] = useState(POSTES_TIPICOS[2]);
+  // Cada equipo trae su propio largo, guardado como TEXTO para poder borrar
+  // el campo y teclear otra medida (con número quedaba pegado y no dejaba).
+  const [largos, setLargos] = useState<Record<string, string>>({});
+  const [fruta, setFruta] = useState("");
   const [clasif, setClasif] = useState<ClasificadoraParams>({
     lineas: 6,
     salidas: 12,
@@ -214,9 +216,7 @@ export function Planeador() {
   const pctY = (metros: number) => `${(metros / espacio.ancho) * 100}%`;
 
   const conProblema = modulosConProblema(modulos, espacio);
-  const maquinas = modulos.filter((m) => !m.esPoste);
-  // Los postes, de izquierda a derecha, para poder medir entre uno y otro.
-  const postes = modulos.filter((m) => m.esPoste).sort((a, b) => a.x - b.x);
+  const maquinas = modulos;
   const cabe = maquinas.length > 0 && conProblema.size === 0;
   const ocupado = areaOcupada(modulos);
   const areaEspacio = espacio.largo * espacio.ancho;
@@ -263,68 +263,54 @@ export function Planeador() {
     setSeleccionado(id);
   }
 
-  /** Los módulos que van en línea, todos con el mismo ancho para que alineen. */
-  function agregarEnLinea(que: "cepilladora" | "mesa" | "tolva" | "banda") {
-    const id = nuevoId();
-    const largo = largoLinea;
-    const ancho = anchoLinea;
-    const { tipo, svg } =
-      que === "cepilladora"
-        ? { tipo: `Cepilladora ${ancho.toFixed(2)} m`, svg: svgCepilladora(largo, ancho) }
-        : que === "mesa"
-          ? {
-              tipo: `Selección manual · ${TIPOS_MESA.find((t) => t.valor === tipoMesa)?.etiqueta}`,
-              svg: svgMesaSeleccion(largo, ancho, tipoMesa),
-            }
-          : que === "tolva"
-            ? { tipo: `Tolva ${ancho.toFixed(2)} m`, svg: svgTolva(largo, ancho) }
-            : { tipo: `Banda ${ancho.toFixed(2)} m`, svg: svgBanda(largo, ancho) };
+  /**
+   * Pone o quita un equipo de la línea. Al volver a tocar el mismo botón se
+   * quita; al tocar el otro, cambia de "ya lo tiene" a "se lo ponemos".
+   */
+  function alternarEquipo(eq: (typeof LISTA_LINEA)[number], origen: Origen) {
+    const yaEsta = modulos.find((m) => m.tipo === eq.tipo);
+    if (yaEsta) {
+      if (yaEsta.origen === origen) {
+        borrar(yaEsta.id);
+      } else {
+        actualizar(yaEsta.id, { origen, espejo: false });
+      }
+      return;
+    }
 
+    const largo = Math.max(0.1, Number(largos[eq.tipo] ?? eq.largo) || eq.largo);
+    const ancho = anchoLinea;
+    const svg =
+      eq.dibujo === "cepilladora"
+        ? svgCepilladora(largo, ancho)
+        : eq.dibujo === "mesa"
+          ? svgMesaSeleccion(largo, ancho, tipoMesa)
+          : eq.dibujo === "tolva"
+            ? svgTolva(largo, ancho)
+            : eq.dibujo === "banda"
+              ? svgBanda(largo, ancho)
+              : null;
+
+    const id = nuevoId();
     setModulos((prev) => {
       const { x, y } = buscarHueco(prev, espacio, largo, ancho);
       return [
         ...prev,
         {
           id,
-          tipo,
+          tipo: eq.tipo,
           largo,
           ancho,
           x,
           y,
-          origen: "nueva" as Origen,
-          imagen: comoDataUri(svg),
+          origen,
+          imagen: svg ? comoDataUri(svg) : undefined,
           rotacion: 0 as const,
           espejo: false,
         },
       ];
     });
     setSeleccionado(id);
-  }
-
-  /** Pone de golpe los postes de la nave, repartidos parejo a lo largo. */
-  function ponerPostes(cuantos: number, medida = medidaPoste) {
-    setModulos((prev) => {
-      const sinPostes = prev.filter((m) => !m.esPoste);
-      if (cuantos <= 0) return sinPostes;
-      const separacion = espacio.largo / (cuantos + 1);
-      const nuevos: Modulo[] = [];
-      for (let i = 1; i <= cuantos; i++) {
-        nuevos.push({
-          id: nuevoId(),
-          tipo: `Poste ${medida.etiqueta}`,
-          largo: medida.largo,
-          ancho: medida.ancho,
-          x: +(separacion * i - medida.largo / 2).toFixed(2),
-          y: +(espacio.ancho / 2 - medida.ancho / 2).toFixed(2),
-          origen: "cliente" as Origen,
-          rotacion: 0 as const,
-          espejo: false,
-          esPoste: true,
-        });
-      }
-      return [...sinPostes, ...nuevos];
-    });
-    setSeleccionado(null);
   }
 
   function actualizar(id: string, cambios: Partial<Modulo>) {
@@ -378,7 +364,7 @@ export function Planeador() {
   }
 
   const activo = modulos.find((m) => m.id === seleccionado) ?? null;
-  const mensaje = resumenLevantamiento(espacio, modulos, cabe, notas, whatsapp);
+  const mensaje = resumenLevantamiento(espacio, modulos, cabe, notas, whatsapp, fruta);
 
   return (
     <div className="flex flex-col gap-6">
@@ -410,64 +396,34 @@ export function Planeador() {
           </label>
           <p className="pb-2.5 text-sm text-ink-mute">{areaEspacio.toFixed(1)} m² de piso</p>
         </div>
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            ¿Cuántos postes hay?
-            <input
-              type="number"
-              min={0}
-              max={30}
-              value={cuantosPostes}
-              onChange={(e) => {
-                const n = Math.max(0, Math.min(30, Number(e.target.value) || 0));
-                setCuantosPostes(n);
-                ponerPostes(n);
-              }}
-              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            ¿De qué medida?
-            <select
-              value={medidaPoste.etiqueta}
-              onChange={(e) => {
-                const m = POSTES_TIPICOS.find((p) => p.etiqueta === e.target.value) ?? POSTES_TIPICOS[2];
-                setMedidaPoste(m);
-                if (cuantosPostes > 0) ponerPostes(cuantosPostes, m);
-              }}
-              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-            >
-              {POSTES_TIPICOS.map((p) => (
-                <option key={p.etiqueta} value={p.etiqueta}>
-                  {p.etiqueta}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        {postes.length > 0 && (
-          <button
-            type="button"
-            onClick={() => {
-              const girado = { ...medidaPoste, largo: medidaPoste.ancho, ancho: medidaPoste.largo };
-              setMedidaPoste(girado);
-              ponerPostes(cuantosPostes, girado);
-            }}
-            className="btn-ghost self-start !py-2 !text-sm"
-          >
-            <Icon name="lucide:rotate-cw" size={15} /> Girar los postes (horizontal / vertical)
-          </button>
-        )}
-        <p className="text-xs text-ink-mute">
-          Los postes salen repartidos parejo; muévelos a su lugar real. Nada puede quedar encima de uno, y abajo del
-          dibujo te digo a qué distancia quedó cada uno.
-        </p>
       </div>
 
-      {/* 2. La clasificadora a la medida — es el corazón de la venta */}
+      {/* 2. La fruta: de ahí se desprende todo lo demás */}
+      <div className="card flex flex-col gap-3 p-5">
+        <p className="text-sm font-semibold text-ink">2. ¿Qué fruta trabaja?</p>
+        <div className="flex flex-wrap gap-2">
+          {FRUTAS_LINEA.map((f) => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFruta(fruta === f ? "" : f)}
+              className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
+              style={
+                fruta === f
+                  ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
+                  : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+              }
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. La clasificadora a la medida — es el corazón de la venta */}
       <div className="card flex flex-col gap-4 p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="text-sm font-semibold text-ink">2. Arma la clasificadora que necesita</p>
+          <p className="text-sm font-semibold text-ink">3. Arma la clasificadora que necesita</p>
           <p className="text-sm text-ink-mute">
             Queda de {medidaClasificadora(clasif).largo.toFixed(2)} x {medidaClasificadora(clasif).ancho.toFixed(2)} m
           </p>
@@ -598,9 +554,9 @@ export function Planeador() {
         </button>
       </div>
 
-      {/* 3. Lo demás de la línea */}
+      {/* 4. Qué tiene y qué le ponemos */}
       <div className="card flex flex-col gap-4 p-5">
-        <p className="text-sm font-semibold text-ink">3. Agrega lo demás de la línea</p>
+        <p className="text-sm font-semibold text-ink">4. ¿Qué ya tiene y qué le vamos a poner?</p>
 
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1 text-xs text-ink-mute">
@@ -608,7 +564,7 @@ export function Planeador() {
             <select
               value={anchoLinea}
               onChange={(e) => setAnchoLinea(Number(e.target.value))}
-              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
+              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
             >
               {ANCHOS_EN_LINEA.map((a) => (
                 <option key={a} value={a}>
@@ -617,76 +573,73 @@ export function Planeador() {
               ))}
             </select>
           </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            Largo (m)
-            <input
-              type="number"
-              min={0.5}
-              step={0.5}
-              value={largoLinea}
-              onChange={(e) => setLargoLinea(Math.max(0.5, Number(e.target.value) || 0.5))}
-              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            Guía de la mesa
-            <select
-              value={tipoMesa}
-              onChange={(e) => setTipoMesa(e.target.value as TipoMesa)}
-              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
-            >
-              {TIPOS_MESA.map((t) => (
-                <option key={t.valor} value={t.valor}>
-                  {t.etiqueta}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => agregarEnLinea("cepilladora")} className="btn-ghost !py-2 !text-sm">
-            + Cepilladora
-          </button>
-          <button type="button" onClick={() => agregarEnLinea("mesa")} className="btn-ghost !py-2 !text-sm">
-            + Mesa de selección
-          </button>
-          <button type="button" onClick={() => agregarEnLinea("tolva")} className="btn-ghost !py-2 !text-sm">
-            + Tolva
-          </button>
-          <button type="button" onClick={() => agregarEnLinea("banda")} className="btn-ghost !py-2 !text-sm">
-            + Banda
-          </button>
+        {/* Un renglón por equipo: su largo, y de un toque si ya lo tiene o
+            si se lo vamos a poner. De aquí sale el listado para cotizar. */}
+        <div className="flex flex-col divide-y divide-line">
+          {LISTA_LINEA.map((eq) => {
+            const largoTexto = largos[eq.tipo] ?? String(eq.largo);
+            const puesto = modulos.find((m) => m.tipo === eq.tipo);
+            return (
+              <div key={eq.tipo} className="flex flex-wrap items-center gap-2 py-2.5">
+                <span className="min-w-[8.5rem] flex-1 text-sm text-ink">{eq.tipo}</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step={0.5}
+                  value={largoTexto}
+                  onChange={(e) => setLargos((l) => ({ ...l, [eq.tipo]: e.target.value }))}
+                  className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
+                  aria-label={`Largo de ${eq.tipo}`}
+                />
+                {/* La guía solo se pregunta en la mesa, no antes de saber
+                    siquiera si va a haber mesa. */}
+                {eq.dibujo === "mesa" && (
+                  <select
+                    value={tipoMesa}
+                    onChange={(e) => setTipoMesa(e.target.value as TipoMesa)}
+                    className="rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
+                    aria-label="Guía de la mesa"
+                  >
+                    {TIPOS_MESA.map((t) => (
+                      <option key={t.valor} value={t.valor}>
+                        {t.etiqueta}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {(["cliente", "nueva"] as Origen[]).map((o) => {
+                  const info = ORIGENES.find((x) => x.valor === o)!;
+                  const activo2 = puesto?.origen === o;
+                  return (
+                    <button
+                      key={o}
+                      type="button"
+                      onClick={() => alternarEquipo(eq, o)}
+                      className="rounded-full border px-3 py-1.5 text-xs font-semibold transition"
+                      style={
+                        activo2
+                          ? { background: info.color, color: "#fff", borderColor: info.color }
+                          : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                      }
+                    >
+                      {o === "cliente" ? "Ya lo tiene" : "Se lo ponemos"}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
 
         <p className="text-xs text-ink-mute">
-          Todas entran con el mismo ancho de línea, así se alinean con la clasificadora. Las tolvas típicas van a 0.90,
-          1.20 y 1.80 m.
+          Todos entran con el mismo ancho de línea, así quedan alineados con la clasificadora. Vuelve a tocar el botón
+          para quitarlo.
         </p>
-
-        <details className="text-sm text-ink-soft">
-          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-ink-mute">
-            Otros módulos
-          </summary>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {CATALOGO_MODULOS.filter((m) => !m.imagen).map((mod) => (
-              <button
-                key={mod.tipo}
-                type="button"
-                onClick={() => agregar(mod)}
-                className="rounded-full border border-line-strong px-3 py-1.5 text-xs font-medium text-ink-soft transition hover:border-marca hover:text-marca"
-              >
-                + {mod.tipo}
-                <span className="ml-1 text-ink-mute">
-                  {mod.largo.toFixed(2)}×{mod.ancho.toFixed(2)}
-                </span>
-              </button>
-            ))}
-          </div>
-        </details>
       </div>
 
-      {/* 4. El dibujo */}
+      {/* 5. El dibujo */}
       <div className="card flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-semibold text-ink">3. Acomódalos arrastrando con el dedo</p>
@@ -768,27 +721,6 @@ export function Planeador() {
           <span style={{ color: "#c92a2a" }}>rojo</span> lo que se encima o se sale.
         </p>
 
-        {/* Las distancias entre postes: eso decide qué cabe entre uno y otro */}
-        {postes.length > 0 && (
-          <div className="rounded-xl border border-line bg-bg-2 p-3">
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-ink-mute">Claro entre postes</p>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-soft">
-              <span>
-                Pared → poste 1: <b>{postes[0].x.toFixed(2)} m</b>
-              </span>
-              {postes.slice(1).map((p, i) => (
-                <span key={p.id}>
-                  Poste {i + 1} → {i + 2}:{" "}
-                  <b>{(p.x - (postes[i].x + postes[i].largo)).toFixed(2)} m</b>
-                </span>
-              ))}
-              <span>
-                Poste {postes.length} → pared:{" "}
-                <b>{(espacio.largo - (postes[postes.length - 1].x + postes[postes.length - 1].largo)).toFixed(2)} m</b>
-              </span>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 4. Ajustes del módulo elegido */}

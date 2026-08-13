@@ -88,6 +88,44 @@ export interface Espacio {
   ancho: number;
 }
 
+/** Qué dibujo le toca a cada equipo de la línea. */
+export type Dibujo = "cepilladora" | "mesa" | "tolva" | "banda" | "ninguno";
+
+/**
+ * Los equipos que suele traer una línea, en el orden en que van. El vendedor
+ * marca cuáles ya tiene el cliente y cuáles se le van a poner — de ahí sale
+ * el listado para cotizar. Cada uno trae su largo típico, editable, porque
+ * unas mesas son más largas que otras.
+ */
+export const LISTA_LINEA: { tipo: string; largo: number; dibujo: Dibujo }[] = [
+  { tipo: "Volteadora de bins", largo: 8, dibujo: "ninguno" },
+  { tipo: "Tolva de recepción", largo: 6, dibujo: "tolva" },
+  { tipo: "Elevador de rodillos", largo: 3, dibujo: "banda" },
+  { tipo: "Cepilladora lavadora", largo: 2.27, dibujo: "cepilladora" },
+  { tipo: "Cepilladora secadora", largo: 2.27, dibujo: "cepilladora" },
+  { tipo: "Cepilladora enceradora", largo: 2.27, dibujo: "cepilladora" },
+  { tipo: "Selección manual", largo: 3.4, dibujo: "mesa" },
+  { tipo: "Mesa descarnadora", largo: 3, dibujo: "mesa" },
+  { tipo: "Banda de PVC", largo: 3, dibujo: "banda" },
+  { tipo: "Banda sanitaria", largo: 7, dibujo: "banda" },
+  { tipo: "Módulo de empaque", largo: 3, dibujo: "ninguno" },
+  { tipo: "Llenadora", largo: 3, dibujo: "ninguno" },
+];
+
+/** Las frutas que se trabajan, para arrancar el levantamiento por ahí. */
+export const FRUTAS_LINEA = [
+  "Tomate",
+  "Chile morrón",
+  "Pepino",
+  "Cítricos",
+  "Mango",
+  "Aguacate",
+  "Cebolla",
+  "Papa",
+  "Chile jalapeño",
+  "Otra",
+];
+
 /** ¿Este módulo se sale del espacio disponible? */
 export function seSale(m: Modulo, espacio: Espacio): boolean {
   const fuera = 0.001; // tolerancia, para que un empate no marque error
@@ -200,7 +238,8 @@ export function resumenLevantamiento(
   modulos: Modulo[],
   cabe: boolean,
   notas: string,
-  whatsapp: string
+  whatsapp: string,
+  fruta = ""
 ): string {
   const linea = (m: Modulo) => {
     const giro = m.rotacion !== 0 ? ` · girada ${m.rotacion}°` : "";
@@ -216,6 +255,7 @@ export function resumenLevantamiento(
 
   return [
     "Levantamiento de mi empaque:",
+    fruta && `Fruta: ${fruta}`,
     `Espacio disponible: ${espacio.largo.toFixed(2)} x ${espacio.ancho.toFixed(2)} m`,
     postes.length > 0 && `Postes marcados en el área: ${postes.length}`,
     seccion("Lo que YA TENGO", porOrigen("cliente")),
