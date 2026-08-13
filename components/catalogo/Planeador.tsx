@@ -8,6 +8,7 @@ import {
   ANCHOS_EN_LINEA,
   COPITAS,
   LINEAS_TIPICAS,
+  enPulgadas,
   TIPOS_MESA,
   comoDataUri,
   medidaClasificadora,
@@ -197,10 +198,12 @@ export function Planeador() {
   // el campo y teclear otra medida (con número quedaba pegado y no dejaba).
   const [largos, setLargos] = useState<Record<string, string>>({});
   const [fruta, setFruta] = useState("");
+  // Como texto, para poder borrarlo y teclear otra cantidad.
+  const [salidasTxt, setSalidasTxt] = useState("12");
   const [clasif, setClasif] = useState<ClasificadoraParams>({
     lineas: 6,
     salidas: 12,
-    pasoSalidas: 36,
+    pasoSalidas: 22.5,
     lado: "derecha",
     tipoCopita: "charola",
     medidaCopita: '6"',
@@ -214,6 +217,9 @@ export function Planeador() {
   // se reescala solo al girar el teléfono o cambiar de pantalla.
   const pctX = (metros: number) => `${(metros / espacio.largo) * 100}%`;
   const pctY = (metros: number) => `${(metros / espacio.ancho) * 100}%`;
+
+  // Las salidas se teclean, así que se leen aparte del resto de la config.
+  const clasifFinal: ClasificadoraParams = { ...clasif, salidas: Math.max(1, Number(salidasTxt) || 1) };
 
   const conProblema = modulosConProblema(modulos, espacio);
   const maquinas = modulos;
@@ -250,9 +256,9 @@ export function Planeador() {
   /** Mete al dibujo la clasificadora armada con lo que se pidió arriba. */
   function agregarClasificadora() {
     const id = nuevoId();
-    const { largo, ancho } = medidaClasificadora(clasif);
-    const imagen = comoDataUri(svgClasificadora(clasif));
-    const tipo = nombreClasificadora(clasif);
+    const { largo, ancho } = medidaClasificadora(clasifFinal);
+    const imagen = comoDataUri(svgClasificadora(clasifFinal));
+    const tipo = nombreClasificadora(clasifFinal);
     setModulos((prev) => {
       const { x, y } = buscarHueco(prev, espacio, largo, ancho);
       return [
@@ -425,7 +431,7 @@ export function Planeador() {
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="text-sm font-semibold text-ink">3. Arma la clasificadora que necesita</p>
           <p className="text-sm text-ink-mute">
-            Queda de {medidaClasificadora(clasif).largo.toFixed(2)} x {medidaClasificadora(clasif).ancho.toFixed(2)} m
+            Queda de {medidaClasificadora(clasifFinal).largo.toFixed(2)} x {medidaClasificadora(clasifFinal).ancho.toFixed(2)} m
           </p>
         </div>
 
@@ -440,7 +446,13 @@ export function Planeador() {
                   key={c.etiqueta}
                   type="button"
                   onClick={() =>
-                    setClasif((s) => ({ ...s, tipoCopita: c.tipo, medidaCopita: c.medida, conPeso: c.conPeso }))
+                    setClasif((s) => ({
+                      ...s,
+                      tipoCopita: c.tipo,
+                      medidaCopita: c.medida,
+                      // Se ajusta el paso al primero válido de esa copita.
+                      pasoSalidas: c.salidas.includes(s.pasoSalidas) ? s.pasoSalidas : c.salidas[0],
+                    }))
                   }
                   className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
                   style={
@@ -506,48 +518,53 @@ export function Planeador() {
           </div>
         </div>
 
-        {/* Lo fino se queda guardado: casi nunca se toca */}
-        <details className="text-sm text-ink-soft">
-          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-ink-mute">
-            Salidas y separación
-          </summary>
-          <div className="mt-3 flex flex-wrap gap-3">
-            <label className="flex flex-col gap-1 text-xs text-ink-mute">
-              Salidas por lado
-              <input
-                type="number"
-                min={1}
-                max={40}
-                value={clasif.salidas}
-                onChange={(e) => setClasif((c) => ({ ...c, salidas: Math.max(1, Number(e.target.value) || 1) }))}
-                className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-xs text-ink-mute">
-              Cada cuántas pulgadas
-              <input
-                type="number"
-                min={6}
-                max={72}
-                value={clasif.pasoSalidas}
-                onChange={(e) => setClasif((c) => ({ ...c, pasoSalidas: Math.max(6, Number(e.target.value) || 6) }))}
-                className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-              />
-            </label>
+        {/* Salidas a cada: SOLO las que existen para esa copita */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">Salidas a cada</p>
+          <div className="flex flex-wrap gap-2">
+            {(COPITAS.find((c) => c.tipo === clasif.tipoCopita && c.medida === clasif.medidaCopita)?.salidas ?? []).map(
+              (s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setClasif((c) => ({ ...c, pasoSalidas: s }))}
+                  className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
+                  style={
+                    clasif.pasoSalidas === s
+                      ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
+                      : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                  }
+                >
+                  {enPulgadas(s)}
+                </button>
+              )
+            )}
           </div>
-        </details>
+        </div>
+
+        {/* Cuántas salidas: es lo único que se teclea */}
+        <label className="flex flex-col gap-1 text-xs text-ink-mute">
+          ¿Cuántas salidas por lado?
+          <input
+            type="number"
+            inputMode="numeric"
+            value={salidasTxt}
+            onChange={(e) => setSalidasTxt(e.target.value)}
+            className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
+          />
+        </label>
 
         {/* Vista previa: se ve antes de meterla al dibujo */}
         <div className="overflow-hidden rounded-xl border border-line bg-white p-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={comoDataUri(svgClasificadora(clasif))}
-            alt={nombreClasificadora(clasif)}
+            src={comoDataUri(svgClasificadora(clasifFinal))}
+            alt={nombreClasificadora(clasifFinal)}
             className="mx-auto block w-full"
             style={{ maxHeight: 260, objectFit: "contain" }}
           />
         </div>
-        <p className="text-center text-xs text-ink-mute">{nombreClasificadora(clasif)}</p>
+        <p className="text-center text-xs text-ink-mute">{nombreClasificadora(clasifFinal)}</p>
 
         <button type="button" onClick={agregarClasificadora} className="btn-marca self-start">
           <Icon name="lucide:plus" size={18} /> Meterla al dibujo

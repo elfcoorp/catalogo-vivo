@@ -17,16 +17,34 @@ export type TipoCopita = "charola" | "clip";
 export type Lado = "izquierda" | "derecha" | "ambos";
 
 /**
- * Las copitas que ya se manejan, cada una de un toque. Salen del catálogo
- * de ELFCO: así el vendedor no teclea medidas ni se inventa combinaciones.
+ * Los pasos de copita y, para cada uno, a cada cuánto pueden ir las salidas.
+ * Sale tal cual de "Salidas para CCO de rodillos" y "…de charolas" de ELFCO,
+ * así que el vendedor no teclea medidas ni arma combinaciones que no existen.
  */
-export const COPITAS: { etiqueta: string; tipo: TipoCopita; medida: string; conPeso: boolean }[] = [
-  { etiqueta: 'Clip 1¼"', tipo: "clip", medida: '1¼"', conPeso: false },
-  { etiqueta: 'Clip 3¾"', tipo: "clip", medida: '3¾"', conPeso: false },
-  { etiqueta: 'Clip 4½" con peso', tipo: "clip", medida: '4½"', conPeso: true },
-  { etiqueta: 'Charola 6"', tipo: "charola", medida: '6"', conPeso: false },
-  { etiqueta: 'Charola 6" especial', tipo: "charola", medida: '6" especial', conPeso: false },
+export const COPITAS: {
+  etiqueta: string;
+  tipo: TipoCopita;
+  medida: string;
+  /** Separación posible entre salidas, en pulgadas. */
+  salidas: number[];
+}[] = [
+  { etiqueta: 'Clip 1¼"', tipo: "clip", medida: '1¼"', salidas: [12.5, 15, 18.75, 22.5, 25] },
+  { etiqueta: 'Clip 2¼"', tipo: "clip", medida: '2¼"', salidas: [18, 22.5, 27, 36] },
+  { etiqueta: 'Clip 3"', tipo: "clip", medida: '3"', salidas: [18, 21, 24, 27, 30, 36] },
+  { etiqueta: 'Clip 3¾"', tipo: "clip", medida: '3¾"', salidas: [22.5, 30, 37.5, 45, 48.75, 60] },
+  { etiqueta: 'Clip 4½"', tipo: "clip", medida: '4½"', salidas: [22.5, 27, 36, 45, 54] },
+  { etiqueta: 'Charola 6"', tipo: "charola", medida: '6"', salidas: [22.5, 30, 37.5, 45] },
+  { etiqueta: 'Charola 7½"', tipo: "charola", medida: '7½"', salidas: [24, 30, 36, 42, 48] },
+  { etiqueta: 'Charola 9"', tipo: "charola", medida: '9"', salidas: [27, 36, 45, 54] },
 ];
+
+/** Cómo se escribe una medida en pulgadas (22.5 → 22½"). */
+export function enPulgadas(v: number): string {
+  const entero = Math.floor(v);
+  const resto = +(v - entero).toFixed(2);
+  const fraccion = resto === 0.5 ? "½" : resto === 0.25 ? "¼" : resto === 0.75 ? "¾" : "";
+  return `${entero}${fraccion}"`;
+}
 
 /** Cuántas líneas se arman normalmente. */
 export const LINEAS_TIPICAS = [2, 4, 6, 8];
