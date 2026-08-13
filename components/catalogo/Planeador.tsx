@@ -713,8 +713,10 @@ export function Planeador() {
             </p>
           )}
 
-          {/* Las distancias a las paredes del que está elegido */}
-          {activo && !activo.esPoste && <Separaciones m={activo} espacio={espacio} />}
+          {/* Las distancias a las paredes del que está elegido — también de
+              los postes: saber a qué distancia quedó el poste es justo lo que
+              decide qué máquina cabe entre uno y otro. */}
+          {activo && <Separaciones m={activo} espacio={espacio} />}
 
           {modulos.map((m) => {
             const malo = conProblema.has(m.id);
