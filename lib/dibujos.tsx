@@ -9,8 +9,27 @@
  * La forma está sacada de los planos reales de ELFCO (los layouts en PDF).
  */
 
-export type TipoCopita = "charola" | "clip" | "rodillo";
+/**
+ * Solo hay dos familias: clip y charola. "Rodillo" es la otra forma de
+ * nombrar al clip; se usa más la palabra clip, así que esa es la que sale.
+ */
+export type TipoCopita = "charola" | "clip";
 export type Lado = "izquierda" | "derecha" | "ambos";
+
+/**
+ * Las copitas que ya se manejan, cada una de un toque. Salen del catálogo
+ * de ELFCO: así el vendedor no teclea medidas ni se inventa combinaciones.
+ */
+export const COPITAS: { etiqueta: string; tipo: TipoCopita; medida: string; conPeso: boolean }[] = [
+  { etiqueta: 'Clip 1¼"', tipo: "clip", medida: '1¼"', conPeso: false },
+  { etiqueta: 'Clip 3¾"', tipo: "clip", medida: '3¾"', conPeso: false },
+  { etiqueta: 'Clip 4½" con peso', tipo: "clip", medida: '4½"', conPeso: true },
+  { etiqueta: 'Charola 6"', tipo: "charola", medida: '6"', conPeso: false },
+  { etiqueta: 'Charola 6" especial', tipo: "charola", medida: '6" especial', conPeso: false },
+];
+
+/** Cuántas líneas se arman normalmente. */
+export const LINEAS_TIPICAS = [2, 4, 6, 8];
 
 export interface ClasificadoraParams {
   lineas: number;
@@ -41,8 +60,7 @@ export function medidaClasificadora(p: ClasificadoraParams): { largo: number; an
 }
 
 export function nombreClasificadora(p: ClasificadoraParams): string {
-  const copita =
-    p.tipoCopita === "charola" ? "Charola" : p.tipoCopita === "clip" ? "Clip" : "Rodillo";
+  const copita = p.tipoCopita === "charola" ? "Charola" : "Clip";
   const salidas = p.lado === "ambos" ? `${p.salidas * 2} salidas` : `${p.salidas} salidas`;
   // El lado va en el nombre: es lo primero que se pregunta al cotizar.
   const lado =
@@ -79,9 +97,7 @@ export function svgClasificadora(p: ClasificadoraParams): string {
     const paso = 34;
     for (let x = entradaCm * 0.5 + paso / 2; x < W - entradaCm * 0.4; x += paso) {
       const cy = y + altoLinea / 2;
-      if (p.tipoCopita === "rodillo") {
-        partes.push(`<circle cx="${x}" cy="${cy}" r="${altoLinea * 0.2}" fill="none" stroke="${trazoFino}" stroke-width="2"/>`);
-      } else if (p.tipoCopita === "clip") {
+      if (p.tipoCopita === "clip") {
         partes.push(
           `<path d="M ${x - altoLinea * 0.2} ${cy - altoLinea * 0.18} L ${x - altoLinea * 0.2} ${cy + altoLinea * 0.18} M ${x + altoLinea * 0.2} ${cy - altoLinea * 0.18} L ${x + altoLinea * 0.2} ${cy + altoLinea * 0.18}" stroke="${trazoFino}" stroke-width="2" fill="none"/>`
         );

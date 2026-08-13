@@ -6,6 +6,8 @@ import { CONFIG } from "@/lib/config";
 import { linkWhatsApp } from "@/lib/whatsapp";
 import {
   ANCHOS_EN_LINEA,
+  COPITAS,
+  LINEAS_TIPICAS,
   TIPOS_MESA,
   comoDataUri,
   medidaClasificadora,
@@ -17,7 +19,6 @@ import {
   svgTolva,
   type ClasificadoraParams,
   type Lado,
-  type TipoCopita,
   type TipoMesa,
 } from "@/lib/dibujos";
 import {
@@ -425,85 +426,113 @@ export function Planeador() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            Copita
-            <select
-              value={clasif.tipoCopita}
-              onChange={(e) => setClasif((c) => ({ ...c, tipoCopita: e.target.value as TipoCopita }))}
-              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
-            >
-              <option value="charola">Charola</option>
-              <option value="clip">Clip</option>
-              <option value="rodillo">Rodillo</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            Medida
-            <input
-              type="text"
-              value={clasif.medidaCopita}
-              onChange={(e) => setClasif((c) => ({ ...c, medidaCopita: e.target.value }))}
-              placeholder='Ej. 3¾"'
-              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            Líneas
-            <input
-              type="number"
-              min={1}
-              max={12}
-              value={clasif.lineas}
-              onChange={(e) => setClasif((c) => ({ ...c, lineas: Math.max(1, Number(e.target.value) || 1) }))}
-              className="w-20 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            Salidas por lado
-            <input
-              type="number"
-              min={1}
-              max={40}
-              value={clasif.salidas}
-              onChange={(e) => setClasif((c) => ({ ...c, salidas: Math.max(1, Number(e.target.value) || 1) }))}
-              className="w-20 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            Salidas a cada (pulgadas)
-            <input
-              type="number"
-              min={6}
-              max={72}
-              value={clasif.pasoSalidas}
-              onChange={(e) => setClasif((c) => ({ ...c, pasoSalidas: Math.max(6, Number(e.target.value) || 6) }))}
-              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            Salidas hacia
-            <select
-              value={clasif.lado}
-              onChange={(e) => setClasif((c) => ({ ...c, lado: e.target.value as Lado }))}
-              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-sm text-ink outline-none focus:border-marca"
-            >
-              <option value="izquierda">Lado izquierdo</option>
-              <option value="derecha">Lado derecho</option>
-              <option value="ambos">Los dos lados</option>
-            </select>
-          </label>
+        {/* Copita: de un toque, sin teclear medidas */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">Copita</p>
+          <div className="flex flex-wrap gap-2">
+            {COPITAS.map((c) => {
+              const elegida = clasif.tipoCopita === c.tipo && clasif.medidaCopita === c.medida;
+              return (
+                <button
+                  key={c.etiqueta}
+                  type="button"
+                  onClick={() =>
+                    setClasif((s) => ({ ...s, tipoCopita: c.tipo, medidaCopita: c.medida, conPeso: c.conPeso }))
+                  }
+                  className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
+                  style={
+                    elegida
+                      ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
+                      : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                  }
+                >
+                  {c.etiqueta}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-soft">
-          <input
-            type="checkbox"
-            checked={clasif.conPeso}
-            onChange={(e) => setClasif((c) => ({ ...c, conPeso: e.target.checked }))}
-            className="h-4 w-4 accent-[var(--marca)]"
-          />
-          Con peso
-        </label>
+        {/* Líneas */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">Líneas</p>
+          <div className="flex flex-wrap gap-2">
+            {LINEAS_TIPICAS.map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setClasif((s) => ({ ...s, lineas: n }))}
+                className="rounded-full border px-4 py-2 text-sm font-medium transition"
+                style={
+                  clasif.lineas === n
+                    ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
+                    : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                }
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Lado de las salidas */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">Salidas hacia</p>
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                { v: "izquierda", t: "Lado izquierdo" },
+                { v: "derecha", t: "Lado derecho" },
+                { v: "ambos", t: "Los dos lados" },
+              ] as { v: Lado; t: string }[]
+            ).map((o) => (
+              <button
+                key={o.v}
+                type="button"
+                onClick={() => setClasif((s) => ({ ...s, lado: o.v }))}
+                className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
+                style={
+                  clasif.lado === o.v
+                    ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
+                    : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                }
+              >
+                {o.t}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Lo fino se queda guardado: casi nunca se toca */}
+        <details className="text-sm text-ink-soft">
+          <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-ink-mute">
+            Salidas y separación
+          </summary>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <label className="flex flex-col gap-1 text-xs text-ink-mute">
+              Salidas por lado
+              <input
+                type="number"
+                min={1}
+                max={40}
+                value={clasif.salidas}
+                onChange={(e) => setClasif((c) => ({ ...c, salidas: Math.max(1, Number(e.target.value) || 1) }))}
+                className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-xs text-ink-mute">
+              Cada cuántas pulgadas
+              <input
+                type="number"
+                min={6}
+                max={72}
+                value={clasif.pasoSalidas}
+                onChange={(e) => setClasif((c) => ({ ...c, pasoSalidas: Math.max(6, Number(e.target.value) || 6) }))}
+                className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
+              />
+            </label>
+          </div>
+        </details>
 
         {/* Vista previa: se ve antes de meterla al dibujo */}
         <div className="overflow-hidden rounded-xl border border-line bg-white p-3">
