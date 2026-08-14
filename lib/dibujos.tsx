@@ -78,8 +78,28 @@ const ANCHO_POR_LINEA: Record<TipoCopita, number> = { clip: 0.65, charola: 0.725
  * mesas, tolvas). Sale de los mismos dos planos: en la línea de clip todo
  * mide 0.90 m de ancho y en la de charolas todo mide 1.20 m.
  */
-export function anchoDeLinea(tipo: TipoCopita): number {
-  return tipo === "clip" ? 0.9 : 1.2;
+/**
+ * Ancho ÚTIL (por donde pasa la fruta) que le toca a la línea según cuántas
+ * líneas trae la clasificadora. Medidas de ELFCO, para clip; por ahora se usan
+ * las mismas para charola — si algún día cambian, se ajusta aquí nada más.
+ *
+ * Esto es lo que hace que la cepilladora, la mesa y las bandas queden del
+ * mismo ancho que la línea escogida, en vez de cada una por su lado.
+ */
+export const ANCHO_UTIL_POR_LINEAS: Record<number, number> = {
+  2: 0.6,
+  4: 0.9,
+  6: 1.2,
+  8: 1.8,
+};
+
+export function anchoDeLinea(lineas: number): number {
+  if (ANCHO_UTIL_POR_LINEAS[lineas]) return ANCHO_UTIL_POR_LINEAS[lineas];
+  // Si alguien pide un número de líneas fuera de la tabla, se toma el más
+  // cercano hacia abajo en vez de inventar una medida.
+  const conocidos = Object.keys(ANCHO_UTIL_POR_LINEAS).map(Number).sort((a, b) => a - b);
+  const menor = conocidos.filter((n) => n <= lineas).pop() ?? conocidos[0];
+  return ANCHO_UTIL_POR_LINEAS[menor];
 }
 
 /** Lo que se lleva la entrada de fruta y la descarga al final. */

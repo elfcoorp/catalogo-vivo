@@ -276,9 +276,10 @@ export function Planeador() {
   const areaEspacio = espacio.largo * espacio.ancho;
   const nombres = nombresNumerados(modulos);
 
-  // El ancho de los equipos que van en fila lo manda la copita: con clip la
-  // línea es de 0.90 m y con charola de 1.20 m. Así sale de sus dos planos.
-  const anchoLinea = anchoDeLinea(clasif.tipoCopita);
+  // El ancho útil de los equipos que van en fila lo mandan las LÍNEAS de la
+  // clasificadora: 2→0.60, 4→0.90, 6→1.20, 8→1.80 m. Así la cepilladora, la
+  // mesa y las bandas quedan del mismo ancho que la línea escogida.
+  const anchoLinea = anchoDeLinea(clasif.lineas);
 
   // El id se genera FUERA del actualizador: React puede correr el actualizador
   // dos veces, y entonces el módulo se quedaba con un id y la selección con
