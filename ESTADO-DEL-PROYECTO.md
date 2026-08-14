@@ -134,6 +134,49 @@ Sacada de sus PDF `Salidas para CCO de rodillos.pdf` y `…de charolas.pdf`
 **Solo hay dos familias: clip y charola.** "Rodillo" es otro nombre para el clip;
 él prefiere que se diga **clip**.
 
+### Los anchos — LEER ESTO ANTES DE TOCAR NADA
+
+Aquí me equivoqué **dos veces seguidas**. Que no vuelva a pasar:
+
+| Qué | Ancho | De dónde salió |
+|---|---|---|
+| **Módulos** (cepilladora, mesa, bandas) | 2 líneas **0.60 m** · 4 líneas **0.90 m** · 6 líneas **1.20 m** · 8 líneas **1.80 m** | Se lo dictó Eduardo. Es el ancho **ÚTIL**, por donde pasa la fruta |
+| **Cuerpo de la clasificadora** | **1.343 m** para todas | Cota de 1343 mm del plano `LINEA CHAROLAS 6 x 12+1` |
+
+**Los dos errores que cometí:**
+1. Saqué el ancho de la clasificadora multiplicando líneas × una cota que
+   interpreté a ojo → una de 6 líneas daba **4.35 m**. La de 4349 mm abarca la
+   máquina **con sus tolvas de los dos lados**, no el cuerpo.
+2. Luego la puse igual a los módulos → una de 2 líneas daba **0.60 m**. **La
+   clasificadora NO mide lo mismo que las cepilladoras.**
+
+**El fabricante (CIU) no va a dar la tabla real** por líneas y por copita: venden
+máquinas, no comparten medidas de fabricación. No insistir con eso. El ancho se
+puede teclear en la pantalla si se conoce el de una máquina en concreto.
+
+**El ancho automático es solo el punto de partida.** Cada pieza lleva su propio
+ancho útil editable, porque:
+- Lo que el cliente **ya tiene** trae su medida real.
+- Hay clientes que pusieron la cepilladora de 1.20 m con clasificadora de 2
+  líneas **a propósito**, pensando en crecer: esa cepilladora ya les sirve para
+  6 y no se cambia — el upgrade sale más barato. El planeador ya avisa
+  "alcanza hasta N líneas" o "se queda corta".
+- Y se puede bajar el ancho de las mesas para abaratar una cotización.
+
+### El largo
+
+- **De cada equipo:** arranca **VACÍO**. Hay cepilladoras de muchos largos, no se
+  vale inventar una medida que va a acabar en una cotización. La pieza avisa
+  "falta ponerle el largo" y antes de mandar el levantamiento se listan las que
+  siguen sin medir.
+- **De la clasificadora:** se calcula solo, `(salidas × separación) + 2.2 m de
+  entrada + 2.2 m de descarga`. Los 2.2 + 2.2 son **estimados míos**, pero
+  cuadran: en el plano de charolas las salidas se llevan 10.97 m y la máquina
+  completa mide 15.34 m — sobran 4.37 m contra los 4.40 m estimados.
+  Eduardo describió que ahí van: singulador (**3.05 m**, confirmado en su
+  cotización de morrón), otro singulador al que cae, y el cajón de video. No se
+  pudo repartir con certeza entre esas tres partes.
+
 > ⚠️ **Pendiente de aclarar:** en el catálogo la IDEPRO dice `Clip 3¾"` y la de
 > tomate roma dice `Rodillo 3¾"`. Si son mecánicamente distintas, hay que
 > separarlas otra vez. Él todavía no lo confirma.
@@ -150,22 +193,55 @@ la del plano real mide **15.34 × 4.35 m**.
 
 ---
 
-## 5. LO QUE FALTA (por orden de importancia)
+## 5. LO QUE SIGUE — EL CAMBIO DE RUMBO (leer primero)
 
-### 5.1 El flujo nuevo que él pidió — LO MÁS IMPORTANTE
+**Aquí es donde va el trabajo ahora.** Todo lo de arriba ya está hecho.
 
-Cambia el orden completo. Él lo explicó así: el vendedor llega al empaque,
-**ve alrededor y va arrastrando todo lo que hay, SIN que se le pregunten medidas
-todavía**. Ya que está todo puesto, **ahí sí** vienen las preguntas: *"la mesa de
-selección #1, ¿de cuánto es?"*, *"la cepilladora #2, ¿de cuánto?"*.
+### 5.0 El layout final para el cliente — LO MÁS IMPORTANTE
 
-El orden que quiere:
+Palabras de Eduardo, y tiene razón:
+
+> *"Lo que está en el tabulador no es muy importante, podemos buscar algo más
+> sencillo. Lo que necesitamos nosotros es la presentación final que el cliente
+> va a ver."*
+
+Se estuvo puliendo el dibujo **de la pantalla del vendedor** y ahí es donde salen
+los puntitos que le dan desconfianza. Dijo, textual: *"no es para una empresa que
+se va a vender en ochenta millones de pesos"*.
+
+**El reparto correcto es:**
+
+| | Cómo debe ser |
+|---|---|
+| **Pantalla del vendedor** | Herramienta de trabajo. Sencilla y rápida, aunque se vea tosca. La usa parado en el empaque |
+| **Layout final para el cliente** | **Impecable.** Es lo que decide la venta |
+
+**Lo que quiere de la presentación final:** que después de acomodar los módulos y
+pasar las medidas, se genere **un layout en PDF** que muestre:
+- El acomodo a escala
+- **Las cotas de cada máquina a su respectiva pared**
+- El clip / la charola y el paso
+- Las medidas de cada pieza
+- Con la marca ELFCO
+
+O sea: algo como los planos de IDEPRO/CIU que él ya maneja, pero armado por el
+vendedor en la visita. Ese es el entregable que el cliente ve.
+
+**Nota:** ya existe `/imprimir` para el PDF del catálogo — ver si sirve de base.
+
+### 5.1 El flujo de captura (ya implementado, revisar que siga bien)
+
+El vendedor llega al empaque, **va tocando todo lo que hay SIN que se le
+pregunten medidas todavía**. Ya que está todo puesto, **ahí sí** vienen las
+preguntas de cuánto mide cada cosa.
+
+Orden actual de la pantalla:
 1. Dimensiones del empaque
-2. Qué fruta
-3. La clasificadora (clip/charola + salidas)
-4. **Arrastra todo lo que veas** ← el cambio
-5. **Ya puesto todo, las preguntas de medidas**
-6. Acomodar
+2. Qué fruta (con fotos)
+3. La clasificadora (copita → líneas → lado → salidas)
+4. Toca todo lo que veas en el empaque
+5. Las medidas de cada pieza
+6. Mándalo para cotizar
 
 ### 5.2 Ancho útil
 
@@ -175,26 +251,19 @@ Palabras de él: *"ya si con el puro ancho útil no cabe, pues no cabe"*.
 
 ### 5.3 Faltan equipos de los layouts
 
-Agregar todo lo que aparece en sus planos: **caseta de vigilancia**, transportador
-de caja llena, transportador de caja vacía, volteadora de cajas, banda de cangilones,
-tolvas, bandas de PVC. De cada uno se le preguntará **cuántos** y **ancho útil y
-largo** de cada uno.
+Ya entraron varios (transportador de caja llena y vacía, banda de cangilones,
+tina de lavado, mesa de rodillos, descanicador, singulador, volteadora de cajas,
+caseta de control). Falta revisar contra sus planos si queda alguno, y la
+**caseta de vigilancia** que pidió expresamente.
 
-### 5.4 Calibrar el ancho según clip o charola
-
-Él dice que **el clip hace la máquina más angosta y la charola más ancha**
-(ejemplo suyo: clip 3¾" de 4 líneas ≈ 90 cm; charola 4½" con peso ≈ 1.20 m).
-Ahorita todas usan **0.72 m por línea**, sacado del layout de charolas.
-**Se puede medir en sus propios layouts** — no hace falta pedirle nada.
-
-### 5.5 Otros pendientes chicos
+### 5.4 Otros pendientes chicos
 
 - **El video de la tomate grape** — está marcada verificada pero falta el video.
 - **Jalapeño** no venía en el folleto de CepaMex; se quitó de la lista de frutas.
 - **Kit para vendedores** está visible al público: cuando dé de alta vendedores,
   cualquier cliente podrá ver sus nombres y WhatsApp. Ya se le avisó, él lo dejó así.
 
-### 5.6 Cosas que él DESCARTÓ (no volver a proponerlas)
+### 5.5 Cosas que él DESCARTÓ (no volver a proponerlas)
 
 - **Postes** en el planeador — los pidió, luego dijo *"mejor quita los postes"*.
   Después dijo que podrían arrastrarse junto con desniveles, pero al final lo
@@ -204,6 +273,13 @@ Ahorita todas usan **0.72 m por línea**, sacado del layout de charolas.
 - **Renders 3D tipo CIU/SolidWorks** — Claude no los puede hacer. Él ya tiene
   ingeniero para eso. No insistir.
 - **La ✕ para cerrar el menú** — no la quiere; se cierra tocando fuera.
+- **Pedirle la tabla de anchos a CIU** — no la van a dar. Venden máquinas, no
+  comparten medidas de fabricación.
+- **Recortar máquinas de los PDF** para usarlas como dibujo — ya se intentó y no
+  sirvió (anchos que no empatan, monitos y frutas coladas, piezas chicas
+  ilegibles). Las máquinas se **generan** por parámetros.
+- **Pulir el dibujo de la pantalla del vendedor** — esa puede ser sencilla. El
+  esfuerzo va en el layout final que ve el cliente.
 
 ---
 
@@ -292,3 +368,20 @@ public/modulos/      → recortes viejos de los planos (YA NO SE USAN, se genera
   explicaciones largas.
 - **Los `.pdf`, `.docx` y la carpeta `anuncios/` están en `.gitignore`** — son
   documentos de su negocio, no del sitio. No subirlos.
+
+### Lo que más le molesta (aprendido a la mala)
+
+1. **Que le preguntes algo que ya te dijo.** Por eso existe este archivo. Léelo
+   completo antes de preguntar.
+2. **Que le inventes medidas.** Si un número va a acabar en una cotización de
+   millones de pesos, o sale de sus documentos o se le pregunta. Si no se tiene,
+   el campo va vacío y avisa que falta.
+3. **Rehacer trabajo ya hecho.** Antes de decir "se perdió", revisar
+   `git log` — casi siempre está ahí.
+
+### Cómo verificar de verdad
+
+- `npx tsc --noEmit` para los tipos, y **`npm run build` es la prueba que vale**.
+- Probar en el navegador **antes** de decirle que algo funciona. Él prueba todo
+  en su teléfono y encuentra lo que no se probó.
+- Subir seguido, en tandas chicas. Él revisa en Vercel, no en local.
