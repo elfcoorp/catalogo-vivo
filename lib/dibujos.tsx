@@ -120,27 +120,15 @@ export function svgClasificadora(p: ClasificadoraParams): string {
   // Cuerpo de la máquina
   partes.push(`<rect x="2" y="2" width="${W - 4}" height="${H - 4}" fill="#fff" stroke="${trazo}" stroke-width="4"/>`);
 
-  // Las líneas de copitas, a lo largo
+  // Las líneas, como carriles limpios a lo largo. NO se dibuja copita por
+  // copita: a escala se veían como puntitos y parecían empacadores. Aquí solo
+  // van los carriles y las tolvas de salida.
   const altoLinea = (H - 8) / p.lineas;
   for (let i = 0; i < p.lineas; i++) {
     const y = 4 + i * altoLinea;
     partes.push(
       `<rect x="${entradaCm * 0.5}" y="${y + altoLinea * 0.18}" width="${W - entradaCm}" height="${altoLinea * 0.64}" fill="none" stroke="${trazoFino}" stroke-width="2"/>`
     );
-    // Las copitas: cambian de figura según el tipo
-    const paso = 34;
-    for (let x = entradaCm * 0.5 + paso / 2; x < W - entradaCm * 0.4; x += paso) {
-      const cy = y + altoLinea / 2;
-      if (p.tipoCopita === "clip") {
-        partes.push(
-          `<path d="M ${x - altoLinea * 0.2} ${cy - altoLinea * 0.18} L ${x - altoLinea * 0.2} ${cy + altoLinea * 0.18} M ${x + altoLinea * 0.2} ${cy - altoLinea * 0.18} L ${x + altoLinea * 0.2} ${cy + altoLinea * 0.18}" stroke="${trazoFino}" stroke-width="2" fill="none"/>`
-        );
-      } else {
-        partes.push(
-          `<rect x="${x - altoLinea * 0.22}" y="${cy - altoLinea * 0.22}" width="${altoLinea * 0.44}" height="${altoLinea * 0.44}" fill="none" stroke="${trazoFino}" stroke-width="2"/>`
-        );
-      }
-    }
   }
 
   // Las salidas, del lado que se pidió
