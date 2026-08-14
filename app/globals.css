@@ -252,4 +252,24 @@ body {
   body { background: #fff; color: #000; }
   .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
   .print-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 14px !important; }
+
+  /* El layout del cliente: cuando está abierto se imprime ÉL SOLO. La
+     pantalla del vendedor se queda fuera de la hoja. */
+  body.con-layout-final > *:not(.capa-layout) { display: none !important; }
+  body.con-layout-final .capa-layout {
+    position: static !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  /* Apaisada SOLO esta hoja: un empaque es mucho más largo que ancho. El PDF
+     del catálogo sigue saliendo vertical, por eso la página va con nombre. */
+  @page hoja-apaisada { size: landscape; margin: 10mm; }
+  .hoja-layout {
+    page: hoja-apaisada;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    box-shadow: none !important;
+    color: #000;
+  }
 }

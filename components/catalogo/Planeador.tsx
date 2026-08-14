@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { LayoutFinal } from "@/components/catalogo/LayoutFinal";
 import { CONFIG } from "@/lib/config";
 import { linkWhatsApp } from "@/lib/whatsapp";
 import {
@@ -247,6 +248,8 @@ export function Planeador() {
   const [fruta, setFruta] = useState("");
   // Al empezar el vendedor va marcando lo que YA HAY parado en el empaque.
   const [poniendo, setPoniendo] = useState<Origen>("cliente");
+  // La hoja limpia que se le enseña al cliente, aparte de esta pantalla.
+  const [verLayout, setVerLayout] = useState(false);
   // Como texto, para poder borrarlo y teclear otra cantidad.
   const [salidasTxt, setSalidasTxt] = useState("12");
   // Vacío = se usa el ancho de los módulos, que es solo una aproximación.
@@ -1125,6 +1128,34 @@ export function Planeador() {
           <Icon name="logos:whatsapp-icon" size={20} /> Mandar mi levantamiento
         </a>
       </div>
+
+      {/* 7. La hoja limpia para el cliente. Esta pantalla es la herramienta
+          del vendedor; el layout es lo que decide la venta, y va aparte. */}
+      {modulos.length > 0 && (
+        <div className="card flex flex-col gap-3 p-5">
+          <p className="text-sm font-semibold text-ink">7. Enséñaselo al cliente</p>
+          <p className="text-xs text-ink-mute">
+            La hoja sale limpia y a escala, con las cotas de cada máquina a su pared, la ficha de la clasificadora y la
+            lista de todo. Se guarda en PDF para mandarla.
+          </p>
+          <button type="button" onClick={() => setVerLayout(true)} className="btn-marca self-start">
+            <Icon name="lucide:file-text" size={18} /> Ver el layout para el cliente
+          </button>
+        </div>
+      )}
+
+      {verLayout && (
+        <LayoutFinal
+          espacio={espacio}
+          modulos={modulos}
+          nombres={nombres}
+          clasif={clasifFinal}
+          fruta={fruta}
+          cabe={cabe}
+          sinMedir={modulos.filter(faltaMedirla).map((m) => nombres[m.id])}
+          onCerrar={() => setVerLayout(false)}
+        />
+      )}
     </div>
   );
 }

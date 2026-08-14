@@ -197,7 +197,34 @@ la del plano real mide **15.34 × 4.35 m**.
 
 **Aquí es donde va el trabajo ahora.** Todo lo de arriba ya está hecho.
 
-### 5.0 El layout final para el cliente — LO MÁS IMPORTANTE
+### 5.0 El layout final para el cliente — PRIMERA VERSIÓN YA HECHA
+
+**Ya existe** en `components/catalogo/LayoutFinal.tsx`. Se abre con el botón
+*"Ver el layout para el cliente"* (paso 7 del planeador) y trae:
+
+- **El plano en UN SOLO SVG en metros** (no recuadros de HTML como el lienzo que
+  se arrastra): así las cotas, las flechas y el texto salen parejos en pantalla
+  y en el PDF, a cualquier tamaño de hoja.
+- **Cota de cada máquina a su pared más cercana**, a lo largo y a lo ancho. Si la
+  pieza está pegada a la pared (< 6 cm) no se acota: no hay nada que medir.
+- **Globitos numerados** con guía, y la lista numerada abajo que les corresponde.
+- **Ficha de la clasificadora**: copita, paso, líneas × salidas, lado y medida.
+- **Barra de escala** gráfica (vale aunque la hoja se imprima de cualquier tamaño)
+  y las medidas totales del piso.
+- **Encabezado con la marca**, cliente (se teclea ahí), fruta y fecha.
+- **Guardar en PDF** con `window.print()`.
+
+**Cómo se imprime solo la hoja:** la capa se cuelga del `body` con un portal y le
+pone la clase `con-layout-final`. En `globals.css`, dentro de `@media print`:
+`body.con-layout-final > *:not(.capa-layout) { display: none }`. Sin eso, la
+pantalla del vendedor se imprimía debajo. La hoja usa una **página con nombre**
+(`@page hoja-apaisada`) para salir apaisada **sin** voltear el PDF del catálogo.
+
+**Lo que falta preguntarle / pulir:**
+- Si los números del plano se leen bien en su teléfono (van en metros del plano,
+  a `tam/44`; si los quiere más grandes se cambia ahí nada más).
+- Si quiere el logo más grande, o un cuadro de rótulo como los de IDEPRO.
+- Si quiere que salga el precio o la cotización en la misma hoja.
 
 Palabras de Eduardo, y tiene razón:
 
@@ -346,6 +373,7 @@ lib/modo.ts          → la versión para técnicos
 lib/youtube.ts       → saca el id del video
 
 components/catalogo/Planeador.tsx       → toda la pantalla del planeador
+components/catalogo/LayoutFinal.tsx     → la hoja limpia que ve el cliente (PDF)
 components/catalogo/BarraSuperior.tsx   → barra fija: logo, buscador, menú
 components/catalogo/CatalogoGrid.tsx    → el catálogo con filtros y buscador
 components/catalogo/ProductoCard.tsx    → la tarjeta de cada máquina
