@@ -367,8 +367,23 @@ export function Planeador() {
   }
 
   /** Lo que se muestra en el campo: lo tecleado, o la medida que trae. */
+  /**
+   * El LARGO arranca vacío: hay cepilladoras de muchos largos distintos y no
+   * se vale inventarle una medida a algo que después se va a cotizar. El
+   * ancho sí trae el de la línea, porque ese lo manda la clasificadora.
+   */
   function textoMedida(m: Modulo, cual: "largo" | "ancho"): string {
-    return medidas[`${m.id}-${cual}`] ?? String(+m[cual].toFixed(2));
+    const tecleado = medidas[`${m.id}-${cual}`];
+    if (tecleado !== undefined) return tecleado;
+    if (cual === "largo") return "";
+    return String(+m[cual].toFixed(2));
+  }
+
+  /** ¿A esta pieza todavía no le han puesto el largo real? */
+  function faltaMedirla(m: Modulo): boolean {
+    if (m.tipo.startsWith("Clasificadora")) return false; // el suyo se calcula
+    const t = medidas[`${m.id}-largo`];
+    return t === undefined || !(Number(t) > 0);
   }
 
   function girar(m: Modulo) {
@@ -874,6 +889,13 @@ export function Planeador() {
                       esa pieza no se cambia — y eso abarata el upgrade. */}
                   {(() => {
                     if (m.tipo.startsWith("Clasificadora")) return null;
+                    if (faltaMedirla(m)) {
+                      return (
+                        <p className="w-full text-xs" style={{ color: "#f7c530" }}>
+                          Falta ponerle el largo.
+                        </p>
+                      );
+                    }
                     const alcanza = lineasQueAlcanza(m.ancho);
                     if (alcanza === null) {
                       return (
@@ -1055,6 +1077,21 @@ export function Planeador() {
         <p className="text-xs text-ink-mute">
           Toma una captura del dibujo y mándala junto con el mensaje: así vemos el acomodo tal como quedó.
         </p>
+        {/* Aviso antes de mandar: una pieza sin largo no se puede cotizar. */}
+        {(() => {
+          const sinMedir = modulos.filter(faltaMedirla);
+          if (sinMedir.length === 0) return null;
+          return (
+            <p
+              className="rounded-xl p-3 text-sm"
+              style={{ background: "color-mix(in srgb, #f7c530 16%, transparent)", color: "var(--ink)" }}
+            >
+              Falta ponerle el largo a {sinMedir.length}{" "}
+              {sinMedir.length === 1 ? "pieza" : "piezas"}: {sinMedir.map((m) => nombres[m.id]).join(", ")}.
+            </p>
+          );
+        })()}
+
         <a
           href={linkWhatsApp(CONFIG.marca.whatsappPrincipal, mensaje)}
           target="_blank"
