@@ -70,6 +70,17 @@ export interface ClasificadoraParams {
 const PULGADA = 0.0254;
 
 /**
+ * Ancho del cuerpo de la clasificadora, en metros. Sale de la cota de 1343 mm
+ * del plano "LINEA CHAROLAS 6 x 12+1" — la de 4349 mm abarca la máquina CON
+ * sus tolvas de los dos lados, por eso daba de más.
+ *
+ * Es el mismo para todas por ahora: el fabricante no comparte medidas de
+ * fabricación, así que no hay tabla por líneas y por copita. En la pantalla se
+ * puede teclear otro si se conoce el de una máquina en concreto.
+ */
+export const ANCHO_CUERPO_CLASIFICADORA = 1.343;
+
+/**
  * Ancho que ocupa cada línea de copitas, incluyendo su estructura. El clip
  * arma la máquina más angosta que la charola, y así sale de los planos:
  *  - charola: "LINEA CHAROLAS 6 x 12+1" mide 4.35 m para 6 líneas → 0.725 m
@@ -140,7 +151,7 @@ const DESCARGA = 2.2;
  */
 export function medidaClasificadora(p: ClasificadoraParams): { largo: number; ancho: number } {
   const largo = +(p.salidas * p.pasoSalidas * PULGADA + ENTRADA + DESCARGA).toFixed(2);
-  return { largo, ancho: p.anchoManual ?? anchoDeLinea(p.lineas) };
+  return { largo, ancho: p.anchoManual ?? ANCHO_CUERPO_CLASIFICADORA };
 }
 
 export function nombreClasificadora(p: ClasificadoraParams): string {
