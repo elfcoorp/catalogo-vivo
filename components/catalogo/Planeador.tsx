@@ -423,13 +423,15 @@ export function Planeador() {
                 }
               >
                 {f.foto ? (
-                  // Fondo claro: las fotos vienen recortadas en blanco.
-                  <span className="grid h-14 w-14 place-items-center rounded-xl bg-white p-1">
+                  // Círculo blanco: las fotos traen fondo blanco CUADRADO, y en
+                  // un recuadro las esquinas se cortaban y la fruta se veía
+                  // mordisqueada. En círculo, con aire alrededor, queda limpia.
+                  <span className="grid h-16 w-16 place-items-center overflow-hidden rounded-full bg-white p-2.5">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={f.foto} alt={f.nombre} className="h-full w-full" style={{ objectFit: "contain" }} />
                   </span>
                 ) : (
-                  <span className="grid h-14 w-14 place-items-center rounded-xl bg-bg-2 text-2xl">🍃</span>
+                  <span className="grid h-16 w-16 place-items-center rounded-full bg-bg-2 text-2xl">🍃</span>
                 )}
                 {f.nombre}
               </button>
