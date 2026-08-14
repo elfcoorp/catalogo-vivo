@@ -5,15 +5,16 @@ import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
 import { linkWhatsApp } from "@/lib/whatsapp";
 import {
-  ANCHOS_EN_LINEA,
   COPITAS,
   LINEAS_TIPICAS,
+  anchoDeLinea,
   enPulgadas,
   TIPOS_MESA,
   comoDataUri,
   medidaClasificadora,
   nombreClasificadora,
   svgBanda,
+  svgCaseta,
   svgCepilladora,
   svgClasificadora,
   svgMesaSeleccion,
@@ -23,20 +24,22 @@ import {
   type TipoMesa,
 } from "@/lib/dibujos";
 import {
-  CATALOGO_MODULOS,
+  EQUIPOS,
   FRUTAS_LINEA,
-  LISTA_LINEA,
+  GRUPOS_EQUIPO,
   ORIGENES,
   areaOcupada,
   buscarHueco,
   colorDeOrigen,
   modulosConProblema,
+  nombresNumerados,
   pegarAOtros,
   puedeVoltearse,
   resumenLevantamiento,
+  type Dibujo,
+  type Equipo,
   type Espacio,
   type Modulo,
-  type ModuloCatalogo,
   type Origen,
 } from "@/lib/planeador";
 
@@ -54,18 +57,59 @@ function nuevoId() {
 }
 
 /** Nombre corto para que quepa encima del bloque y todavía se lea. */
-function abreviar(tipo: string): string {
-  const t = tipo.toLowerCase();
-  if (t.startsWith("clasificadora")) return "CLASIF";
-  if (t.startsWith("cepilladora")) return "CEPILL";
-  if (t.startsWith("selección")) return "SELECC";
-  if (t.startsWith("tolva")) return "TOLVA";
-  if (t.startsWith("banda")) return "BANDA";
-  if (t.startsWith("elevador")) return "ELEV";
-  if (t.startsWith("mesa descarnadora")) return "DESCARN";
-  if (t.startsWith("volteadora")) return "VOLTEAD";
-  if (t.startsWith("módulo de empaque")) return "EMPAQUE";
-  return tipo.slice(0, 7).toUpperCase();
+function abreviar(nombre: string): string {
+  const t = nombre.toLowerCase();
+  // El número va aparte para que no se lo coma el recorte del nombre.
+  const numero = nombre.match(/#(\d+)$/)?.[1];
+  const corto = (() => {
+    if (t.startsWith("clasificadora")) return "CLASIF";
+    if (t.startsWith("cepilladora lavadora")) return "CEP LAV";
+    if (t.startsWith("cepilladora secadora")) return "CEP SEC";
+    if (t.startsWith("cepilladora encer")) return "CEP ENC";
+    if (t.startsWith("selección")) return "SELECC";
+    if (t.startsWith("tolva")) return "TOLVA";
+    if (t.startsWith("tina")) return "TINA";
+    if (t.startsWith("banda de cangilones")) return "CANGIL";
+    if (t.startsWith("banda de pvc")) return "PVC";
+    if (t.startsWith("banda sanitaria")) return "SANIT";
+    if (t.startsWith("elevador")) return "ELEV";
+    if (t.startsWith("descanicador")) return "DESCAN";
+    if (t.startsWith("mesa de rodillos")) return "RODILL";
+    if (t.startsWith("mesa descarnadora")) return "DESCARN";
+    if (t.startsWith("singulador")) return "SINGUL";
+    if (t.startsWith("transportador de caja llena")) return "CJ LLENA";
+    if (t.startsWith("transportador de caja vacía")) return "CJ VACÍA";
+    if (t.startsWith("volteadora de bins")) return "V. BINS";
+    if (t.startsWith("volteadora de cajas")) return "V. CAJAS";
+    if (t.startsWith("módulo de empaque")) return "EMPAQUE";
+    if (t.startsWith("llenadora")) return "LLENAD";
+    if (t.startsWith("caseta")) return "CASETA";
+    if (t.startsWith("bodega")) return "BODEGA";
+    return nombre.replace(/ #\d+$/, "").slice(0, 7).toUpperCase();
+  })();
+  return numero ? `${corto} ${numero}` : corto;
+}
+
+/**
+ * La figura que le toca a cada equipo, dibujada a la medida que tenga en ese
+ * momento. Se vuelve a generar cuando el vendedor teclea la medida buena: si
+ * no, el dibujo se quedaba estirado y los cepillos salían deformes.
+ */
+function svgDe(dibujo: Dibujo | undefined, largo: number, ancho: number, tipoMesa: TipoMesa): string | undefined {
+  switch (dibujo) {
+    case "cepilladora":
+      return svgCepilladora(largo, ancho);
+    case "mesa":
+      return svgMesaSeleccion(largo, ancho, tipoMesa);
+    case "tolva":
+      return svgTolva(largo, ancho);
+    case "banda":
+      return svgBanda(largo, ancho);
+    case "caseta":
+      return svgCaseta(largo, ancho);
+    default:
+      return undefined;
+  }
 }
 
 /** Dibujo del módulo, girado y/o volteado dentro de su huella. */
@@ -191,13 +235,17 @@ export function Planeador() {
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
   const [notas, setNotas] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  // Ancho compartido: lo que hace que la línea quede alineada.
-  const [anchoLinea, setAnchoLinea] = useState(1.2);
   const [tipoMesa, setTipoMesa] = useState<TipoMesa>("guia-central");
-  // Cada equipo trae su propio largo, guardado como TEXTO para poder borrar
-  // el campo y teclear otra medida (con número quedaba pegado y no dejaba).
-  const [largos, setLargos] = useState<Record<string, string>>({});
+  /**
+   * Lo que se va tecleando en los campos de medida, guardado como TEXTO y
+   * aparte del módulo. Si se guarda como número con Math.max(), al borrar el
+   * campo queda un "1" pegado que ya no se puede quitar. La clave es
+   * `<id>-largo` / `<id>-ancho`.
+   */
+  const [medidas, setMedidas] = useState<Record<string, string>>({});
   const [fruta, setFruta] = useState("");
+  // Al empezar el vendedor va marcando lo que YA HAY parado en el empaque.
+  const [poniendo, setPoniendo] = useState<Origen>("cliente");
   // Como texto, para poder borrarlo y teclear otra cantidad.
   const [salidasTxt, setSalidasTxt] = useState("12");
   const [clasif, setClasif] = useState<ClasificadoraParams>({
@@ -226,32 +274,15 @@ export function Planeador() {
   const cabe = maquinas.length > 0 && conProblema.size === 0;
   const ocupado = areaOcupada(modulos);
   const areaEspacio = espacio.largo * espacio.ancho;
+  const nombres = nombresNumerados(modulos);
+
+  // El ancho de los equipos que van en fila lo manda la copita: con clip la
+  // línea es de 0.90 m y con charola de 1.20 m. Así sale de sus dos planos.
+  const anchoLinea = anchoDeLinea(clasif.tipoCopita);
 
   // El id se genera FUERA del actualizador: React puede correr el actualizador
   // dos veces, y entonces el módulo se quedaba con un id y la selección con
   // otro — el panel de ajustes nunca abría.
-  function agregar(mod: ModuloCatalogo) {
-    const id = nuevoId();
-    setModulos((prev) => {
-      const { x, y } = buscarHueco(prev, espacio, mod.largo, mod.ancho);
-      return [
-        ...prev,
-        {
-          id,
-          tipo: mod.tipo,
-          largo: mod.largo,
-          ancho: mod.ancho,
-          x,
-          y,
-          origen: "nueva" as Origen,
-          imagen: mod.imagen,
-          rotacion: 0 as const,
-          espejo: false,
-        },
-      ];
-    });
-    setSeleccionado(id);
-  }
 
   /** Mete al dibujo la clasificadora armada con lo que se pidió arriba. */
   function agregarClasificadora() {
@@ -270,32 +301,15 @@ export function Planeador() {
   }
 
   /**
-   * Pone o quita un equipo de la línea. Al volver a tocar el mismo botón se
-   * quita; al tocar el otro, cambia de "ya lo tiene" a "se lo ponemos".
+   * Mete un equipo al dibujo con su medida típica y ya. Las medidas buenas se
+   * preguntan después, con todo puesto: el vendedor primero ve alrededor y va
+   * marcando lo que hay, sin detenerse a medir cada cosa.
+   * Se puede tocar el mismo botón varias veces: cada toque es otra máquina.
    */
-  function alternarEquipo(eq: (typeof LISTA_LINEA)[number], origen: Origen) {
-    const yaEsta = modulos.find((m) => m.tipo === eq.tipo);
-    if (yaEsta) {
-      if (yaEsta.origen === origen) {
-        borrar(yaEsta.id);
-      } else {
-        actualizar(yaEsta.id, { origen, espejo: false });
-      }
-      return;
-    }
-
-    const largo = Math.max(0.1, Number(largos[eq.tipo] ?? eq.largo) || eq.largo);
-    const ancho = anchoLinea;
-    const svg =
-      eq.dibujo === "cepilladora"
-        ? svgCepilladora(largo, ancho)
-        : eq.dibujo === "mesa"
-          ? svgMesaSeleccion(largo, ancho, tipoMesa)
-          : eq.dibujo === "tolva"
-            ? svgTolva(largo, ancho)
-            : eq.dibujo === "banda"
-              ? svgBanda(largo, ancho)
-              : null;
+  function agregarEquipo(eq: Equipo) {
+    const largo = eq.largo;
+    const ancho = eq.ancho ?? anchoLinea;
+    const svg = svgDe(eq.dibujo, largo, ancho, tipoMesa);
 
     const id = nuevoId();
     setModulos((prev) => {
@@ -309,8 +323,9 @@ export function Planeador() {
           ancho,
           x,
           y,
-          origen,
+          origen: poniendo,
           imagen: svg ? comoDataUri(svg) : undefined,
+          dibujo: eq.dibujo,
           rotacion: 0 as const,
           espejo: false,
         },
@@ -323,10 +338,61 @@ export function Planeador() {
     setModulos((prev) => prev.map((m) => (m.id === id ? { ...m, ...cambios } : m)));
   }
 
+  /**
+   * Guarda lo tecleado y, si es un número que sirve, cambia la medida y vuelve
+   * a dibujar la figura con la proporción nueva. Si el campo queda vacío se
+   * respeta: se deja escribir, y la medida anterior aguanta mientras tanto.
+   */
+  function tecleaMedida(m: Modulo, cual: "largo" | "ancho", texto: string) {
+    setMedidas((prev) => ({ ...prev, [`${m.id}-${cual}`]: texto }));
+    const valor = Number(texto);
+    if (!(valor > 0)) return;
+    const largo = cual === "largo" ? valor : m.largo;
+    const ancho = cual === "ancho" ? valor : m.ancho;
+    const svg = figuraDe(m, largo, ancho);
+    actualizar(m.id, { largo, ancho, imagen: svg ?? m.imagen });
+  }
+
+  /**
+   * La figura del módulo a la medida nueva. Si está girada, se dibuja en su
+   * orientación original: el dibujo se gira aparte, encima de la huella, y si
+   * no se hace así los cepillos y rodillos salen atravesados.
+   */
+  function figuraDe(m: Modulo, largo: number, ancho: number): string | undefined {
+    const deLado = m.rotacion === 90 || m.rotacion === 270;
+    const svg = svgDe(m.dibujo, deLado ? ancho : largo, deLado ? largo : ancho, tipoMesa);
+    return svg ? comoDataUri(svg) : undefined;
+  }
+
+  /** Lo que se muestra en el campo: lo tecleado, o la medida que trae. */
+  function textoMedida(m: Modulo, cual: "largo" | "ancho"): string {
+    return medidas[`${m.id}-${cual}`] ?? String(+m[cual].toFixed(2));
+  }
+
   function girar(m: Modulo) {
     const siguiente = (((m.rotacion + 90) % 360) as 0 | 90 | 180 | 270);
     // La huella gira con el dibujo: lo que era largo pasa a ser ancho.
     actualizar(m.id, { rotacion: siguiente, largo: m.ancho, ancho: m.largo });
+    // Lo tecleado se limpia: si no, los campos seguirían mostrando lo de antes.
+    setMedidas((prev) => {
+      const copia = { ...prev };
+      delete copia[`${m.id}-largo`];
+      delete copia[`${m.id}-ancho`];
+      return copia;
+    });
+  }
+
+  /** Cambia la guía de TODAS las mesas y les vuelve a dibujar la figura. */
+  function cambiarGuiaMesas(nuevo: TipoMesa) {
+    setTipoMesa(nuevo);
+    setModulos((prev) =>
+      prev.map((m) => {
+        if (m.dibujo !== "mesa") return m;
+        const deLado = m.rotacion === 90 || m.rotacion === 270;
+        const svg = svgMesaSeleccion(deLado ? m.ancho : m.largo, deLado ? m.largo : m.ancho, nuevo);
+        return { ...m, imagen: comoDataUri(svg) };
+      })
+    );
   }
 
   function borrar(id: string) {
@@ -585,95 +651,74 @@ export function Planeador() {
         </button>
       </div>
 
-      {/* 4. Qué tiene y qué le ponemos */}
+      {/* 4. Ve alrededor y ve marcando todo lo que hay, sin medir todavía */}
       <div className="card flex flex-col gap-4 p-5">
-        <p className="text-sm font-semibold text-ink">4. ¿Qué ya tiene y qué le vamos a poner?</p>
-
-        <div className="flex flex-wrap items-end gap-3">
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            Ancho de la línea (m)
-            <select
-              value={anchoLinea}
-              onChange={(e) => setAnchoLinea(Number(e.target.value))}
-              className="rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-            >
-              {ANCHOS_EN_LINEA.map((a) => (
-                <option key={a} value={a}>
-                  {a.toFixed(2)} m
-                </option>
-              ))}
-            </select>
-          </label>
+        <div>
+          <p className="text-sm font-semibold text-ink">4. Toca todo lo que veas en el empaque</p>
+          <p className="mt-1 text-xs text-ink-mute">
+            No te detengas a medir: aparece en el dibujo con su medida típica y más abajo te preguntamos de cuánto es
+            cada uno. Toca el mismo botón otra vez si hay dos iguales.
+          </p>
         </div>
 
-        {/* Un renglón por equipo: su largo, y de un toque si ya lo tiene o
-            si se lo vamos a poner. De aquí sale el listado para cotizar. */}
-        <div className="flex flex-col divide-y divide-line">
-          {LISTA_LINEA.map((eq) => {
-            const largoTexto = largos[eq.tipo] ?? String(eq.largo);
-            const puesto = modulos.find((m) => m.tipo === eq.tipo);
+        {/* Primero se marca todo lo que YA HAY; después lo que se le pone. */}
+        <div className="flex flex-wrap gap-2">
+          {(["cliente", "nueva"] as Origen[]).map((o) => {
+            const info = ORIGENES.find((x) => x.valor === o)!;
+            const puesto = poniendo === o;
             return (
-              <div key={eq.tipo} className="flex flex-wrap items-center gap-2 py-2.5">
-                <span className="min-w-[8.5rem] flex-1 text-sm text-ink">{eq.tipo}</span>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  step={0.5}
-                  value={largoTexto}
-                  onChange={(e) => setLargos((l) => ({ ...l, [eq.tipo]: e.target.value }))}
-                  className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
-                  aria-label={`Largo de ${eq.tipo}`}
-                />
-                {/* La guía solo se pregunta en la mesa, no antes de saber
-                    siquiera si va a haber mesa. */}
-                {eq.dibujo === "mesa" && (
-                  <select
-                    value={tipoMesa}
-                    onChange={(e) => setTipoMesa(e.target.value as TipoMesa)}
-                    className="rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
-                    aria-label="Guía de la mesa"
-                  >
-                    {TIPOS_MESA.map((t) => (
-                      <option key={t.valor} value={t.valor}>
-                        {t.etiqueta}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                {(["cliente", "nueva"] as Origen[]).map((o) => {
-                  const info = ORIGENES.find((x) => x.valor === o)!;
-                  const activo2 = puesto?.origen === o;
-                  return (
-                    <button
-                      key={o}
-                      type="button"
-                      onClick={() => alternarEquipo(eq, o)}
-                      className="rounded-full border px-3 py-1.5 text-xs font-semibold transition"
-                      style={
-                        activo2
-                          ? { background: info.color, color: "#fff", borderColor: info.color }
-                          : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
-                      }
-                    >
-                      {o === "cliente" ? "Ya lo tiene" : "Se lo ponemos"}
-                    </button>
-                  );
-                })}
-              </div>
+              <button
+                key={o}
+                type="button"
+                onClick={() => setPoniendo(o)}
+                className="flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition"
+                style={
+                  puesto
+                    ? { background: info.color, color: "#fff", borderColor: info.color }
+                    : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                }
+              >
+                {o === "cliente" ? "Lo que ya hay" : "Lo que le ponemos"}
+              </button>
             );
           })}
         </div>
 
-        <p className="text-xs text-ink-mute">
-          Todos entran con el mismo ancho de línea, así quedan alineados con la clasificadora. Vuelve a tocar el botón
-          para quitarlo.
-        </p>
+        {GRUPOS_EQUIPO.map((grupo) => (
+          <div key={grupo} className="flex flex-col gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">{grupo}</p>
+            <div className="flex flex-wrap gap-2">
+              {EQUIPOS.filter((e) => e.grupo === grupo).map((eq) => {
+                const cuantos = modulos.filter((m) => m.tipo === eq.tipo).length;
+                return (
+                  <button
+                    key={eq.tipo}
+                    type="button"
+                    onClick={() => agregarEquipo(eq)}
+                    className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
+                    style={{ borderColor: "var(--line-strong)", color: "var(--ink-soft)" }}
+                  >
+                    {eq.tipo}
+                    {cuantos > 0 && (
+                      <span
+                        className="ml-1.5 inline-block rounded-full px-1.5 text-xs font-bold text-white"
+                        style={{ background: colorDeOrigen(poniendo) }}
+                      >
+                        {cuantos}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* 5. El dibujo */}
+      {/* El dibujo: aquí van cayendo y aquí se acomodan */}
       <div className="card flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-ink">3. Acomódalos arrastrando con el dedo</p>
+          <p className="text-sm font-semibold text-ink">Acomódalos arrastrando con el dedo</p>
           <div className="flex flex-wrap items-center gap-3 text-xs text-ink-mute">
             {ORIGENES.map((o) => (
               <span key={o.valor} className="inline-flex items-center gap-1.5">
@@ -693,20 +738,18 @@ export function Planeador() {
         >
           {modulos.length === 0 && (
             <p className="absolute inset-0 grid place-items-center px-4 text-center text-sm text-ink-mute">
-              Agrega módulos arriba y aparecerán aquí, a escala.
+              Toca arriba lo que veas en el empaque y aparecerá aquí, a escala.
             </p>
           )}
 
-          {/* Las distancias a las paredes del que está elegido — también de
-              los postes: saber a qué distancia quedó el poste es justo lo que
-              decide qué máquina cabe entre uno y otro. */}
+          {/* Las distancias a las cuatro paredes del que está elegido: es lo
+              que decide qué máquina cabe entre una cosa y otra. */}
           {activo && <Separaciones m={activo} espacio={espacio} />}
 
           {modulos.map((m) => {
             const malo = conProblema.has(m.id);
             const elegido = m.id === seleccionado;
-            // Los postes van en rojo: son el estorbo, no una máquina.
-            const color = malo ? "#c92a2a" : m.esPoste ? "#e03131" : colorDeOrigen(m.origen);
+            const color = malo ? "#c92a2a" : colorDeOrigen(m.origen);
             return (
               <div
                 key={m.id}
@@ -717,10 +760,6 @@ export function Planeador() {
                   top: pctY(m.y),
                   width: pctX(m.largo),
                   height: pctY(m.ancho),
-                  // Un poste real mide 30 cm: a escala son 3 px y el dedo no
-                  // lo alcanza. Se le da un mínimo para poder agarrarlo.
-                  minWidth: m.esPoste ? 18 : undefined,
-                  minHeight: m.esPoste ? 18 : undefined,
                   background: m.imagen ? "#fff" : color,
                   // Con dibujo, el color va en el borde para no tapar la línea.
                   border: m.imagen ? `4px solid ${color}` : "none",
@@ -729,19 +768,17 @@ export function Planeador() {
                   boxShadow: elegido ? "0 0 0 3px rgba(247,197,48,0.35)" : "0 1px 4px rgba(0,0,0,0.35)",
                   touchAction: "none",
                 }}
-                title={`${m.tipo} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
+                title={`${nombres[m.id]} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
               >
                 <DibujoModulo m={m} />
                 {/* El nombre va SIEMPRE encima: si no, dos bloques chicos se
                     ven iguales y no se sabe cuál es cuál. */}
-                {!m.esPoste && (
-                  <span
-                    className="pointer-events-none absolute left-0 top-0 max-w-full truncate rounded-br px-1 py-px text-[11px] font-extrabold leading-tight tracking-tight"
-                    style={{ background: color, color: "#fff" }}
-                  >
-                    {abreviar(m.tipo)}
-                  </span>
-                )}
+                <span
+                  className="pointer-events-none absolute left-0 top-0 max-w-full truncate rounded-br px-1 py-px text-[11px] font-extrabold leading-tight tracking-tight"
+                  style={{ background: color, color: "#fff" }}
+                >
+                  {abreviar(nombres[m.id])}
+                </span>
               </div>
             );
           })}
@@ -754,11 +791,95 @@ export function Planeador() {
 
       </div>
 
-      {/* 4. Ajustes del módulo elegido */}
+      {/* 5. Ya con todo puesto, ahora sí las medidas de cada uno */}
+      {modulos.length > 0 && (
+        <div className="card flex flex-col gap-4 p-5">
+          <div>
+            <p className="text-sm font-semibold text-ink">5. Ahora sí, ¿de cuánto es cada uno?</p>
+            <p className="mt-1 text-xs text-ink-mute">
+              Del ancho solo nos interesa el <b>ancho útil</b>: por donde pasa la fruta. Hay máquinas muy robustas cuyo
+              ancho total no tiene nada que ver con el paso de la fruta.
+            </p>
+          </div>
+
+          {/* La guía se pregunta una sola vez, y solo si ya hay alguna mesa. */}
+          {modulos.some((m) => m.dibujo === "mesa") && (
+            <label className="flex flex-col gap-1 text-xs text-ink-mute">
+              Guía de las mesas
+              <select
+                value={tipoMesa}
+                onChange={(e) => cambiarGuiaMesas(e.target.value as TipoMesa)}
+                className="self-start rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
+              >
+                {TIPOS_MESA.map((t) => (
+                  <option key={t.valor} value={t.valor}>
+                    {t.etiqueta}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+
+          <div className="flex flex-col divide-y divide-line">
+            {modulos.map((m) => {
+              const elegido = m.id === seleccionado;
+              return (
+                <div
+                  key={m.id}
+                  onFocus={() => setSeleccionado(m.id)}
+                  className="flex flex-wrap items-center gap-2 rounded-lg px-1.5 py-2.5"
+                  // Se resalta el mismo que está elegido en el dibujo, para no
+                  // perderse entre quince renglones.
+                  style={elegido ? { background: "color-mix(in srgb, #f7c530 14%, transparent)" } : undefined}
+                >
+                  <span className="inline-block h-3 w-3 shrink-0 rounded" style={{ background: colorDeOrigen(m.origen) }} />
+                  <span className="min-w-[8.5rem] flex-1 text-sm text-ink">{nombres[m.id]}</span>
+                  <label className="flex items-center gap-1.5 text-xs text-ink-mute">
+                    Largo
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      step={0.5}
+                      value={textoMedida(m, "largo")}
+                      onChange={(e) => tecleaMedida(m, "largo", e.target.value)}
+                      className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
+                      aria-label={`Largo de ${nombres[m.id]}, en metros`}
+                    />
+                  </label>
+                  <label className="flex items-center gap-1.5 text-xs text-ink-mute">
+                    Ancho útil
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      step={0.1}
+                      value={textoMedida(m, "ancho")}
+                      onChange={(e) => tecleaMedida(m, "ancho", e.target.value)}
+                      className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
+                      aria-label={`Ancho útil de ${nombres[m.id]}, en metros`}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => borrar(m.id)}
+                    className="rounded-lg p-2 text-ink-mute hover:text-ink"
+                    aria-label={`Quitar ${nombres[m.id]}`}
+                  >
+                    <Icon name="lucide:trash-2" size={16} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="text-xs text-ink-mute">Las medidas van en metros. Ya que las tengas, sube al dibujo y acomódalas.</p>
+        </div>
+      )}
+
+      {/* Ajustes del módulo elegido */}
       {activo && (
         <div className="card flex flex-col gap-4 p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-ink">{activo.tipo}</p>
+            <p className="text-sm font-semibold text-ink">{nombres[activo.id]}</p>
             <button
               type="button"
               onClick={() => borrar(activo.id)}
@@ -776,7 +897,7 @@ export function Planeador() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={activo.imagen}
-                alt={activo.tipo}
+                alt={nombres[activo.id]}
                 style={{
                   maxHeight: 180,
                   maxWidth: "100%",
@@ -787,85 +908,63 @@ export function Planeador() {
             </div>
           )}
 
-          <div className="flex flex-wrap items-end gap-3">
-            <label className="flex flex-col gap-1 text-xs text-ink-mute">
-              Largo (m)
-              <input
-                type="number"
-                min={0.1}
-                step={0.1}
-                value={activo.largo}
-                onChange={(e) => actualizar(activo.id, { largo: Math.max(0.1, Number(e.target.value) || 0) })}
-                className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-xs text-ink-mute">
-              Ancho (m)
-              <input
-                type="number"
-                min={0.1}
-                step={0.1}
-                value={activo.ancho}
-                onChange={(e) => actualizar(activo.id, { ancho: Math.max(0.1, Number(e.target.value) || 0) })}
-                className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-              />
-            </label>
-            <button type="button" onClick={() => girar(activo)} className="btn-ghost !py-2 !text-sm">
-              <Icon name="lucide:rotate-cw" size={15} /> Girar 90° ({activo.rotacion}°)
-            </button>
+          {/* Las medidas se teclean arriba, en la lista: aquí solo se acomoda.
+              Así el mismo campo no aparece en dos lugares. */}
+          <p className="text-sm text-ink-soft">
+            Mide {activo.largo.toFixed(2)} m de largo x {activo.ancho.toFixed(2)} m de ancho útil.
+          </p>
+
+          <button type="button" onClick={() => girar(activo)} className="btn-ghost self-start !py-2 !text-sm">
+            <Icon name="lucide:rotate-cw" size={15} /> Girar 90° ({activo.rotacion}°)
+          </button>
+
+          <div className="flex flex-col gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">¿De dónde sale?</p>
+            <div className="flex flex-wrap gap-2">
+              {ORIGENES.map((o) => {
+                const elegido = activo.origen === o.valor;
+                return (
+                  <button
+                    key={o.valor}
+                    type="button"
+                    onClick={() =>
+                      actualizar(activo.id, {
+                        origen: o.valor,
+                        // Si deja de ser fabricada nueva, el espejo ya no aplica.
+                        espejo: o.espejo ? activo.espejo : false,
+                      })
+                    }
+                    className="rounded-full border px-3 py-1.5 text-xs font-medium transition"
+                    style={
+                      elegido
+                        ? { background: o.color, color: "#fff", borderColor: o.color }
+                        : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                    }
+                  >
+                    {o.etiqueta}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {!activo.esPoste && (
-            <>
-              <div className="flex flex-col gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">¿De dónde sale?</p>
-                <div className="flex flex-wrap gap-2">
-                  {ORIGENES.map((o) => {
-                    const elegido = activo.origen === o.valor;
-                    return (
-                      <button
-                        key={o.valor}
-                        type="button"
-                        onClick={() =>
-                          actualizar(activo.id, {
-                            origen: o.valor,
-                            // Si deja de ser fabricada nueva, el espejo ya no aplica.
-                            espejo: o.espejo ? activo.espejo : false,
-                          })
-                        }
-                        className="rounded-full border px-3 py-1.5 text-xs font-medium transition"
-                        style={
-                          elegido
-                            ? { background: o.color, color: "#fff", borderColor: o.color }
-                            : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
-                        }
-                      >
-                        {o.etiqueta}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <button
-                  type="button"
-                  disabled={!puedeVoltearse(activo.origen)}
-                  onClick={() => actualizar(activo.id, { espejo: !activo.espejo })}
-                  className="btn-ghost self-start !py-2 !text-sm disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  <Icon name="lucide:flip-horizontal" size={15} />
-                  {activo.espejo ? "Quitar espejo" : "Voltear en espejo (salidas al otro lado)"}
-                </button>
-                {!puedeVoltearse(activo.origen) && (
-                  <p className="text-xs text-ink-mute">
-                    Esta máquina ya está construida, así que sus salidas no se pueden cambiar de lado. Solo las{" "}
-                    <b>nuevas a fabricar</b> se pueden pedir en espejo.
-                  </p>
-                )}
-              </div>
-            </>
-          )}
+          <div className="flex flex-col gap-1.5">
+            <button
+              type="button"
+              disabled={!puedeVoltearse(activo.origen)}
+              onClick={() => actualizar(activo.id, { espejo: !activo.espejo })}
+              className="btn-ghost self-start !py-2 !text-sm disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Icon name="lucide:flip-horizontal" size={15} />
+              {activo.espejo ? "Quitar espejo" : "Voltear en espejo (salidas al otro lado)"}
+            </button>
+            {!puedeVoltearse(activo.origen) && (
+              <p className="text-xs text-ink-mute">
+                Esta máquina ya está construida, así que sus salidas no se pueden cambiar de lado. Solo las{" "}
+                <b>nuevas a fabricar</b> se pueden pedir en espejo.
+              </p>
+            )}
+          </div>
         </div>
       )}
 
@@ -883,14 +982,14 @@ export function Planeador() {
         }}
       >
         {maquinas.length === 0 ? (
-          <p className="text-sm text-ink-mute">Agrega módulos para saber si cabe.</p>
+          <p className="text-sm text-ink-mute">Toca lo que veas en el empaque para saber si cabe.</p>
         ) : (
           <>
             <p className="font-display text-2xl font-semibold">{cabe ? "Sí cabe 👍" : "Todavía no cabe"}</p>
             <p className="mt-1 text-sm text-ink-soft">
               {cabe
-                ? `Las ${maquinas.length} máquinas entran en el espacio, sin encimarse ni chocar con los postes.`
-                : "Hay módulos en rojo: se enciman, chocan con un poste o se salen del espacio."}
+                ? `Las ${maquinas.length} máquinas entran en el espacio, sin encimarse.`
+                : "Hay módulos en rojo: se enciman o se salen del espacio."}
             </p>
             <p className="mt-2 text-sm text-ink-mute">
               Ocupado: {ocupado.toFixed(1)} m² de {areaEspacio.toFixed(1)} m² (
@@ -902,7 +1001,7 @@ export function Planeador() {
 
       {/* 6. Mandarlo */}
       <div className="card flex flex-col gap-4 p-5">
-        <p className="text-sm font-semibold text-ink">4. Mándalo para cotizar</p>
+        <p className="text-sm font-semibold text-ink">6. Mándalo para cotizar</p>
         <label className="flex flex-col gap-2 text-sm text-ink-soft">
           ¿Algo más que debamos saber? (fruta, capacidad, desniveles, altura del techo)
           <textarea

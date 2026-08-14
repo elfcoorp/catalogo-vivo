@@ -64,8 +64,24 @@ export interface ClasificadoraParams {
 
 const PULGADA = 0.0254;
 
-/** Ancho que ocupa cada línea de copitas, incluyendo su estructura. */
-const ANCHO_POR_LINEA = 0.72;
+/**
+ * Ancho que ocupa cada línea de copitas, incluyendo su estructura. El clip
+ * arma la máquina más angosta que la charola, y así sale de los planos:
+ *  - charola: "LINEA CHAROLAS 6 x 12+1" mide 4.35 m para 6 líneas → 0.725 m
+ *  - clip:    "LINEA 4x12" mide 2.60 m para 4 líneas → 0.65 m
+ * Todavía no cambia con el paso de la copita: solo hay esos dos planos.
+ */
+const ANCHO_POR_LINEA: Record<TipoCopita, number> = { clip: 0.65, charola: 0.725 };
+
+/**
+ * Ancho de los equipos que van en fila con la clasificadora (cepilladoras,
+ * mesas, tolvas). Sale de los mismos dos planos: en la línea de clip todo
+ * mide 0.90 m de ancho y en la de charolas todo mide 1.20 m.
+ */
+export function anchoDeLinea(tipo: TipoCopita): number {
+  return tipo === "clip" ? 0.9 : 1.2;
+}
+
 /** Lo que se lleva la entrada de fruta y la descarga al final. */
 const ENTRADA = 2.2;
 const DESCARGA = 2.2;
@@ -73,7 +89,7 @@ const DESCARGA = 2.2;
 /** Huella real de la clasificadora, en metros. */
 export function medidaClasificadora(p: ClasificadoraParams): { largo: number; ancho: number } {
   const largo = +(p.salidas * p.pasoSalidas * PULGADA + ENTRADA + DESCARGA).toFixed(2);
-  const ancho = +(p.lineas * ANCHO_POR_LINEA).toFixed(2);
+  const ancho = +(p.lineas * ANCHO_POR_LINEA[p.tipoCopita]).toFixed(2);
   return { largo, ancho };
 }
 
@@ -241,6 +257,30 @@ export function svgTolva(largo: number, ancho: number, salidas = 6): string {
       `<rect x="${x}" y="${H * 0.32}" width="${paso * 0.7}" height="${H * 0.36}" fill="none" stroke="${TRAZO}" stroke-width="3"/>`
     );
   }
+  return envoltura(W, H, partes.join(""));
+}
+
+/**
+ * Caseta de control: no es máquina, es el cuartito donde se para el operador.
+ * Se dibuja como cuarto con su puerta para que no se confunda con un equipo.
+ */
+export function svgCaseta(largo: number, ancho: number): string {
+  const W = Math.round(largo * 100);
+  const H = Math.round(ancho * 100);
+  const partes: string[] = [];
+  // Pared doble: así se lee como cuarto y no como bloque de máquina.
+  partes.push(
+    `<rect x="14" y="14" width="${W - 28}" height="${H - 28}" fill="none" stroke="${TRAZO}" stroke-width="3"/>`
+  );
+  // La puerta, en el lado largo de abajo
+  partes.push(`<line x1="${W * 0.6}" y1="${H - 2}" x2="${W * 0.6}" y2="${H - 14}" stroke="#fff" stroke-width="8"/>`);
+  partes.push(
+    `<path d="M ${W * 0.6} ${H - 8} A ${W * 0.22} ${W * 0.22} 0 0 0 ${W * 0.82} ${H - 8 - W * 0.22}" fill="none" stroke="${FINO}" stroke-width="3"/>`
+  );
+  // La mesa de control pegada a la pared de arriba
+  partes.push(
+    `<rect x="${W * 0.12}" y="26" width="${W * 0.35}" height="${H * 0.22}" fill="none" stroke="${FINO}" stroke-width="3"/>`
+  );
   return envoltura(W, H, partes.join(""));
 }
 

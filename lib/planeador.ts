@@ -31,57 +31,25 @@ export interface Modulo {
   tipo: string;
   /** Metros, YA girados: es la huella real que ocupa en el piso. */
   largo: number;
+  /**
+   * SOLO el ancho ÚTIL: por donde pasa la fruta. Hay máquinas muy robustas
+   * cuyo ancho total no tiene que ver con el paso de la fruta, y si con el
+   * puro ancho útil no cabe, no cabe.
+   */
   ancho: number;
   /** Posición de la esquina superior izquierda, en metros. */
   x: number;
   y: number;
   origen: Origen;
-  /** Dibujo en planta recortado del plano ELFCO. Si no hay, se ve como bloque. */
+  /** Dibujo en planta generado a la medida. Si no hay, se ve como bloque. */
   imagen?: string;
+  /** Qué figura le toca, para volver a dibujarla si cambian las medidas. */
+  dibujo?: Dibujo;
   /** Giro del dibujo en grados. */
   rotacion: 0 | 90 | 180 | 270;
   /** Voltea el dibujo como espejo: las salidas cambian de lado. */
   espejo: boolean;
-  /** Un poste de la nave: no se cotiza, pero estorba y nada puede ir encima. */
-  esPoste?: boolean;
 }
-
-/** Medidas típicas de poste, en metros. Hay postes mucho más gruesos que otros. */
-export const POSTES_TIPICOS: { etiqueta: string; largo: number; ancho: number }[] = [
-  { etiqueta: '6" x 6"', largo: 0.15, ancho: 0.15 },
-  { etiqueta: '1 pie x 6"', largo: 0.3, ancho: 0.15 },
-  { etiqueta: "1 pie x 1 pie", largo: 0.3, ancho: 0.3 },
-  { etiqueta: "40 x 20 cm", largo: 0.4, ancho: 0.2 },
-];
-
-export const POSTE = 0.3;
-
-/**
- * Módulos con su dibujo real, recortado de los planos de ELFCO. Las medidas
- * salen de la lista de partes del mismo plano, así que no son inventadas —
- * aun así el vendedor las puede corregir, porque cada empaque trae las suyas.
- */
-export interface ModuloCatalogo {
-  tipo: string;
-  largo: number;
-  ancho: number;
-  imagen?: string;
-}
-
-export const CATALOGO_MODULOS: ModuloCatalogo[] = [
-  // De "LINEA CHAROLAS 6 x 12+1": medidas tal cual las lista el plano.
-  { tipo: "Cepilladora lavadora", largo: 2.27, ancho: 1.2, imagen: "/modulos/mod-cepilladora.png" },
-  { tipo: "Selección manual", largo: 3.4, ancho: 1.2, imagen: "/modulos/mod-seleccion.png" },
-  { tipo: "Clasificadora de charolas 6 líneas", largo: 15.34, ancho: 4.35, imagen: "/modulos/mod-clasificadora.png" },
-  { tipo: "Elevador de rodillos", largo: 3, ancho: 1.2 },
-  { tipo: "Banda de PVC", largo: 3, ancho: 1.8 },
-  { tipo: "Banda sanitaria", largo: 7, ancho: 0.77 },
-  { tipo: "Tolva de recepción", largo: 6, ancho: 1.2 },
-  { tipo: "Mesa descarnadora", largo: 3, ancho: 1.2 },
-  { tipo: "Volteadora de bins", largo: 8, ancho: 3.7 },
-  { tipo: "Módulo de empaque", largo: 3, ancho: 1.2 },
-  { tipo: "Otro", largo: 3, ancho: 1.2 },
-];
 
 export interface Espacio {
   largo: number;
@@ -89,28 +57,91 @@ export interface Espacio {
 }
 
 /** Qué dibujo le toca a cada equipo de la línea. */
-export type Dibujo = "cepilladora" | "mesa" | "tolva" | "banda" | "ninguno";
+export type Dibujo = "cepilladora" | "mesa" | "tolva" | "banda" | "caseta" | "ninguno";
+
+export interface Equipo {
+  tipo: string;
+  /** Dónde sale en la lista, para no dejar 20 botones en una sola tira. */
+  grupo: string;
+  /** Largo típico en metros, sacado de los planos. El vendedor lo corrige. */
+  largo: number;
+  /**
+   * Ancho útil típico en metros. Si va en fila con la clasificadora se deja
+   * sin poner: toma el ancho de la línea (0.90 m con clip, 1.20 m con charola).
+   */
+  ancho?: number;
+  dibujo: Dibujo;
+}
 
 /**
- * Los equipos que suele traer una línea, en el orden en que van. El vendedor
- * marca cuáles ya tiene el cliente y cuáles se le van a poner — de ahí sale
- * el listado para cotizar. Cada uno trae su largo típico, editable, porque
- * unas mesas son más largas que otras.
+ * Todo lo que el vendedor puede ver parado en un empaque. Las medidas salen
+ * de las listas de partes de los planos de ELFCO, no están inventadas:
+ *  - "LINEA CHAROLAS 6 x 12+1"  → elevador, cepilladoras, selección, bandas
+ *  - "LINEA 4x12"               → descanicador, singulador
+ *  - "Layout Linea de Tomate"   → tina, mesa de rodillos, cangilones, cajas
+ *  - "LINEA DE 6X12+1"          → caseta de control
+ * Las dos marcadas PROVISIONAL no vienen en ningún plano: son un punto de
+ * partida para que el vendedor teclee la medida buena en el empaque.
  */
-export const LISTA_LINEA: { tipo: string; largo: number; dibujo: Dibujo }[] = [
-  { tipo: "Volteadora de bins", largo: 8, dibujo: "ninguno" },
-  { tipo: "Tolva de recepción", largo: 6, dibujo: "tolva" },
-  { tipo: "Elevador de rodillos", largo: 3, dibujo: "banda" },
-  { tipo: "Cepilladora lavadora", largo: 2.27, dibujo: "cepilladora" },
-  { tipo: "Cepilladora secadora", largo: 2.27, dibujo: "cepilladora" },
-  { tipo: "Cepilladora enceradora", largo: 2.27, dibujo: "cepilladora" },
-  { tipo: "Selección manual", largo: 3.4, dibujo: "mesa" },
-  { tipo: "Mesa descarnadora", largo: 3, dibujo: "mesa" },
-  { tipo: "Banda de PVC", largo: 3, dibujo: "banda" },
-  { tipo: "Banda sanitaria", largo: 7, dibujo: "banda" },
-  { tipo: "Módulo de empaque", largo: 3, dibujo: "ninguno" },
-  { tipo: "Llenadora", largo: 3, dibujo: "ninguno" },
+export const EQUIPOS: Equipo[] = [
+  // Recepción
+  { tipo: "Volteadora de bins", grupo: "Recepción", largo: 8, ancho: 3.7, dibujo: "ninguno" },
+  { tipo: "Tolva de recepción", grupo: "Recepción", largo: 6, dibujo: "tolva" },
+  { tipo: "Tina de lavado", grupo: "Recepción", largo: 4, dibujo: "banda" },
+  { tipo: "Elevador de rodillos", grupo: "Recepción", largo: 3, dibujo: "banda" },
+  { tipo: "Banda de cangilones", grupo: "Recepción", largo: 2, ancho: 0.41, dibujo: "banda" },
+
+  // Limpieza
+  { tipo: "Cepilladora lavadora", grupo: "Limpieza", largo: 2.27, dibujo: "cepilladora" },
+  { tipo: "Cepilladora secadora", grupo: "Limpieza", largo: 2.27, dibujo: "cepilladora" },
+  { tipo: "Cepilladora enceradora", grupo: "Limpieza", largo: 2.27, dibujo: "cepilladora" },
+  { tipo: "Descanicador de rodillos", grupo: "Limpieza", largo: 1.5, dibujo: "banda" },
+
+  // Selección
+  { tipo: "Selección manual", grupo: "Selección", largo: 3.4, dibujo: "mesa" },
+  { tipo: "Mesa de rodillos", grupo: "Selección", largo: 3, dibujo: "mesa" },
+  { tipo: "Mesa descarnadora", grupo: "Selección", largo: 3, dibujo: "mesa" },
+  { tipo: "Singulador", grupo: "Selección", largo: 3.05, dibujo: "banda" },
+
+  // Transporte de la fruta
+  { tipo: "Banda de PVC", grupo: "Transporte", largo: 3, ancho: 1.8, dibujo: "banda" },
+  { tipo: "Banda sanitaria", grupo: "Transporte", largo: 7, ancho: 0.77, dibujo: "banda" },
+
+  // Empaque y cajas
+  { tipo: "Módulo de empaque", grupo: "Empaque y cajas", largo: 3, dibujo: "ninguno" },
+  { tipo: "Llenadora", grupo: "Empaque y cajas", largo: 3, dibujo: "ninguno" },
+  { tipo: "Transportador de caja llena", grupo: "Empaque y cajas", largo: 20, ancho: 0.41, dibujo: "banda" },
+  { tipo: "Transportador de caja vacía", grupo: "Empaque y cajas", largo: 30, ancho: 0.41, dibujo: "banda" },
+  // PROVISIONAL: no viene en los planos.
+  { tipo: "Volteadora de cajas", grupo: "Empaque y cajas", largo: 2, ancho: 1.2, dibujo: "ninguno" },
+
+  // Lo que no es máquina pero ocupa piso
+  { tipo: "Caseta de control", grupo: "Otras cosas del piso", largo: 4.6, ancho: 4.6, dibujo: "caseta" },
+  // PROVISIONAL: no viene en los planos.
+  { tipo: "Bodega o cámara", grupo: "Otras cosas del piso", largo: 6, ancho: 4, dibujo: "ninguno" },
+  { tipo: "Otro", grupo: "Otras cosas del piso", largo: 3, dibujo: "ninguno" },
 ];
+
+/** Los grupos en el orden en que van, sin repetir. */
+export const GRUPOS_EQUIPO: string[] = [...new Set(EQUIPOS.map((e) => e.grupo))];
+
+/**
+ * Como se puede poner la misma máquina varias veces, cada una lleva su
+ * número: "Mesa de rodillos #1", "#2". Sin esto no se sabe de cuál se está
+ * preguntando la medida. Si solo hay una, se queda sin número.
+ */
+export function nombresNumerados(modulos: Modulo[]): Record<string, string> {
+  const total: Record<string, number> = {};
+  for (const m of modulos) total[m.tipo] = (total[m.tipo] ?? 0) + 1;
+
+  const van: Record<string, number> = {};
+  const nombres: Record<string, string> = {};
+  for (const m of modulos) {
+    van[m.tipo] = (van[m.tipo] ?? 0) + 1;
+    nombres[m.id] = total[m.tipo] > 1 ? `${m.tipo} #${van[m.tipo]}` : m.tipo;
+  }
+  return nombres;
+}
 
 /**
  * Las frutas que se trabajan, para arrancar el levantamiento por ahí.
@@ -229,9 +260,9 @@ export function pegarAOtros(
   return { x: pegar(x, enX), y: pegar(y, enY) };
 }
 
-/** Metros cuadrados que ocupan las máquinas (los postes no cuentan como equipo). */
+/** Metros cuadrados que ocupan las máquinas. */
 export function areaOcupada(modulos: Modulo[]): number {
-  return modulos.filter((m) => !m.esPoste).reduce((total, m) => total + m.largo * m.ancho, 0);
+  return modulos.reduce((total, m) => total + m.largo * m.ancho, 0);
 }
 
 /** Arma el mensaje del levantamiento para mandarlo por WhatsApp. */
@@ -243,14 +274,14 @@ export function resumenLevantamiento(
   whatsapp: string,
   fruta = ""
 ): string {
+  const nombres = nombresNumerados(modulos);
   const linea = (m: Modulo) => {
     const giro = m.rotacion !== 0 ? ` · girada ${m.rotacion}°` : "";
     const esp = m.espejo ? " · en espejo (salidas del otro lado)" : "";
-    return `- ${m.tipo}: ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m${giro}${esp}`;
+    // El ancho es el ÚTIL, y así se dice, para que nadie lo confunda con el total.
+    return `- ${nombres[m.id]}: ${m.largo.toFixed(2)} m de largo x ${m.ancho.toFixed(2)} m de ancho útil${giro}${esp}`;
   };
-  const maquinas = modulos.filter((m) => !m.esPoste);
-  const postes = modulos.filter((m) => m.esPoste);
-  const porOrigen = (o: Origen) => maquinas.filter((m) => m.origen === o);
+  const porOrigen = (o: Origen) => modulos.filter((m) => m.origen === o);
 
   const seccion = (titulo: string, lista: Modulo[]) =>
     lista.length > 0 ? `\n${titulo} (${lista.length}):\n${lista.map(linea).join("\n")}` : "";
@@ -259,7 +290,6 @@ export function resumenLevantamiento(
     "Levantamiento de mi empaque:",
     fruta && `Fruta: ${fruta}`,
     `Espacio disponible: ${espacio.largo.toFixed(2)} x ${espacio.ancho.toFixed(2)} m`,
-    postes.length > 0 && `Postes marcados en el área: ${postes.length}`,
     seccion("Lo que YA TENGO", porOrigen("cliente")),
     seccion("Usadas de ELFCO que me interesan", porOrigen("usada")),
     seccion("Nuevas a fabricar", porOrigen("nueva")),
