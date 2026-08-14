@@ -249,6 +249,8 @@ export function Planeador() {
   const [poniendo, setPoniendo] = useState<Origen>("cliente");
   // Como texto, para poder borrarlo y teclear otra cantidad.
   const [salidasTxt, setSalidasTxt] = useState("12");
+  // Vacío = se usa el ancho de los módulos, que es solo una aproximación.
+  const [anchoClasifTxt, setAnchoClasifTxt] = useState("");
   const [clasif, setClasif] = useState<ClasificadoraParams>({
     lineas: 6,
     salidas: 12,
@@ -268,7 +270,11 @@ export function Planeador() {
   const pctY = (metros: number) => `${(metros / espacio.ancho) * 100}%`;
 
   // Las salidas se teclean, así que se leen aparte del resto de la config.
-  const clasifFinal: ClasificadoraParams = { ...clasif, salidas: Math.max(1, Number(salidasTxt) || 1) };
+  const clasifFinal: ClasificadoraParams = {
+    ...clasif,
+    salidas: Math.max(1, Number(salidasTxt) || 1),
+    anchoManual: Number(anchoClasifTxt) > 0 ? Number(anchoClasifTxt) : undefined,
+  };
 
   const conProblema = modulosConProblema(modulos, espacio);
   const maquinas = modulos;
@@ -639,17 +645,35 @@ export function Planeador() {
           </div>
         </div>
 
-        {/* Cuántas salidas: es lo único que se teclea */}
-        <label className="flex flex-col gap-1 text-xs text-ink-mute">
-          ¿Cuántas salidas por lado?
-          <input
-            type="number"
-            inputMode="numeric"
-            value={salidasTxt}
-            onChange={(e) => setSalidasTxt(e.target.value)}
-            className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-          />
-        </label>
+        {/* Cuántas salidas y qué tan ancho es el cuerpo */}
+        <div className="flex flex-wrap gap-3">
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            ¿Cuántas salidas por lado?
+            <input
+              type="number"
+              inputMode="numeric"
+              value={salidasTxt}
+              onChange={(e) => setSalidasTxt(e.target.value)}
+              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-ink-mute">
+            Ancho del cuerpo (m)
+            <input
+              type="number"
+              inputMode="decimal"
+              step={0.1}
+              value={anchoClasifTxt}
+              onChange={(e) => setAnchoClasifTxt(e.target.value)}
+              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
+            />
+          </label>
+        </div>
+        <p className="rounded-xl p-2.5 text-xs" style={{ background: "color-mix(in srgb, #f7c530 14%, transparent)" }}>
+          <b>Por confirmar:</b> la clasificadora <b>no</b> mide lo mismo que las cepilladoras y mesas. Los 0.60 / 0.90 /
+          1.20 / 1.80 m son el ancho de esos módulos. Falta la medida real del cuerpo de la clasificadora por número de
+          líneas y por copita — pídesela a CIU, que es quien las fabrica. Mientras, tecléala aquí.
+        </p>
 
         {/* Vista previa: se ve antes de meterla al dibujo */}
         <div className="overflow-hidden rounded-xl border border-line bg-white p-3">

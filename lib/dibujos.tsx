@@ -60,6 +60,11 @@ export interface ClasificadoraParams {
   /** Medida de la copita, para la etiqueta (ej. "3¾"" o "6""). */
   medidaCopita: string;
   conPeso: boolean;
+  /**
+   * Ancho del cuerpo de la clasificadora, en metros. Se teclea porque todavía
+   * no se tiene la tabla real por líneas y por copita.
+   */
+  anchoManual?: number;
 }
 
 const PULGADA = 0.0254;
@@ -121,17 +126,21 @@ const ENTRADA = 2.2;
 const DESCARGA = 2.2;
 
 /**
- * Huella real de la clasificadora, en metros.
+ * Huella de la clasificadora, en metros.
  *
- * El ancho sale de la MISMA tabla que el resto de la línea: 2 líneas 0.60 m,
- * 4 líneas 0.90 m, 6 líneas 1.20 m, 8 líneas 1.80 m. Antes se multiplicaba
- * el número de líneas por un ancho por línea sacado a ojo de una cota del
- * plano, y una de 6 líneas salía de 4.35 m — muchísimo. Toda la línea va del
- * mismo ancho, por eso la cepilladora y la clasificadora empatan.
+ * OJO con el ancho: la clasificadora NO mide lo mismo que los módulos de
+ * atrás. Los 0.60 / 0.90 / 1.20 / 1.80 son el ancho útil de las cepilladoras
+ * y mesas; el cuerpo de la clasificadora es más ancho, y encima le cuelgan
+ * las tolvas de salida. La medida exacta por número de líneas y por tipo de
+ * copita TODAVÍA NO SE TIENE — se la pide a CIU, que es quien las fabrica.
+ *
+ * Mientras tanto el ancho se teclea a mano (`anchoManual`) y la pantalla avisa
+ * que está por confirmar, en vez de inventar un número que acabaría en una
+ * cotización.
  */
 export function medidaClasificadora(p: ClasificadoraParams): { largo: number; ancho: number } {
   const largo = +(p.salidas * p.pasoSalidas * PULGADA + ENTRADA + DESCARGA).toFixed(2);
-  return { largo, ancho: anchoDeLinea(p.lineas) };
+  return { largo, ancho: p.anchoManual ?? anchoDeLinea(p.lineas) };
 }
 
 export function nombreClasificadora(p: ClasificadoraParams): string {
