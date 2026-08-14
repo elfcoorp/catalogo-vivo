@@ -8,6 +8,7 @@ import {
   COPITAS,
   LINEAS_TIPICAS,
   anchoDeLinea,
+  lineasQueAlcanza,
   enPulgadas,
   TIPOS_MESA,
   comoDataUri,
@@ -867,6 +868,35 @@ export function Planeador() {
                   >
                     <Icon name="lucide:trash-2" size={16} />
                   </button>
+
+                  {/* El aviso de la venta: hay clientes que dejaron la línea
+                      ancha a propósito, pensando en crecer. Si ya les alcanza,
+                      esa pieza no se cambia — y eso abarata el upgrade. */}
+                  {(() => {
+                    if (m.tipo.startsWith("Clasificadora")) return null;
+                    const alcanza = lineasQueAlcanza(m.ancho);
+                    if (alcanza === null) {
+                      return (
+                        <p className="w-full text-xs" style={{ color: "#c92a2a" }}>
+                          Con {m.ancho.toFixed(2)} m no alcanza ni para 2 líneas.
+                        </p>
+                      );
+                    }
+                    if (alcanza >= clasif.lineas) {
+                      return (
+                        <p className="w-full text-xs" style={{ color: "#2f9e44" }}>
+                          Alcanza hasta {alcanza} líneas
+                          {alcanza > clasif.lineas && " — le sobra para la que se está armando, no hay que cambiarla"}.
+                        </p>
+                      );
+                    }
+                    return (
+                      <p className="w-full text-xs" style={{ color: "#c92a2a" }}>
+                        Se queda corta: alcanza para {alcanza} líneas y se está armando de {clasif.lineas}. Necesita{" "}
+                        {anchoDeLinea(clasif.lineas).toFixed(2)} m.
+                      </p>
+                    );
+                  })()}
                 </div>
               );
             })}

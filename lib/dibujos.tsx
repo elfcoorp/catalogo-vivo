@@ -93,6 +93,20 @@ export const ANCHO_UTIL_POR_LINEAS: Record<number, number> = {
   8: 1.8,
 };
 
+/**
+ * Hasta cuántas líneas alcanza un ancho útil dado. Sirve para el momento de la
+ * venta: hay clientes que pusieron la cepilladora de 1.20 m con clasificadora
+ * de 2 líneas justo pensando en crecer después — esa cepilladora ya les sirve
+ * para 6 y no hay que cambiarla. Devuelve null si no alcanza ni para 2.
+ */
+export function lineasQueAlcanza(anchoUtil: number): number | null {
+  const holgura = 0.01;
+  const alcanzan = Object.entries(ANCHO_UTIL_POR_LINEAS)
+    .filter(([, ancho]) => ancho <= anchoUtil + holgura)
+    .map(([lineas]) => Number(lineas));
+  return alcanzan.length > 0 ? Math.max(...alcanzan) : null;
+}
+
 export function anchoDeLinea(lineas: number): number {
   if (ANCHO_UTIL_POR_LINEAS[lineas]) return ANCHO_UTIL_POR_LINEAS[lineas];
   // Si alguien pide un número de líneas fuera de la tabla, se toma el más
@@ -106,11 +120,18 @@ export function anchoDeLinea(lineas: number): number {
 const ENTRADA = 2.2;
 const DESCARGA = 2.2;
 
-/** Huella real de la clasificadora, en metros. */
+/**
+ * Huella real de la clasificadora, en metros.
+ *
+ * El ancho sale de la MISMA tabla que el resto de la línea: 2 líneas 0.60 m,
+ * 4 líneas 0.90 m, 6 líneas 1.20 m, 8 líneas 1.80 m. Antes se multiplicaba
+ * el número de líneas por un ancho por línea sacado a ojo de una cota del
+ * plano, y una de 6 líneas salía de 4.35 m — muchísimo. Toda la línea va del
+ * mismo ancho, por eso la cepilladora y la clasificadora empatan.
+ */
 export function medidaClasificadora(p: ClasificadoraParams): { largo: number; ancho: number } {
   const largo = +(p.salidas * p.pasoSalidas * PULGADA + ENTRADA + DESCARGA).toFixed(2);
-  const ancho = +(p.lineas * ANCHO_POR_LINEA[p.tipoCopita]).toFixed(2);
-  return { largo, ancho };
+  return { largo, ancho: anchoDeLinea(p.lineas) };
 }
 
 export function nombreClasificadora(p: ClasificadoraParams): string {
