@@ -562,10 +562,169 @@ export function Planeador() {
         </div>
       </div>
 
-      {/* 3. La clasificadora a la medida — es el corazón de la venta */}
+      {/* 3. Ve alrededor y ve marcando todo lo que hay, sin medir todavía */}
+      <div className="card flex flex-col gap-4 p-5">
+        <div>
+          <p className="text-sm font-semibold text-ink">3. Toca todo lo que veas en el empaque</p>
+          <p className="mt-1 text-xs text-ink-mute">
+            No te detengas a medir: aparece en el dibujo con su medida típica y más abajo te preguntamos de cuánto es
+            cada uno. Toca el mismo botón otra vez si hay dos iguales.
+          </p>
+        </div>
+
+        {/* Primero se marca todo lo que YA HAY; después lo que se le pone. */}
+        <div className="flex flex-wrap gap-2">
+          {(["cliente", "nueva"] as Origen[]).map((o) => {
+            const info = ORIGENES.find((x) => x.valor === o)!;
+            const puesto = poniendo === o;
+            return (
+              <button
+                key={o}
+                type="button"
+                onClick={() => setPoniendo(o)}
+                className="flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition"
+                style={
+                  puesto
+                    ? { background: info.color, color: "#fff", borderColor: info.color }
+                    : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                }
+              >
+                {o === "cliente" ? "Lo que ya hay" : "Lo que le ponemos"}
+              </button>
+            );
+          })}
+        </div>
+
+        {GRUPOS_EQUIPO.map((grupo) => (
+          <div key={grupo} className="flex flex-col gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">{grupo}</p>
+            <div className="flex flex-wrap gap-2">
+              {EQUIPOS.filter((e) => e.grupo === grupo).map((eq) => {
+                // Los números que ya se le asignaron a este equipo. Antes salía
+                // cuántos había y todos marcaban "1", que no decía nada.
+                const suyos = modulos.filter((m) => m.tipo === eq.tipo && m.etapa === eq.grupo).map((m) => numeros[m.id]);
+                return (
+                  <button
+                    key={`${eq.grupo}-${eq.tipo}`}
+                    type="button"
+                    onClick={() => agregarEquipo(eq)}
+                    className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
+                    style={{ borderColor: "var(--line-strong)", color: "var(--ink-soft)" }}
+                  >
+                    {eq.tipo}
+                    {suyos.length > 0 && (
+                      <span
+                        className="ml-1.5 inline-block rounded-full px-1.5 text-xs font-bold text-white"
+                        style={{ background: "var(--marca)" }}
+                      >
+                        {suyos.join("·")}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* El dibujo: aquí van cayendo y aquí se acomodan */}
+      <div ref={cardDibujoRef} className="card flex flex-col gap-3 p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-sm font-semibold text-ink">Acomódalos arrastrando con el dedo</p>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-ink-mute">
+            {ORIGENES.map((o) => (
+              <span key={o.valor} className="inline-flex items-center gap-1.5">
+                <span className="inline-block h-3 w-3 rounded" style={{ background: o.color }} /> {o.etiqueta}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div
+          ref={lienzoRef}
+          onPointerMove={alMoverDedo}
+          onPointerUp={alSoltarDedo}
+          onPointerCancel={alSoltarDedo}
+          className="relative w-full overflow-hidden rounded-xl border-2 border-dashed border-line-strong bg-bg-2"
+          style={{ aspectRatio: `${espacio.largo} / ${espacio.ancho}`, touchAction: "none" }}
+        >
+          {modulos.length === 0 && (
+            <p className="absolute inset-0 grid place-items-center px-4 text-center text-sm text-ink-mute">
+              Toca arriba lo que veas en el empaque y aparecerá aquí, a escala.
+            </p>
+          )}
+
+          {/* Las distancias a las cuatro paredes del que está elegido: es lo
+              que decide qué máquina cabe entre una cosa y otra. */}
+          {activo && <Separaciones m={activo} espacio={espacio} />}
+
+          {modulos.map((m) => {
+            const malo = conProblema.has(m.id);
+            const elegido = m.id === seleccionado;
+            const color = malo ? "#c92a2a" : colorDeOrigen(m.origen);
+            return (
+              <div
+                key={m.id}
+                onPointerDown={(e) => alBajarDedo(e, m)}
+                className="absolute flex cursor-grab select-none items-center justify-center overflow-hidden rounded-md text-center text-white active:cursor-grabbing"
+                style={{
+                  left: pctX(m.x),
+                  top: pctY(m.y),
+                  width: pctX(m.largo),
+                  height: pctY(m.ancho),
+                  background: m.imagen ? "#fff" : color,
+                  // Con dibujo, el color va en el borde para no tapar la línea.
+                  border: m.imagen ? `4px solid ${color}` : "none",
+                  outline: elegido ? "4px solid #f7c530" : "none",
+                  outlineOffset: "-1px",
+                  boxShadow: elegido ? "0 0 0 3px rgba(247,197,48,0.35)" : "0 1px 4px rgba(0,0,0,0.35)",
+                  touchAction: "none",
+                }}
+                title={`${nombreDe(m)} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
+              >
+                <DibujoModulo m={m} />
+                {/* El número va GRANDE en medio: es el mismo de la lista de
+                    medidas y del layout, y se ve aunque la pieza sea chica. */}
+                <span
+                  className="pointer-events-none absolute inset-0 grid place-items-center text-[15px] font-black leading-none"
+                  style={{ color, textShadow: "0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff" }}
+                >
+                  {numeros[m.id]}
+                </span>
+                {/* El nombre va SIEMPRE encima: si no, dos bloques chicos se
+                    ven iguales y no se sabe cuál es cuál. */}
+                <span
+                  className="pointer-events-none absolute left-0 top-0 max-w-full truncate rounded-br px-1 py-px text-[11px] font-extrabold leading-tight tracking-tight"
+                  style={{ background: color, color: "#fff" }}
+                >
+                  {abreviar(m.tipo)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="flex-1 text-xs text-ink-mute">
+            A escala: {espacio.largo.toFixed(2)} m de largo x {espacio.ancho.toFixed(2)} m de ancho, visto desde arriba.
+            En <span style={{ color: "#c92a2a" }}>rojo</span> lo que se encima o se sale.
+          </p>
+          {/* Para volver a formarlos si ya los movió y se le revolvieron. */}
+          {modulos.length > 1 && (
+            <button type="button" onClick={ordenarPorNumero} className="btn-ghost !py-2 !text-sm">
+              <Icon name="lucide:list-ordered" size={15} /> Formarlos 1, 2, 3…
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 4. La clasificadora que se le propone. Va HASTA AQUÍ, no al principio:
+          el vendedor recorre el empaque midiendo lo que el cliente ya tiene, y
+          hasta que vio todo decide qué clasificadora le conviene proponer. */}
       <div className="card flex flex-col gap-4 p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="text-sm font-semibold text-ink">3. Arma la clasificadora que necesita</p>
+          <p className="text-sm font-semibold text-ink">4. Ahora sí, ¿qué clasificadora le proponemos?</p>
           <p className="text-sm text-ink-mute">
             Queda de {medidaClasificadora(clasifFinal).largo.toFixed(2)} x {medidaClasificadora(clasifFinal).ancho.toFixed(2)} m
           </p>
@@ -736,163 +895,6 @@ export function Planeador() {
             <b>{clasificadorasPuestas.map((n) => `#${n}`).join(" y la ")}</b>. Abajo la ves en el dibujo.
           </p>
         )}
-      </div>
-
-      {/* 4. Ve alrededor y ve marcando todo lo que hay, sin medir todavía */}
-      <div className="card flex flex-col gap-4 p-5">
-        <div>
-          <p className="text-sm font-semibold text-ink">4. Toca todo lo que veas en el empaque</p>
-          <p className="mt-1 text-xs text-ink-mute">
-            No te detengas a medir: aparece en el dibujo con su medida típica y más abajo te preguntamos de cuánto es
-            cada uno. Toca el mismo botón otra vez si hay dos iguales.
-          </p>
-        </div>
-
-        {/* Primero se marca todo lo que YA HAY; después lo que se le pone. */}
-        <div className="flex flex-wrap gap-2">
-          {(["cliente", "nueva"] as Origen[]).map((o) => {
-            const info = ORIGENES.find((x) => x.valor === o)!;
-            const puesto = poniendo === o;
-            return (
-              <button
-                key={o}
-                type="button"
-                onClick={() => setPoniendo(o)}
-                className="flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition"
-                style={
-                  puesto
-                    ? { background: info.color, color: "#fff", borderColor: info.color }
-                    : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
-                }
-              >
-                {o === "cliente" ? "Lo que ya hay" : "Lo que le ponemos"}
-              </button>
-            );
-          })}
-        </div>
-
-        {GRUPOS_EQUIPO.map((grupo) => (
-          <div key={grupo} className="flex flex-col gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">{grupo}</p>
-            <div className="flex flex-wrap gap-2">
-              {EQUIPOS.filter((e) => e.grupo === grupo).map((eq) => {
-                // Los números que ya se le asignaron a este equipo. Antes salía
-                // cuántos había y todos marcaban "1", que no decía nada.
-                const suyos = modulos.filter((m) => m.tipo === eq.tipo && m.etapa === eq.grupo).map((m) => numeros[m.id]);
-                return (
-                  <button
-                    key={`${eq.grupo}-${eq.tipo}`}
-                    type="button"
-                    onClick={() => agregarEquipo(eq)}
-                    className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
-                    style={{ borderColor: "var(--line-strong)", color: "var(--ink-soft)" }}
-                  >
-                    {eq.tipo}
-                    {suyos.length > 0 && (
-                      <span
-                        className="ml-1.5 inline-block rounded-full px-1.5 text-xs font-bold text-white"
-                        style={{ background: "var(--marca)" }}
-                      >
-                        {suyos.join("·")}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* El dibujo: aquí van cayendo y aquí se acomodan */}
-      <div ref={cardDibujoRef} className="card flex flex-col gap-3 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-ink">Acomódalos arrastrando con el dedo</p>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-ink-mute">
-            {ORIGENES.map((o) => (
-              <span key={o.valor} className="inline-flex items-center gap-1.5">
-                <span className="inline-block h-3 w-3 rounded" style={{ background: o.color }} /> {o.etiqueta}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div
-          ref={lienzoRef}
-          onPointerMove={alMoverDedo}
-          onPointerUp={alSoltarDedo}
-          onPointerCancel={alSoltarDedo}
-          className="relative w-full overflow-hidden rounded-xl border-2 border-dashed border-line-strong bg-bg-2"
-          style={{ aspectRatio: `${espacio.largo} / ${espacio.ancho}`, touchAction: "none" }}
-        >
-          {modulos.length === 0 && (
-            <p className="absolute inset-0 grid place-items-center px-4 text-center text-sm text-ink-mute">
-              Toca arriba lo que veas en el empaque y aparecerá aquí, a escala.
-            </p>
-          )}
-
-          {/* Las distancias a las cuatro paredes del que está elegido: es lo
-              que decide qué máquina cabe entre una cosa y otra. */}
-          {activo && <Separaciones m={activo} espacio={espacio} />}
-
-          {modulos.map((m) => {
-            const malo = conProblema.has(m.id);
-            const elegido = m.id === seleccionado;
-            const color = malo ? "#c92a2a" : colorDeOrigen(m.origen);
-            return (
-              <div
-                key={m.id}
-                onPointerDown={(e) => alBajarDedo(e, m)}
-                className="absolute flex cursor-grab select-none items-center justify-center overflow-hidden rounded-md text-center text-white active:cursor-grabbing"
-                style={{
-                  left: pctX(m.x),
-                  top: pctY(m.y),
-                  width: pctX(m.largo),
-                  height: pctY(m.ancho),
-                  background: m.imagen ? "#fff" : color,
-                  // Con dibujo, el color va en el borde para no tapar la línea.
-                  border: m.imagen ? `4px solid ${color}` : "none",
-                  outline: elegido ? "4px solid #f7c530" : "none",
-                  outlineOffset: "-1px",
-                  boxShadow: elegido ? "0 0 0 3px rgba(247,197,48,0.35)" : "0 1px 4px rgba(0,0,0,0.35)",
-                  touchAction: "none",
-                }}
-                title={`${nombreDe(m)} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
-              >
-                <DibujoModulo m={m} />
-                {/* El número va GRANDE en medio: es el mismo de la lista de
-                    medidas y del layout, y se ve aunque la pieza sea chica. */}
-                <span
-                  className="pointer-events-none absolute inset-0 grid place-items-center text-[15px] font-black leading-none"
-                  style={{ color, textShadow: "0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff" }}
-                >
-                  {numeros[m.id]}
-                </span>
-                {/* El nombre va SIEMPRE encima: si no, dos bloques chicos se
-                    ven iguales y no se sabe cuál es cuál. */}
-                <span
-                  className="pointer-events-none absolute left-0 top-0 max-w-full truncate rounded-br px-1 py-px text-[11px] font-extrabold leading-tight tracking-tight"
-                  style={{ background: color, color: "#fff" }}
-                >
-                  {abreviar(m.tipo)}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="flex-1 text-xs text-ink-mute">
-            A escala: {espacio.largo.toFixed(2)} m de largo x {espacio.ancho.toFixed(2)} m de ancho, visto desde arriba.
-            En <span style={{ color: "#c92a2a" }}>rojo</span> lo que se encima o se sale.
-          </p>
-          {/* Para volver a formarlos si ya los movió y se le revolvieron. */}
-          {modulos.length > 1 && (
-            <button type="button" onClick={ordenarPorNumero} className="btn-ghost !py-2 !text-sm">
-              <Icon name="lucide:list-ordered" size={15} /> Formarlos 1, 2, 3…
-            </button>
-          )}
-        </div>
       </div>
 
       {/* 5. Ya con todo puesto, ahora sí las medidas de cada uno */}

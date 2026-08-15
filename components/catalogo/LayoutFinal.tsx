@@ -28,16 +28,32 @@ const TITULOS_LISTA: Record<Origen, string> = {
   nueva: "Equipo nuevo a fabricar",
 };
 
+/**
+ * En qué se va a imprimir la hoja. Eduardo imprime en un plotter de 90 x 60
+ * o en tamaño oficio, así que la hoja se manda con esa medida exacta en vez
+ * de un "apaisado" genérico que el navegador acomoda como quiere.
+ */
+const TAMANOS_HOJA: { valor: string; etiqueta: string; medida: string }[] = [
+  { valor: "plotter", etiqueta: "Plotter 90 × 60", medida: "90cm 60cm" },
+  { valor: "oficio", etiqueta: "Oficio", medida: "35.6cm 21.6cm" },
+  { valor: "carta", etiqueta: "Carta", medida: "27.9cm 21.6cm" },
+];
+
+/** Las cotas van en ROJO, para que se despeguen del dibujo. Lo pidió Eduardo. */
+const ROJO_COTA = "#cc1111";
+/** Verde con el que se tiñe lo que el cliente YA TIENE. */
+const VERDE_CLIENTE = "#2f9e44";
+
 /** Punta de flecha de las cotas, del tamaño que le toque al plano. */
 function Flechas({ u }: { u: number }) {
   const p = `0 0, ${u * 9} ${u * 3}, 0 ${u * 6}`;
   return (
     <defs>
       <marker id="flecha-ini" markerWidth={u * 9} markerHeight={u * 6} refX={0} refY={u * 3} orient="auto" markerUnits="userSpaceOnUse">
-        <polygon points={`${u * 9} 0, 0 ${u * 3}, ${u * 9} ${u * 6}`} fill="#111" />
+        <polygon points={`${u * 9} 0, 0 ${u * 3}, ${u * 9} ${u * 6}`} fill={ROJO_COTA} />
       </marker>
       <marker id="flecha-fin" markerWidth={u * 9} markerHeight={u * 6} refX={u * 9} refY={u * 3} orient="auto" markerUnits="userSpaceOnUse">
-        <polygon points={p} fill="#111" />
+        <polygon points={p} fill={ROJO_COTA} />
       </marker>
     </defs>
   );
@@ -73,7 +89,7 @@ function Cota({
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke="#111"
+        stroke={ROJO_COTA}
         strokeWidth={u}
         markerStart="url(#flecha-ini)"
         markerEnd="url(#flecha-fin)"
@@ -85,7 +101,7 @@ function Cota({
         fontSize={txt}
         textAnchor={horizontal ? "middle" : "start"}
         dominantBaseline={horizontal ? "auto" : "middle"}
-        fill="#111"
+        fill={ROJO_COTA}
         stroke="#fff"
         strokeWidth={txt * 0.28}
         paintOrder="stroke"
@@ -129,6 +145,9 @@ function PlanoFinal({
       {/* Las máquinas, cada una con su dibujo girado como quedó */}
       {modulos.map((m) => {
         const color = colorDeOrigen(m.origen);
+        // Lo que el cliente YA TIENE se tiñe de verde; lo que le vende ELFCO
+        // se queda en blanco. Así, de un vistazo, se ve qué se le va a cobrar.
+        const delCliente = m.origen === "cliente";
         const deLado = m.rotacion === 90 || m.rotacion === 270;
         const w0 = deLado ? m.ancho : m.largo;
         const h0 = deLado ? m.largo : m.ancho;
@@ -150,6 +169,20 @@ function PlanoFinal({
                 <image href={m.imagen} x={0} y={0} width={w0} height={h0} preserveAspectRatio="none" />
               </g>
             )}
+            {/* El tinte va ENCIMA del dibujo: la figura trae su propio fondo
+                blanco, así que por debajo no se vería el verde. */}
+            {delCliente && (
+              <rect
+                x={m.x}
+                y={m.y}
+                width={m.largo}
+                height={m.ancho}
+                fill={VERDE_CLIENTE}
+                opacity={0.22}
+                pointerEvents="none"
+              />
+            )}
+            <rect x={m.x} y={m.y} width={m.largo} height={m.ancho} fill="none" stroke={color} strokeWidth={u * 1.6} />
             {/* Guía del globito a la pieza */}
             <line x1={cx} y1={gy} x2={cx} y2={arriba ? m.y : m.y + m.ancho} stroke="#111" strokeWidth={u * 0.7} />
             <circle cx={cx} cy={gy} r={r} fill="#fff" stroke="#111" strokeWidth={u * 1.2} />
@@ -283,6 +316,8 @@ export function LayoutFinal({
   onCerrar: () => void;
 }) {
   const [cliente, setCliente] = useState("");
+  const [hoja, setHoja] = useState("plotter");
+  const medidaHoja = TAMANOS_HOJA.find((t) => t.valor === hoja)?.medida ?? "90cm 60cm";
   const hayClasificadora = modulos.some((m) => m.tipo.startsWith("Clasificadora"));
   const medidaClasif = medidaClasificadora(clasif);
   const fecha = new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
@@ -311,10 +346,26 @@ export function LayoutFinal({
           placeholder="¿De quién es el empaque?"
           className="min-w-[12rem] flex-1 rounded-lg border border-black/20 bg-white p-2 text-sm text-black outline-none"
         />
+        <select
+          value={hoja}
+          onChange={(e) => setHoja(e.target.value)}
+          className="rounded-lg border border-black/20 bg-white p-2 text-sm text-black outline-none"
+          aria-label="En qué se va a imprimir"
+        >
+          {TAMANOS_HOJA.map((t) => (
+            <option key={t.valor} value={t.valor}>
+              {t.etiqueta}
+            </option>
+          ))}
+        </select>
         <button onClick={() => window.print()} className="btn-marca !py-2 !text-sm">
           <Icon name="lucide:printer" size={16} /> Guardar en PDF
         </button>
       </div>
+
+      {/* Va aquí y no en el archivo de estilos porque el tamaño lo escoge él
+          al momento. Como se inserta después, le gana a la regla de allá. */}
+      <style>{`@page hoja-apaisada { size: ${medidaHoja}; margin: 10mm; }`}</style>
 
       {/* Avisos para el vendedor, nunca para el cliente */}
       {(!cabe || sinMedir.length > 0) && (

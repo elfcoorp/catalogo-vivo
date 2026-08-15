@@ -256,19 +256,57 @@ vendedor en la visita. Ese es el entregable que el cliente ve.
 
 **Nota:** ya existe `/imprimir` para el PDF del catálogo — ver si sirve de base.
 
-### 5.1 El flujo de captura (ya implementado, revisar que siga bien)
+### 5.1 El flujo de captura (ya implementado)
 
 El vendedor llega al empaque, **va tocando todo lo que hay SIN que se le
 pregunten medidas todavía**. Ya que está todo puesto, **ahí sí** vienen las
 preguntas de cuánto mide cada cosa.
 
-Orden actual de la pantalla:
+Orden de la pantalla:
 1. Dimensiones del empaque
 2. Qué fruta (con fotos)
-3. La clasificadora (copita → líneas → lado → salidas)
-4. Toca todo lo que veas en el empaque
+3. Toca todo lo que veas en el empaque
+4. **La clasificadora que le proponemos** (copita → líneas → lado → salidas)
 5. Las medidas de cada pieza
 6. Mándalo para cotizar
+7. Ver el layout para el cliente
+
+**La clasificadora va en el paso 4, NO al principio.** Razón de Eduardo: el
+levantamiento se hace recorriendo el empaque y midiendo lo que el cliente ya
+tiene; hasta que vio todo, decide qué clasificadora le conviene proponer.
+
+### 5.1.1 Los grupos van por ETAPA DEL PROCESO, no por familia de máquina
+
+Dictado por Eduardo, siguiendo el recorrido de la fruta:
+
+| Etapa | Qué lleva |
+|---|---|
+| **Recepción** | Volteadora de bins · Volteadora de cajas · Vaciado manual · Banco para vaciar la caja · Tina de lavado · Banda de PVC |
+| **Rezaga o desecho** | Las 3 mesas de selección manual · Descanicador de tubos · Descanicador en malla |
+| **Lavado** | Cepilladora lavadora · secadora · enceradora |
+| **Clasificación de segunda calidad** | Las 3 mesas otra vez · Banda de segunda calidad |
+| **Transporte de caja llena y vacía** | Motorizado · De gravedad · De banda de PVC · De caja vacía |
+| **Empaque y cajas** | Tolvas · Básculas · Bancos |
+| **Otros equipos** | Lo que fue saliendo de otros grupos y él no mandó borrar |
+| **Accesorios** | Caseta de vigilancia |
+
+- **Rezaga va ANTES de lavado**: el descanicador saca la fruta muy chiquita, y
+  no tiene caso lavarla, secarla ni encerarla si no tiene costo.
+- **Las 3 mesas van repetidas a propósito** (rezaga y 2ª calidad). Cada pieza
+  guarda su `etapa`, así el layout las distingue y cada botón lleva su
+  propia numeración.
+- Las 3 mesas son: **guía central**, **banda superior** y **con chutes**.
+  Cada una es su propio botón con su propio dibujo — ya no se pregunta la
+  guía aparte.
+
+### 5.1.2 Los colores del layout del cliente
+
+- **Lo que el cliente YA TIENE va en verde** (la pieza sale teñida).
+- **Lo que le vende ELFCO se queda en blanco**, con su contorno de color.
+- **Las cotas van en ROJO** (`#cc1111`).
+- La lista de abajo va **separada en tres**: lo que ya tiene el cliente, lo
+  usado de ELFCO y lo nuevo a fabricar, cada equipo con su número del plano
+  y sus dos medidas.
 
 ### 5.2 Ancho útil
 
