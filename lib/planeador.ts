@@ -337,7 +337,7 @@ export interface FrutaLinea {
 
 export const FRUTAS_LINEA: FrutaLinea[] = [
   { nombre: "Tomate", foto: "/frutas/f-tomate.png", copita: "clip", medida: '3¾"' },
-  { nombre: "Tomate grape", foto: "/frutas/f-tomate.png", copita: "clip", medida: '1¼"' },
+  { nombre: "Tomate grape", foto: "/frutas/f-tomate-grape.png", copita: "clip", medida: '1¼"' },
   { nombre: "Chile morrón", foto: "/frutas/f-morron.png", copita: "charola", medida: '6"' },
   {
     nombre: "Pepino",
@@ -347,7 +347,7 @@ export const FRUTAS_LINEA: FrutaLinea[] = [
     nota: "El pepino lleva la charola de 6\" especial.",
   },
   { nombre: "Cítricos", foto: "/frutas/f-citricos.png", copita: "clip" },
-  { nombre: "Limón persa", foto: "/frutas/f-citricos.png", copita: "clip", medida: '3"' },
+  { nombre: "Limón persa", foto: "/frutas/f-limon-persa.png", copita: "clip", medida: '3"' },
   { nombre: "Mango", foto: "/frutas/f-mango.png" },
   { nombre: "Aguacate", foto: "/frutas/f-aguacate.png" },
   { nombre: "Cebolla", foto: "/frutas/f-cebolla.png" },

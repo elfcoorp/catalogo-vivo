@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { LayoutFinal } from "@/components/catalogo/LayoutFinal";
 import { CONFIG } from "@/lib/config";
@@ -8,6 +8,7 @@ import { linkWhatsApp } from "@/lib/whatsapp";
 import {
   COPITAS,
   LINEAS_TIPICAS,
+  ANCHOS_EN_LINEA,
   anchoDeLinea,
   lineasQueAlcanza,
   largoPegadoALaClasificadora,
@@ -234,6 +235,8 @@ export function Planeador() {
   // Arrastrar el grupo completo, para correr la línea ya formada sin
   // desalinearla. Se apaga para ajustar pieza por pieza.
   const [moverTodo, setMoverTodo] = useState(false);
+  // Voltear el teléfono y trabajar en grande.
+  const [pantallaCompleta, setPantallaCompleta] = useState(false);
   // El ancho útil que se hereda: lo que él teclee en la primera pieza pasa a
   // las demás. Vacío = todavía manda el número de líneas de la clasificadora.
   const [anchoUtil, setAnchoUtil] = useState<number | null>(null);
@@ -419,6 +422,43 @@ export function Planeador() {
   // El id se genera FUERA del actualizador: React puede correr el actualizador
   // dos veces, y entonces el módulo se quedaba con un id y la selección con
   // otro — el panel de ajustes nunca abría.
+
+  /**
+   * La clasificadora entra SOLA al dibujo y se va actualizando conforme él la
+   * arma arriba. Antes había que picarle a "Ponerla en el empaque" y no se
+   * entendía qué hacía ese botón; ahora no hay botón que picar.
+   */
+  const claveClasif = JSON.stringify(clasifFinal);
+  useEffect(() => {
+    const p: ClasificadoraParams = JSON.parse(claveClasif);
+    const { largo, ancho } = medidaClasificadora(p);
+    const imagen = comoDataUri(svgClasificadora(p));
+    const tipo = nombreClasificadora(p);
+    setModulos((prev) => {
+      const i = prev.findIndex((m) => m.tipo.startsWith("Clasificadora"));
+      if (i >= 0) {
+        const copia = [...prev];
+        copia[i] = { ...copia[i], tipo, largo, ancho, imagen };
+        return copia;
+      }
+      const nuevo: Modulo = {
+        id: nuevoId(),
+        tipo,
+        largo,
+        ancho,
+        x: 0,
+        y: 0,
+        origen: "nueva",
+        imagen,
+        rotacion: 0,
+        espejo: false,
+      };
+      const { x, y } = buscarHueco(prev, espacio, largo, ancho);
+      return [...prev, { ...nuevo, x, y }];
+    });
+    // Solo depende de cómo quedó armada la clasificadora.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claveClasif]);
 
   /** Mete al dibujo la clasificadora armada con lo que se pidió arriba. */
   function agregarClasificadora() {
@@ -700,6 +740,35 @@ export function Planeador() {
           </p>
         </div>
 
+        {/* El ancho útil se pregunta AQUÍ, al inicio, junto con la volteadora:
+            de ahí en adelante todas las piezas nacen con ese ancho. Es rarísimo
+            encontrar una de 1.20 junto a una de 0.90. */}
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">
+            ¿De qué ancho útil viene la línea?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {ANCHOS_EN_LINEA.map((a) => {
+              const elegido = (anchoUtil ?? anchoLinea) === a;
+              return (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setAnchoUtil(a)}
+                  className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
+                  style={
+                    elegido
+                      ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
+                      : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                  }
+                >
+                  {a.toFixed(2)} m
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Primero se marca todo lo que YA HAY; después lo que se le pone. */}
         <div className="flex flex-wrap gap-2">
           {(["cliente", "nueva"] as Origen[]).map((o) => {
@@ -734,18 +803,43 @@ export function Planeador() {
         )}
       </div>
 
-      {/* El dibujo: aquí van cayendo y aquí se acomodan */}
-      <div ref={cardDibujoRef} className="card flex flex-col gap-3 p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-ink">Acomódalos arrastrando con el dedo</p>
-          <div className="flex flex-wrap items-center gap-3 text-xs text-ink-mute">
-            {ORIGENES.map((o) => (
-              <span key={o.valor} className="inline-flex items-center gap-1.5">
-                <span className="inline-block h-3 w-3 rounded" style={{ background: o.color }} /> {o.etiqueta}
-              </span>
-            ))}
-          </div>
-        </div>
+      {/* El dibujo: aquí van cayendo y aquí se acomodan. Va sin título, sin
+          leyenda y sin letreros: el espacio de la pantalla es para el plano. */}
+      <div
+        ref={cardDibujoRef}
+        className={
+          pantallaCompleta
+            ? "fixed inset-0 z-50 flex flex-col gap-2 p-3"
+            : "card flex flex-col gap-3 p-5"
+        }
+        style={pantallaCompleta ? { background: "var(--bg)" } : undefined}
+      >
+        {/* Voltea el teléfono y trabaja en grande: con el plano chico los
+            números se encimaban unos con otros. */}
+        <button
+          type="button"
+          onClick={() => setPantallaCompleta((v) => !v)}
+          className="btn-ghost self-end !py-2 !text-sm"
+        >
+          <Icon name={pantallaCompleta ? "lucide:minimize-2" : "lucide:maximize-2"} size={15} />
+          {pantallaCompleta ? "Salir de pantalla completa" : "Pantalla completa"}
+        </button>
+
+        {/* Los puntos cardinales van AFUERA del cuadro, para no taparle nada
+            al plano. El contenedor les deja su orillita. */}
+        <div className={`relative px-4 py-4 ${pantallaCompleta ? "flex min-h-0 flex-1 items-center justify-center" : ""}`}>
+          {(
+            [
+              { l: "N", pos: "left-1/2 top-0 -translate-x-1/2" },
+              { l: "S", pos: "bottom-0 left-1/2 -translate-x-1/2" },
+              { l: "O", pos: "left-0 top-1/2 -translate-y-1/2" },
+              { l: "E", pos: "right-0 top-1/2 -translate-y-1/2" },
+            ] as const
+          ).map((c) => (
+            <span key={c.l} className={`pointer-events-none absolute ${c.pos} text-xs font-black text-ink-mute`}>
+              {c.l}
+            </span>
+          ))}
 
         <div
           ref={lienzoRef}
@@ -753,25 +847,12 @@ export function Planeador() {
           onPointerUp={alSoltarDedo}
           onPointerCancel={alSoltarDedo}
           className="relative w-full overflow-hidden rounded-xl border-2 border-dashed border-line-strong bg-bg-2"
-          style={{ aspectRatio: `${espacio.largo} / ${espacio.ancho}`, touchAction: "none" }}
+          style={{
+            aspectRatio: `${espacio.largo} / ${espacio.ancho}`,
+            touchAction: "none",
+            ...(pantallaCompleta ? { maxHeight: "100%", maxWidth: "100%", margin: "auto" } : {}),
+          }}
         >
-          {/* Los puntos cardinales, para saber cómo está parado el empaque. */}
-          {(
-            [
-              { l: "N", pos: "left-1/2 top-1 -translate-x-1/2" },
-              { l: "S", pos: "bottom-1 left-1/2 -translate-x-1/2" },
-              { l: "O", pos: "left-1 top-1/2 -translate-y-1/2" },
-              { l: "E", pos: "right-1 top-1/2 -translate-y-1/2" },
-            ] as const
-          ).map((c) => (
-            <span
-              key={c.l}
-              className={`pointer-events-none absolute ${c.pos} z-10 text-[11px] font-black text-ink-mute`}
-            >
-              {c.l}
-            </span>
-          ))}
-
           {modulos.length === 0 && (
             <p className="absolute inset-0 grid place-items-center px-4 text-center text-sm text-ink-mute">
               Toca arriba lo que veas en el empaque y aparecerá aquí, a escala.
@@ -845,34 +926,19 @@ export function Planeador() {
           })}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="flex-1 text-xs text-ink-mute">
-            A escala: {espacio.largo.toFixed(2)} m de largo x {espacio.ancho.toFixed(2)} m de ancho, visto desde arriba.
-            En <span style={{ color: "#c92a2a" }}>rojo</span> lo que se encima o se sale.
-          </p>
-          {modulos.length > 0 && (
-            <button type="button" onClick={deshacer} className="btn-ghost !py-2 !text-sm">
-              <Icon name="lucide:undo-2" size={15} /> Quitar la última
-            </button>
-          )}
-          {/* Correr la línea ya formada, toda junta, sin desalinearla. */}
-          {modulos.length > 1 && (
-            <button
-              type="button"
-              onClick={() => setMoverTodo((v) => !v)}
-              className="btn-ghost !py-2 !text-sm"
-              style={moverTodo ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" } : undefined}
-            >
-              <Icon name="lucide:move" size={15} /> {moverTodo ? "Moviendo todo junto" : "Mover todo junto"}
-            </button>
-          )}
-          {/* Para volver a formarlos si ya los movió y se le revolvieron. */}
-          {modulos.length > 1 && (
-            <button type="button" onClick={ordenarPorNumero} className="btn-ghost !py-2 !text-sm">
-              <Icon name="lucide:list-ordered" size={15} /> Formarlos 1, 2, 3…
-            </button>
-          )}
         </div>
+
+        {/* Lo único que se queda debajo del plano. */}
+        {modulos.length > 1 && (
+          <button
+            type="button"
+            onClick={() => setMoverTodo((v) => !v)}
+            className="btn-ghost self-start !py-2 !text-sm"
+            style={moverTodo ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" } : undefined}
+          >
+            <Icon name="lucide:move" size={15} /> {moverTodo ? "Moviendo todo junto" : "Mover todo junto"}
+          </button>
+        )}
       </div>
 
       {/* 4. La clasificadora que se le propone. Va HASTA AQUÍ, no al principio:
@@ -1027,41 +1093,6 @@ export function Planeador() {
             />
           </label>
         </div>
-        <p className="rounded-xl p-2.5 text-xs" style={{ background: "color-mix(in srgb, #f7c530 14%, transparent)" }}>
-          <b>Por confirmar:</b> la clasificadora <b>no</b> mide lo mismo que las cepilladoras y mesas. Los 0.60 / 0.90 /
-          1.20 / 1.80 m son el ancho de esos módulos. Falta la medida real del cuerpo de la clasificadora por número de
-          líneas y por copita — pídesela a CIU, que es quien las fabrica. Mientras, tecléala aquí.
-        </p>
-
-        {/* Vista previa: se ve antes de meterla al dibujo */}
-        <div className="overflow-hidden rounded-xl border border-line bg-white p-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={comoDataUri(svgClasificadora(clasifFinal))}
-            alt={nombreClasificadora(clasifFinal)}
-            className="mx-auto block w-full"
-            style={{ maxHeight: 260, objectFit: "contain" }}
-          />
-        </div>
-        <p className="text-center text-xs text-ink-mute">{nombreClasificadora(clasifFinal)}</p>
-
-        <button type="button" onClick={agregarClasificadora} className="btn-marca self-start">
-          <Icon name="lucide:plus" size={18} />
-          {clasificadorasPuestas.length === 0 ? "Ponerla en el empaque" : "Poner otra clasificadora"}
-        </button>
-
-        {/* Sin esto se picaba el botón y no se veía que hubiera pasado nada:
-            el dibujo queda muy abajo, fuera de la pantalla del teléfono. */}
-        {clasificadorasPuestas.length > 0 && (
-          <p
-            className="rounded-xl p-3 text-sm"
-            style={{ background: "color-mix(in srgb, #2f9e44 16%, transparent)", color: "var(--ink)" }}
-          >
-            <Icon name="lucide:check" size={15} /> Ya quedó en el empaque como la{" "}
-            <b>{clasificadorasPuestas.map((n) => `#${n}`).join(" y la ")}</b>. Arriba la ves en el dibujo.
-          </p>
-        )}
-
         {/* Lo que va junto con la clasificadora. Cuántas tolvas, bancos y
             básculas hacen falta depende de las salidas, por eso se arma aquí
             y no allá arriba con lo que se ve al recorrer el empaque. */}
@@ -1235,99 +1266,6 @@ export function Planeador() {
             Las medidas van en metros. El bote de basura <b>quita esa pieza del dibujo</b>. Ya que las tengas, sube y
             acomódalas.
           </p>
-        </div>
-      )}
-
-      {/* Ajustes del módulo elegido */}
-      {activo && (
-        <div className="card flex flex-col gap-4 p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-ink">{nombreDe(activo)}</p>
-            <button
-              type="button"
-              onClick={() => borrar(activo.id)}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-mute hover:text-ink"
-            >
-              <Icon name="lucide:trash-2" size={14} /> Quitar
-            </button>
-          </div>
-
-          {/* Vista grande: para confirmar que es la máquina correcta */}
-          {activo.imagen && (
-            <div className="grid place-items-center overflow-hidden rounded-xl border border-line bg-white p-2">
-              {/* Se muestra CONTENIDO, no estirado: si no, una pieza muy
-                  angosta se hacía larguísima y tapaba toda la pantalla. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={activo.imagen}
-                alt={nombreDe(activo)}
-                style={{
-                  maxHeight: 180,
-                  maxWidth: "100%",
-                  objectFit: "contain",
-                  transform: `rotate(${activo.rotacion}deg) scaleX(${activo.espejo ? -1 : 1})`,
-                }}
-              />
-            </div>
-          )}
-
-          {/* Las medidas se teclean arriba, en la lista: aquí solo se acomoda.
-              Así el mismo campo no aparece en dos lugares. */}
-          <p className="text-sm text-ink-soft">
-            Mide {activo.largo.toFixed(2)} m de largo x {activo.ancho.toFixed(2)} m de ancho útil.
-          </p>
-
-          <button type="button" onClick={() => girar(activo)} className="btn-ghost self-start !py-2 !text-sm">
-            <Icon name="lucide:rotate-cw" size={15} /> Girar 90° ({activo.rotacion}°)
-          </button>
-
-          <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">¿De dónde sale?</p>
-            <div className="flex flex-wrap gap-2">
-              {ORIGENES.map((o) => {
-                const elegido = activo.origen === o.valor;
-                return (
-                  <button
-                    key={o.valor}
-                    type="button"
-                    onClick={() =>
-                      actualizar(activo.id, {
-                        origen: o.valor,
-                        // Si deja de ser fabricada nueva, el espejo ya no aplica.
-                        espejo: o.espejo ? activo.espejo : false,
-                      })
-                    }
-                    className="rounded-full border px-3 py-1.5 text-xs font-medium transition"
-                    style={
-                      elegido
-                        ? { background: o.color, color: "#fff", borderColor: o.color }
-                        : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
-                    }
-                  >
-                    {o.etiqueta}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <button
-              type="button"
-              disabled={!puedeVoltearse(activo.origen)}
-              onClick={() => actualizar(activo.id, { espejo: !activo.espejo })}
-              className="btn-ghost self-start !py-2 !text-sm disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <Icon name="lucide:flip-horizontal" size={15} />
-              {activo.espejo ? "Quitar espejo" : "Voltear en espejo (salidas al otro lado)"}
-            </button>
-            {!puedeVoltearse(activo.origen) && (
-              <p className="text-xs text-ink-mute">
-                Esta máquina ya está construida, así que sus salidas no se pueden cambiar de lado. Solo las{" "}
-                <b>nuevas a fabricar</b> se pueden pedir en espejo.
-              </p>
-            )}
-          </div>
         </div>
       )}
 

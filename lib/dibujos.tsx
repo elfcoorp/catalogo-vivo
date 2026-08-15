@@ -172,6 +172,9 @@ export function largoPegadoALaClasificadora(tipo: string, p: ClasificadoraParams
   const corrido = +(p.salidas * p.pasoSalidas * PULGADA).toFixed(2);
   const t = tipo.toLowerCase();
   if (t.startsWith("bancos")) return corrido;
+  // La tolva corre a lo largo de las salidas, igual que los bancos: de ella
+  // solo se pregunta el ancho, porque cada tolva es distinta (1.00, 1.20…).
+  if (t.startsWith("tolva")) return corrido;
   if (t.startsWith("transportador motorizado")) return corrido;
   if (t.startsWith("transportador de banda")) return corrido;
   if (t.startsWith("transportador de gravedad")) return +(corrido + EXCEDENTE).toFixed(2);
