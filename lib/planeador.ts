@@ -174,6 +174,9 @@ export const EQUIPOS: Equipo[] = [
   // Uno solo, sin apellido: de él lo único que importa es el ancho y el
   // largo. El largo de 2 m lo dictó Eduardo.
   { tipo: "Descanicador", grupo: "Rezaga o desecho", largo: 2, dibujo: "descanicador" },
+  // El andamio es donde se paran los seleccionadores. Los 0.55 m salen de
+  // su plano: "ANDAMIO DE 0.55 m".
+  { tipo: "Andamio", grupo: "Rezaga o desecho", largo: 3.4, ancho: 0.55, dibujo: "ninguno" },
 
   // 3. LAVADO — nada más las tres cepilladoras. Si el empaque no cepilla, no
   // se toca nada de aquí.
@@ -215,6 +218,10 @@ export const EQUIPOS: Equipo[] = [
     ancho: 0.6,
     dibujo: "banda",
   },
+  // El andamio de la segunda calidad: entre él y la mesa tiene que caber una
+  // persona, porque ahí es donde más se sacan los tamaños. Los 0.55 m salen
+  // de su plano.
+  { tipo: "Andamio", grupo: "Clasificación de segunda calidad", largo: 3.4, ancho: 0.55, dibujo: "ninguno" },
 
   // 5. LO QUE VA CON LA CLASIFICADORA. Esto NO se toca al recorrer el
   // empaque: se arma junto con la línea que se le propone, porque cuántas
@@ -457,6 +464,43 @@ export function modulosConProblema(modulos: Modulo[], espacio: Espacio): Set<str
     }
   }
   return malos;
+}
+
+/**
+ * A qué distancia quedó la pieza elegida de las que tiene al lado. Es el
+ * número que él lee en sus planos para juzgar el acomodo: "1.65 m entre la
+ * mesa y la banda se me hace mucho, ahí nomás debe caber una persona".
+ * Solo cuenta las que están enfrentadas, no las que van por otro carril.
+ */
+export function separacionAVecinas(
+  m: Modulo,
+  modulos: Modulo[],
+  numeros: Record<string, number>
+): { texto: string; hueco: number }[] {
+  const salida: { texto: string; hueco: number; orden: number }[] = [];
+
+  for (const o of modulos) {
+    if (o.id === m.id) continue;
+    // ¿Se cruzan a lo ancho? Entonces una está arriba o abajo de la otra.
+    const compartenX = m.x < o.x + o.largo && m.x + m.largo > o.x;
+    const compartenY = m.y < o.y + o.ancho && m.y + m.ancho > o.y;
+
+    if (compartenX) {
+      const arriba = m.y - (o.y + o.ancho);
+      const abajo = o.y - (m.y + m.ancho);
+      if (arriba >= 0) salida.push({ texto: `a ${arriba.toFixed(2)} m de la ${numeros[o.id]} (arriba)`, hueco: arriba, orden: arriba });
+      if (abajo >= 0) salida.push({ texto: `a ${abajo.toFixed(2)} m de la ${numeros[o.id]} (abajo)`, hueco: abajo, orden: abajo });
+    }
+    if (compartenY) {
+      const izq = m.x - (o.x + o.largo);
+      const der = o.x - (m.x + m.largo);
+      if (izq >= 0) salida.push({ texto: `a ${izq.toFixed(2)} m de la ${numeros[o.id]} (izquierda)`, hueco: izq, orden: izq });
+      if (der >= 0) salida.push({ texto: `a ${der.toFixed(2)} m de la ${numeros[o.id]} (derecha)`, hueco: der, orden: der });
+    }
+  }
+
+  // Las más cercanas primero, y solo las tres que importan.
+  return salida.sort((a, b) => a.orden - b.orden).slice(0, 3);
 }
 
 /** Lo que le pasa a una pieza, dicho para que él pueda decidir qué hacer. */

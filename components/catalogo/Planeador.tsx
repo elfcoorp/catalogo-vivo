@@ -42,6 +42,7 @@ import {
   acomodarEnOrden,
   espacioQueFalta,
   problemasDeModulos,
+  separacionAVecinas,
   conNumero,
   numerosDeModulo,
   pegarAOtros,
@@ -1120,12 +1121,22 @@ export function Planeador() {
         {/* El nombre de la que trae agarrada, EN GRANDE. Con puros números en
             el plano ya no se sabía qué era qué; esto lo dice al tocarla. */}
         {activo && (
-          <p className="text-center text-lg font-semibold leading-tight text-ink">
-            {nombreDe(activo)}
-            <span className="block text-sm font-normal text-ink-mute">
+          <div className="text-center leading-tight">
+            <p className="text-lg font-semibold text-ink">{nombreDe(activo)}</p>
+            <p className="text-sm text-ink-mute">
               {activo.largo.toFixed(2)} × {activo.ancho.toFixed(2)} m
-            </span>
-          </p>
+            </p>
+            {/* A qué distancia quedó de sus vecinas: es el número con el que
+                él juzga el acomodo. Entre el andamio y la mesa de segunda
+                calidad tiene que caber una persona, y eso se ve aquí. */}
+            {(() => {
+              const cerca = separacionAVecinas(activo, modulos, numeros);
+              if (cerca.length === 0) return null;
+              return (
+                <p className="mt-0.5 text-sm text-ink-soft">Queda {cerca.map((c) => c.texto).join(" · ")}</p>
+              );
+            })()}
+          </div>
         )}
 
         {/* Lo único que se queda debajo del plano. */}
