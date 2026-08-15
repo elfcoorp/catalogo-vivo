@@ -10,6 +10,7 @@ import {
   LINEAS_TIPICAS,
   anchoDeLinea,
   lineasQueAlcanza,
+  largoPegadoALaClasificadora,
   enPulgadas,
   comoDataUri,
   medidaClasificadora,
@@ -34,6 +35,7 @@ import {
   ORIGENES,
   areaOcupada,
   buscarHueco,
+  juntoALaClasificadora,
   colorDeOrigen,
   modulosConProblema,
   acomodarEnOrden,
@@ -229,6 +231,9 @@ export function Planeador() {
   const [verLayout, setVerLayout] = useState(false);
   // En cuanto mueve una pieza con el dedo, se deja de reacomodar solo.
   const [acomodadoAMano, setAcomodadoAMano] = useState(false);
+  // Arrastrar el grupo completo, para correr la línea ya formada sin
+  // desalinearla. Se apaga para ajustar pieza por pieza.
+  const [moverTodo, setMoverTodo] = useState(false);
   // Como texto, para poder borrarlo y teclear otra cantidad.
   const [salidasTxt, setSalidasTxt] = useState("12");
   // Vacío = se usa el ancho de los módulos, que es solo una aproximación.
@@ -290,6 +295,13 @@ export function Planeador() {
    */
   function ponerModulo(nuevo: Modulo) {
     setModulos((prev) => {
+      // Lo que va CON la clasificadora cae pegado a ella, siempre. Aunque él
+      // ya haya acomodado a mano: las tolvas de la clasificadora van a un
+      // ladito de la clasificadora, no revueltas del otro lado del empaque.
+      if (nuevo.etapa === GRUPO_LINEA) {
+        const cerca = juntoALaClasificadora(prev, espacio, nuevo.largo, nuevo.ancho);
+        if (cerca) return [...prev, { ...nuevo, ...cerca }];
+      }
       if (acomodadoAMano) {
         const { x, y } = buscarHueco(prev, espacio, nuevo.largo, nuevo.ancho);
         return [...prev, { ...nuevo, x, y }];
@@ -434,7 +446,9 @@ export function Planeador() {
    * Se puede tocar el mismo botón varias veces: cada toque es otra máquina.
    */
   function agregarEquipo(eq: Equipo, origen: Origen) {
-    const largo = eq.largo;
+    // Lo que corre pegado a la clasificadora saca su largo de las salidas.
+    const auto = largoPegadoALaClasificadora(eq.tipo, clasifFinal);
+    const largo = auto ?? eq.largo;
     const ancho = eq.ancho ?? anchoLinea;
     const svg = svgDe(eq.dibujo, largo, ancho, eq.variante);
 
@@ -454,6 +468,7 @@ export function Planeador() {
       // Si no trae ancho propio, su ancho lo manda la línea: a ésas sí les
       // aplica el aviso de "alcanza hasta N líneas".
       sigueLinea: eq.ancho === undefined,
+      largoAutomatico: auto !== null,
       rotacion: 0,
       espejo: false,
     });
@@ -517,6 +532,7 @@ export function Planeador() {
   function faltaMedirla(m: Modulo): boolean {
     if (m.tipo.startsWith("Clasificadora")) return false; // el suyo se calcula
     if (m.tipo.startsWith("Básculas")) return false; // de ésas se pide cuántas
+    if (m.largoAutomatico) return false; // el suyo sale de las salidas
     const t = medidas[`${m.id}-largo`];
     return t === undefined || !(Number(t) > 0);
   }
@@ -566,6 +582,15 @@ export function Planeador() {
     if (!m) return;
     // Se pega solo a las orillas de las otras piezas: alinear al centímetro
     // con el dedo en un teléfono no se puede.
+    // Con "mover todo junto" se arrastra el grupo completo, sin desalinearlo:
+    // es lo que se necesita para correr la línea ya formada hacia una pared.
+    if (moverTodo) {
+      const dx = redondea(p.x - a.dx) - m.x;
+      const dy = redondea(p.y - a.dy) - m.y;
+      if (dx === 0 && dy === 0) return;
+      setModulos((prev) => prev.map((o) => ({ ...o, x: +(o.x + dx).toFixed(2), y: +(o.y + dy).toFixed(2) })));
+      return;
+    }
     const pegado = pegarAOtros(m, modulos, espacio, redondea(p.x - a.dx), redondea(p.y - a.dy));
     // Ya lo está acomodando él: de aquí en adelante nada se mueve solo.
     if (pegado.x !== m.x || pegado.y !== m.y) setAcomodadoAMano(true);
@@ -681,6 +706,14 @@ export function Planeador() {
         </div>
 
         {paleta(GRUPOS_DEL_RECORRIDO, poniendo)}
+
+        {/* También aquí, para no tener que bajar al dibujo cuando el dedo se
+            resbaló y puso una de más. */}
+        {modulos.length > 0 && (
+          <button type="button" onClick={deshacer} className="btn-ghost self-start !py-2 !text-sm">
+            <Icon name="lucide:undo-2" size={15} /> Quitar la última que puse
+          </button>
+        )}
       </div>
 
       {/* El dibujo: aquí van cayendo y aquí se acomodan */}
@@ -704,6 +737,23 @@ export function Planeador() {
           className="relative w-full overflow-hidden rounded-xl border-2 border-dashed border-line-strong bg-bg-2"
           style={{ aspectRatio: `${espacio.largo} / ${espacio.ancho}`, touchAction: "none" }}
         >
+          {/* Los puntos cardinales, para saber cómo está parado el empaque. */}
+          {(
+            [
+              { l: "N", pos: "left-1/2 top-1 -translate-x-1/2" },
+              { l: "S", pos: "bottom-1 left-1/2 -translate-x-1/2" },
+              { l: "O", pos: "left-1 top-1/2 -translate-y-1/2" },
+              { l: "E", pos: "right-1 top-1/2 -translate-y-1/2" },
+            ] as const
+          ).map((c) => (
+            <span
+              key={c.l}
+              className={`pointer-events-none absolute ${c.pos} z-10 text-[11px] font-black text-ink-mute`}
+            >
+              {c.l}
+            </span>
+          ))}
+
           {modulos.length === 0 && (
             <p className="absolute inset-0 grid place-items-center px-4 text-center text-sm text-ink-mute">
               Toca arriba lo que veas en el empaque y aparecerá aquí, a escala.
@@ -782,11 +832,20 @@ export function Planeador() {
             A escala: {espacio.largo.toFixed(2)} m de largo x {espacio.ancho.toFixed(2)} m de ancho, visto desde arriba.
             En <span style={{ color: "#c92a2a" }}>rojo</span> lo que se encima o se sale.
           </p>
-          {/* Deshacer: si el dedo se resbaló y puso quince transportadores,
-              con esto se van saliendo uno por uno sin buscarlos en la lista. */}
           {modulos.length > 0 && (
             <button type="button" onClick={deshacer} className="btn-ghost !py-2 !text-sm">
               <Icon name="lucide:undo-2" size={15} /> Quitar la última
+            </button>
+          )}
+          {/* Correr la línea ya formada, toda junta, sin desalinearla. */}
+          {modulos.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setMoverTodo((v) => !v)}
+              className="btn-ghost !py-2 !text-sm"
+              style={moverTodo ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" } : undefined}
+            >
+              <Icon name="lucide:move" size={15} /> {moverTodo ? "Moviendo todo junto" : "Mover todo junto"}
             </button>
           )}
           {/* Para volver a formarlos si ya los movió y se le revolvieron. */}
@@ -998,6 +1057,11 @@ export function Planeador() {
           </div>
           {botonesOrigen(poniendoLinea, setPoniendoLinea)}
           {paleta([GRUPO_LINEA], poniendoLinea)}
+          {modulos.length > 0 && (
+            <button type="button" onClick={deshacer} className="btn-ghost self-start !py-2 !text-sm">
+              <Icon name="lucide:undo-2" size={15} /> Quitar la última que puse
+            </button>
+          )}
         </div>
       </div>
 
@@ -1074,18 +1138,25 @@ export function Planeador() {
                           // Largo y ancho van EN EL MISMO RENGLÓN: separados,
                           // en el teléfono el largo se iba muy arriba.
                           <div className="flex flex-wrap items-center gap-2 pl-8">
-                            <label className="flex items-center gap-1.5 text-xs text-ink-mute">
-                              Largo
-                              <input
-                                type="number"
-                                inputMode="decimal"
-                                step={0.5}
-                                value={textoMedida(m, "largo")}
-                                onChange={(e) => tecleaMedida(m, "largo", e.target.value)}
-                                className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
-                                aria-label={`Largo de ${nombreDe(m)}, en metros`}
-                              />
-                            </label>
+                            {m.largoAutomatico ? (
+                              // El largo ya salió de las salidas: no se teclea.
+                              <span className="text-xs text-ink-mute">
+                                Largo <b className="text-ink">{m.largo.toFixed(2)} m</b> (de las salidas)
+                              </span>
+                            ) : (
+                              <label className="flex items-center gap-1.5 text-xs text-ink-mute">
+                                Largo
+                                <input
+                                  type="number"
+                                  inputMode="decimal"
+                                  step={0.5}
+                                  value={textoMedida(m, "largo")}
+                                  onChange={(e) => tecleaMedida(m, "largo", e.target.value)}
+                                  className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
+                                  aria-label={`Largo de ${nombreDe(m)}, en metros`}
+                                />
+                              </label>
+                            )}
                             <label className="flex items-center gap-1.5 text-xs text-ink-mute">
                               Ancho útil
                               <input

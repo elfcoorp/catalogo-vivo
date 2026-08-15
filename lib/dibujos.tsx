@@ -154,6 +154,36 @@ export function medidaClasificadora(p: ClasificadoraParams): { largo: number; an
   return { largo, ancho: p.anchoManual ?? ANCHO_CUERPO_CLASIFICADORA };
 }
 
+/**
+ * El largo de lo que corre PEGADO a la clasificadora, sacado de sus salidas.
+ * No se le pregunta al vendedor: si él ya dijo cuántas salidas van y a cada
+ * cuánto, el largo ya está dado y teclearlo sería pedirle dos veces lo mismo.
+ *
+ * Reglas dictadas por Eduardo:
+ *  - Bancos: hasta la última salida, al ras del corrido.
+ *  - Motorizado, gravedad y banda de PVC: el corrido + 3 m de excedente,
+ *    porque la caja sale del último banco y todavía tiene que correr.
+ *  - Caja vacía: del inicio al final de la clasificadora, sin excedente.
+ * Devuelve null si a ese equipo no le toca largo automático.
+ */
+export function largoPegadoALaClasificadora(tipo: string, p: ClasificadoraParams): number | null {
+  const corrido = p.salidas * p.pasoSalidas * PULGADA;
+  const t = tipo.toLowerCase();
+  if (t.startsWith("bancos")) return +corrido.toFixed(2);
+  if (t.startsWith("transportador de caja vacía")) return medidaClasificadora(p).largo;
+  if (
+    t.startsWith("transportador motorizado") ||
+    t.startsWith("transportador de gravedad") ||
+    t.startsWith("transportador de banda")
+  ) {
+    return +(corrido + EXCEDENTE).toFixed(2);
+  }
+  return null;
+}
+
+/** Lo que corre de más el transportador después de la última salida. */
+const EXCEDENTE = 3;
+
 export function nombreClasificadora(p: ClasificadoraParams): string {
   const copita = p.tipoCopita === "charola" ? "Charola" : "Clip";
   // Son las MISMAS salidas aunque caigan a los dos lados: en la salida 1 sale

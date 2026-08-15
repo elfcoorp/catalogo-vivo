@@ -64,6 +64,12 @@ export interface Modulo {
    * huella — el caso de las básculas.
    */
   cantidad?: number;
+  /**
+   * Su largo lo manda la clasificadora, no el vendedor. Si él ya dijo
+   * cuántas salidas van y a cada cuánto, el largo ya está dado: pedírselo
+   * otra vez sería preguntarle dos veces lo mismo.
+   */
+  largoAutomatico?: boolean;
   /** Giro del dibujo en grados. */
   rotacion: 0 | 90 | 180 | 270;
   /** Voltea el dibujo como espejo: las salidas cambian de lado. */
@@ -221,8 +227,9 @@ export const EQUIPOS: Equipo[] = [
   // Transporte de CAJA, no de fruta. Los largos y el ancho de 16" (0.41 m)
   // salen de "Layout Linea de Tomate".
   { tipo: "Transportador motorizado", grupo: GRUPO_LINEA, largo: 20, ancho: 0.41, dibujo: "banda" },
-  // PROVISIONAL: el de gravedad no viene con medida en los planos.
-  { tipo: "Transportador de gravedad", grupo: GRUPO_LINEA, largo: 10, ancho: 0.41, dibujo: "banda" },
+  // De gravedad: rodillos libres, la caja corre empujada y sola hasta la zona
+  // de pallet. Los 6 m salen de la foto que mandó Eduardo de su empaque.
+  { tipo: "Transportador de gravedad", grupo: GRUPO_LINEA, largo: 6, ancho: 0.41, dibujo: "banda" },
   { tipo: "Transportador de banda de PVC", grupo: GRUPO_LINEA, largo: 17, ancho: 0.41, dibujo: "banda" },
   { tipo: "Transportador de caja vacía", grupo: GRUPO_LINEA, largo: 30, ancho: 0.41, dibujo: "banda" },
 
@@ -292,11 +299,14 @@ export function acomodarEnOrden(modulos: Modulo[], espacio: Espacio): Modulo[] {
   const acomodados: Modulo[] = [];
   filas.forEach((f, i) => {
     const anchoFila = f.reduce((t, m) => t + m.largo, 0) + HUECO * Math.max(0, f.length - 1);
-    let x = (espacio.largo - anchoFila) / 2;
+    // Se llena de DERECHA a IZQUIERDA: el número 1 es la volteadora, y ahí
+    // es donde entra la fruta. La fila queda centrada igual.
+    let x = espacio.largo - (espacio.largo - anchoFila) / 2;
     for (const m of f) {
+      x -= m.largo;
       // Cada pieza va centrada dentro del alto de su fila.
       acomodados.push({ ...m, x: +x.toFixed(2), y: +(y + (altoDeFila[i] - m.ancho) / 2).toFixed(2) });
-      x += m.largo + HUECO;
+      x -= HUECO;
     }
     y += altoDeFila[i] + HUECO;
   });
@@ -403,6 +413,36 @@ export function buscarHueco(
     }
   }
   return { x: 0, y: 0 }; // ya no cabe: se pone en la esquina y saldrá en rojo
+}
+
+/**
+ * Dónde cae lo que va CON la clasificadora (tolvas, bancos, básculas). Va
+ * pegado a ella y no revuelto con el resto: las tolvas de la clasificadora
+ * tienen que quedar a un ladito de la clasificadora, no del otro lado del
+ * empaque. Se van apilando debajo, y si ya no cabe abajo, arriba.
+ */
+export function juntoALaClasificadora(
+  modulos: Modulo[],
+  espacio: Espacio,
+  largo: number,
+  ancho: number
+): { x: number; y: number } | null {
+  const clasif = modulos.find((m) => m.tipo.startsWith("Clasificadora"));
+  if (!clasif) return null;
+
+  const x = Math.min(Math.max(0, clasif.x), Math.max(0, espacio.largo - largo));
+  for (const abajo of [true, false]) {
+    let y = abajo ? clasif.y + clasif.ancho + HUECO : clasif.y - HUECO - ancho;
+    for (let intento = 0; intento < 40; intento++) {
+      const cabe = y >= 0 && y + ancho <= espacio.ancho;
+      const candidato = { x, y, largo, ancho } as Modulo;
+      if (cabe && !modulos.some((m) => seEnciman(candidato, m))) {
+        return { x: +x.toFixed(2), y: +y.toFixed(2) };
+      }
+      y += abajo ? HUECO + ancho : -(HUECO + ancho);
+    }
+  }
+  return null; // no cupo cerca: que lo acomode el buscador de siempre
 }
 
 /** Qué tan cerca hay que estar (en metros) para que una pieza se pegue a otra. */
