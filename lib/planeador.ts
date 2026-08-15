@@ -256,8 +256,17 @@ export const GRUPOS_DEL_RECORRIDO: string[] = GRUPOS_EQUIPO.filter((g) => g !== 
  * el 5 en el dibujo es el mismo 5 de la lista de medidas y el del layout.
  */
 export function numerosDeModulo(modulos: Modulo[]): Record<string, number> {
+  // Primero lo del recorrido, en el orden en que se tocó; al final la
+  // clasificadora y, pegados a ella, sus tolvas y transportadores. Regla de
+  // Eduardo: "del 1 al 10 el equipo, y el 11 y el 12 son las tolvas" — la
+  // clasificadora entra sola desde el arranque, y sin esto se robaba el 1,
+  // que es de la volteadora.
+  const recorrido = modulos.filter((m) => !m.tipo.startsWith("Clasificadora") && m.etapa !== GRUPO_LINEA);
+  const clasif = modulos.filter((m) => m.tipo.startsWith("Clasificadora"));
+  const linea = modulos.filter((m) => !m.tipo.startsWith("Clasificadora") && m.etapa === GRUPO_LINEA);
+
   const numeros: Record<string, number> = {};
-  modulos.forEach((m, i) => (numeros[m.id] = i + 1));
+  [...recorrido, ...clasif, ...linea].forEach((m, i) => (numeros[m.id] = i + 1));
   return numeros;
 }
 
@@ -278,12 +287,23 @@ const HUECO = 0.15;
  * solo, y de ahí nada más las corre a la izquierda, derecha, arriba o abajo.
  */
 export function acomodarEnOrden(modulos: Modulo[], espacio: Espacio): Modulo[] {
+  // Lo que va CON la clasificadora no entra a las filas: se forma pegado
+  // debajo de ella al final. Si se mete a las filas, los números salen
+  // revueltos y las tolvas quedan del otro lado del empaque.
+  // Y las filas van en el MISMO orden que la numeración: el recorrido
+  // primero y la clasificadora después, aunque ella haya entrado antes.
+  const deLinea = modulos.filter((m) => !m.tipo.startsWith("Clasificadora") && m.etapa === GRUPO_LINEA);
+  const deFila = [
+    ...modulos.filter((m) => !m.tipo.startsWith("Clasificadora") && m.etapa !== GRUPO_LINEA),
+    ...modulos.filter((m) => m.tipo.startsWith("Clasificadora")),
+  ];
+
   // 1. Se reparten en filas, respetando el orden en que se tocaron.
   const filas: Modulo[][] = [];
   let fila: Modulo[] = [];
   let largoFila = 0;
 
-  for (const m of modulos) {
+  for (const m of deFila) {
     const suma = largoFila === 0 ? m.largo : largoFila + HUECO + m.largo;
     if (fila.length > 0 && suma > espacio.largo) {
       filas.push(fila);
@@ -316,7 +336,38 @@ export function acomodarEnOrden(modulos: Modulo[], espacio: Espacio): Modulo[] {
     y += altoDeFila[i] + HUECO;
   });
 
-  return acomodados;
+  // 3. Lo de la clasificadora, apilado DEBAJO de ella y arrancando parejo
+  // por su lado izquierdo, en el orden en que se tocó.
+  const clasif = acomodados.find((m) => m.tipo.startsWith("Clasificadora"));
+  let yLinea = clasif ? clasif.y + clasif.ancho + HUECO : y;
+  const xLinea = clasif ? clasif.x : 0;
+  for (const m of deLinea) {
+    acomodados.push({
+      ...m,
+      x: +Math.max(0, Math.min(xLinea, espacio.largo - m.largo)).toFixed(2),
+      y: +yLinea.toFixed(2),
+    });
+    yLinea += m.ancho + HUECO;
+  }
+
+  // Y en el orden original, para que los números no cambien.
+  const porId = new Map(acomodados.map((m) => [m.id, m]));
+  return modulos.map((m) => porId.get(m.id) ?? m);
+}
+
+/**
+ * Cuánto espacio le falta al empaque para que quepa lo que se salió, en cada
+ * dirección. Es lo que él necesita para decidir: "dame 6 m más de ancho" se
+ * lee de aquí, corrige el piso arriba y todo sigue guardado.
+ */
+export function espacioQueFalta(modulos: Modulo[], espacio: Espacio): { largo: number; ancho: number } {
+  let faltaLargo = 0;
+  let faltaAncho = 0;
+  for (const m of modulos) {
+    faltaLargo = Math.max(faltaLargo, -m.x, m.x + m.largo - espacio.largo);
+    faltaAncho = Math.max(faltaAncho, -m.y, m.y + m.ancho - espacio.ancho);
+  }
+  return { largo: +faltaLargo.toFixed(2), ancho: +faltaAncho.toFixed(2) };
 }
 
 /**
@@ -406,6 +457,46 @@ export function modulosConProblema(modulos: Modulo[], espacio: Espacio): Set<str
     }
   }
   return malos;
+}
+
+/** Lo que le pasa a una pieza, dicho para que él pueda decidir qué hacer. */
+export interface Problema {
+  id: string;
+  textos: string[];
+}
+
+/**
+ * Qué tiene mal cada pieza, con nombre y apellido. Pintarlas de rojo dice que
+ * algo está mal pero no QUÉ: no se sabe si la banda sale de más, si la
+ * clasificadora quedó muy larga o si dos se encimaron. Con esto él lee abajo
+ * "la 15 se sale 2.30 m por la derecha" y ya sabe qué mover o qué recortar.
+ */
+export function problemasDeModulos(modulos: Modulo[], espacio: Espacio): Problema[] {
+  const numeros = numerosDeModulo(modulos);
+  const fuera = 0.01;
+  const problemas: Problema[] = [];
+
+  for (const m of modulos) {
+    const textos: string[] = [];
+    const seSaleIzq = -m.x;
+    const seSaleDer = m.x + m.largo - espacio.largo;
+    const seSaleArr = -m.y;
+    const seSaleAba = m.y + m.ancho - espacio.ancho;
+
+    if (seSaleIzq > fuera) textos.push(`se sale ${seSaleIzq.toFixed(2)} m por la izquierda`);
+    if (seSaleDer > fuera) textos.push(`se sale ${seSaleDer.toFixed(2)} m por la derecha`);
+    if (seSaleArr > fuera) textos.push(`se sale ${seSaleArr.toFixed(2)} m por arriba`);
+    if (seSaleAba > fuera) textos.push(`se sale ${seSaleAba.toFixed(2)} m por abajo`);
+
+    const encimadas = modulos
+      .filter((o) => o.id !== m.id && seEnciman(m, o))
+      .map((o) => numeros[o.id])
+      .sort((a, b) => a - b);
+    if (encimadas.length > 0) textos.push(`se encima con la ${encimadas.join(", la ")}`);
+
+    if (textos.length > 0) problemas.push({ id: m.id, textos });
+  }
+  return problemas;
 }
 
 /**

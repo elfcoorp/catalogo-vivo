@@ -40,6 +40,8 @@ import {
   colorDeOrigen,
   modulosConProblema,
   acomodarEnOrden,
+  espacioQueFalta,
+  problemasDeModulos,
   conNumero,
   numerosDeModulo,
   pegarAOtros,
@@ -278,6 +280,8 @@ export function Planeador() {
   };
 
   const conProblema = modulosConProblema(modulos, espacio);
+  const problemas = problemasDeModulos(modulos, espacio);
+  const falta = espacioQueFalta(modulos, espacio);
   const maquinas = modulos;
   const cabe = maquinas.length > 0 && conProblema.size === 0;
   const ocupado = areaOcupada(modulos);
@@ -306,17 +310,18 @@ export function Planeador() {
    */
   function ponerModulo(nuevo: Modulo) {
     setModulos((prev) => {
-      // Lo que va CON la clasificadora cae pegado a ella, siempre. Aunque él
-      // ya haya acomodado a mano: las tolvas de la clasificadora van a un
-      // ladito de la clasificadora, no revueltas del otro lado del empaque.
-      if (nuevo.etapa === GRUPO_LINEA) {
-        const cerca = juntoALaClasificadora(prev, espacio, nuevo.largo, nuevo.ancho);
-        if (cerca) return [...prev, { ...nuevo, ...cerca }];
-      }
+      // Si él ya acomodó a mano, no se le desbarata: lo de la clasificadora
+      // cae pegado a ella y lo demás en el primer hueco.
       if (acomodadoAMano) {
+        if (nuevo.etapa === GRUPO_LINEA) {
+          const cerca = juntoALaClasificadora(prev, espacio, nuevo.largo, nuevo.ancho);
+          if (cerca) return [...prev, { ...nuevo, ...cerca }];
+        }
         const { x, y } = buscarHueco(prev, espacio, nuevo.largo, nuevo.ancho);
         return [...prev, { ...nuevo, x, y }];
       }
+      // Mientras no haya movido nada, TODO se vuelve a formar en orden: las
+      // filas de derecha a izquierda y lo de la clasificadora debajo de ella.
       return acomodarEnOrden([...prev, nuevo], espacio);
     });
     setSeleccionado(nuevo.id);
@@ -442,25 +447,29 @@ export function Planeador() {
     const tipo = nombreClasificadora(p);
     setModulos((prev) => {
       const i = prev.findIndex((m) => m.tipo.startsWith("Clasificadora"));
+      let lista: Modulo[];
       if (i >= 0) {
-        const copia = [...prev];
-        copia[i] = { ...copia[i], tipo, largo, ancho, imagen };
-        return copia;
+        lista = [...prev];
+        lista[i] = { ...lista[i], tipo, largo, ancho, imagen };
+      } else {
+        const nuevo: Modulo = {
+          id: nuevoId(),
+          tipo,
+          largo,
+          ancho,
+          x: 0,
+          y: 0,
+          origen: "nueva",
+          imagen,
+          rotacion: 0,
+          espejo: false,
+        };
+        const { x, y } = buscarHueco(prev, espacio, largo, ancho);
+        lista = [...prev, { ...nuevo, x, y }];
       }
-      const nuevo: Modulo = {
-        id: nuevoId(),
-        tipo,
-        largo,
-        ancho,
-        x: 0,
-        y: 0,
-        origen: "nueva",
-        imagen,
-        rotacion: 0,
-        espejo: false,
-      };
-      const { x, y } = buscarHueco(prev, espacio, largo, ancho);
-      return [...prev, { ...nuevo, x, y }];
+      // Mientras no haya acomodado a mano, se vuelve a formar todo: si la
+      // clasificadora cambió de largo, las filas y sus tolvas se recorren.
+      return acomodadoAMano ? lista : acomodarEnOrden(lista, espacio);
     });
     // Solo depende de cómo quedó armada la clasificadora.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1054,6 +1063,17 @@ export function Planeador() {
 
         </div>
 
+        {/* El nombre de la que trae agarrada, EN GRANDE. Con puros números en
+            el plano ya no se sabía qué era qué; esto lo dice al tocarla. */}
+        {activo && (
+          <p className="text-center text-lg font-semibold leading-tight text-ink">
+            {nombreDe(activo)}
+            <span className="block text-sm font-normal text-ink-mute">
+              {activo.largo.toFixed(2)} × {activo.ancho.toFixed(2)} m
+            </span>
+          </p>
+        )}
+
         {/* Lo único que se queda debajo del plano. */}
         {modulos.length > 1 && (
           <button
@@ -1064,6 +1084,34 @@ export function Planeador() {
           >
             <Icon name="lucide:move" size={15} /> {moverTodo ? "Moviendo todo junto" : "Mover todo junto"}
           </button>
+        )}
+
+        {/* Qué está mal, con nombre y apellido. El rojo dice QUE algo está
+            mal pero no qué: aquí lee "la 15 se sale 2.30 m por la derecha"
+            y ya puede decidir si mueve, recorta o pide más piso. */}
+        {problemas.length > 0 && (
+          <div
+            className="flex flex-col gap-1 rounded-xl p-3 text-sm"
+            style={{ background: "color-mix(in srgb, #c92a2a 12%, transparent)" }}
+          >
+            {falta.largo > 0 || falta.ancho > 0 ? (
+              <p className="font-semibold text-ink">
+                Para que quepa así, el piso necesita
+                {falta.largo > 0 && ` ${falta.largo.toFixed(2)} m más de largo`}
+                {falta.largo > 0 && falta.ancho > 0 && " y"}
+                {falta.ancho > 0 && ` ${falta.ancho.toFixed(2)} m más de ancho`}. Corrige la medida en el paso 1 —
+                nada se pierde — o acomoda distinto.
+              </p>
+            ) : null}
+            {[...problemas].sort((a, b) => numeros[a.id] - numeros[b.id]).map((p) => {
+              const m = modulos.find((x) => x.id === p.id)!;
+              return (
+                <p key={p.id} className="text-ink-soft">
+                  <b className="text-ink">{nombreDe(m)}</b>: {p.textos.join(" y ")}.
+                </p>
+              );
+            })}
+          </div>
         )}
       </div>
 
