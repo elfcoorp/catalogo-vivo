@@ -981,7 +981,9 @@ export function Planeador() {
           onPointerMove={alMoverDedo}
           onPointerUp={alSoltarDedo}
           onPointerCancel={alSoltarDedo}
-          className="relative w-full overflow-hidden rounded-xl border-2 border-dashed border-line-strong bg-bg-2"
+          // SIN overflow-hidden: lo que se sale del piso se tiene que VER
+          // salido, con su raya punteada y su cota, como en los planos.
+          className="relative w-full rounded-xl border-2 border-dashed border-line-strong bg-bg-2"
           style={{
             aspectRatio: `${espacio.largo} / ${espacio.ancho}`,
             touchAction: "none",
@@ -993,6 +995,58 @@ export function Planeador() {
               Toca arriba lo que veas en el empaque y aparecerá aquí, a escala.
             </p>
           )}
+
+          {/* El excedente, como en sus planos: la raya punteada roja marca
+              hasta dónde llega lo que se salió, con su cota. Así se lee "con
+              un metro más de cada lado, cabe". */}
+          {(() => {
+            const chip =
+              "absolute z-20 -translate-x-1/2 -translate-y-1/2 rounded px-1 py-0.5 text-[10px] font-bold whitespace-nowrap";
+            const fondo = { background: "#c92a2a", color: "#fff" };
+            const raya = "absolute z-10 border-dashed border-[#c92a2a]";
+            const lados = [];
+            const arr = Math.max(0, ...modulos.map((m) => -m.y));
+            const aba = Math.max(0, ...modulos.map((m) => m.y + m.ancho - espacio.ancho));
+            const izq = Math.max(0, ...modulos.map((m) => -m.x));
+            const der = Math.max(0, ...modulos.map((m) => m.x + m.largo - espacio.largo));
+            if (arr > 0.01)
+              lados.push(
+                <div key="a">
+                  <div className={`${raya} border-t-2`} style={{ left: 0, right: 0, top: pctY(-arr) }} />
+                  <div className={chip} style={{ ...fondo, left: "50%", top: pctY(-arr / 2) }}>
+                    +{arr.toFixed(2)}
+                  </div>
+                </div>
+              );
+            if (aba > 0.01)
+              lados.push(
+                <div key="b">
+                  <div className={`${raya} border-t-2`} style={{ left: 0, right: 0, top: pctY(espacio.ancho + aba) }} />
+                  <div className={chip} style={{ ...fondo, left: "50%", top: pctY(espacio.ancho + aba / 2) }}>
+                    +{aba.toFixed(2)}
+                  </div>
+                </div>
+              );
+            if (izq > 0.01)
+              lados.push(
+                <div key="i">
+                  <div className={`${raya} border-l-2`} style={{ top: 0, bottom: 0, left: pctX(-izq) }} />
+                  <div className={chip} style={{ ...fondo, top: "50%", left: pctX(-izq / 2) }}>
+                    +{izq.toFixed(2)}
+                  </div>
+                </div>
+              );
+            if (der > 0.01)
+              lados.push(
+                <div key="d">
+                  <div className={`${raya} border-l-2`} style={{ top: 0, bottom: 0, left: pctX(espacio.largo + der) }} />
+                  <div className={chip} style={{ ...fondo, top: "50%", left: pctX(espacio.largo + der / 2) }}>
+                    +{der.toFixed(2)}
+                  </div>
+                </div>
+              );
+            return lados;
+          })()}
 
           {/* Las distancias a las cuatro paredes del que está elegido: es lo
               que decide qué máquina cabe entre una cosa y otra. */}
