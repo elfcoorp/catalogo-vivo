@@ -231,13 +231,15 @@ export function svgClasificadora(p: ClasificadoraParams): string {
  */
 export const ANCHOS_EN_LINEA = [0.6, 0.9, 1.2, 1.8];
 
-export type TipoMesa = "guia-central" | "guias-laterales" | "banda-superior";
+/**
+ * Los tres tipos de mesa de selección manual que maneja ELFCO. Ya no se
+ * preguntan aparte: cada uno es su propio botón, así el vendedor escoge el
+ * que está viendo y no tiene que llenar otro campo.
+ */
+export type TipoMesa = "guia-central" | "banda-superior" | "banda-inferior-chutes";
 
-export const TIPOS_MESA: { valor: TipoMesa; etiqueta: string }[] = [
-  { valor: "guia-central", etiqueta: "Guía central" },
-  { valor: "guias-laterales", etiqueta: "Guías laterales" },
-  { valor: "banda-superior", etiqueta: "Banda superior" },
-];
+/** Los tres descanicadores. El de malla no lleva rodillos, lleva malla. */
+export type TipoDescanicador = "fijo" | "ajustable" | "malla";
 
 const TRAZO = "#1f6f5c";
 const FINO = "#7cc0ad";
@@ -262,7 +264,7 @@ export function svgCepilladora(largo: number, ancho: number, cepillos = 10): str
   return envoltura(W, H, partes.join(""));
 }
 
-/** Mesa de selección manual, con la guía que se haya pedido. */
+/** Mesa de selección manual, con la guía o la banda que le toque. */
 export function svgMesaSeleccion(largo: number, ancho: number, tipo: TipoMesa): string {
   const W = Math.round(largo * 100);
   const H = Math.round(ancho * 100);
@@ -273,19 +275,70 @@ export function svgMesaSeleccion(largo: number, ancho: number, tipo: TipoMesa): 
 
   if (tipo === "guia-central") {
     partes.push(`<line x1="14" y1="${H / 2}" x2="${W - 14}" y2="${H / 2}" stroke="${TRAZO}" stroke-width="5"/>`);
-  } else if (tipo === "guias-laterales") {
-    partes.push(`<line x1="14" y1="${H * 0.28}" x2="${W - 14}" y2="${H * 0.28}" stroke="${TRAZO}" stroke-width="5"/>`);
-    partes.push(`<line x1="14" y1="${H * 0.72}" x2="${W - 14}" y2="${H * 0.72}" stroke="${TRAZO}" stroke-width="5"/>`);
-  } else {
-    // Banda superior: se dibuja encimada, más angosta y punteada
+  } else if (tipo === "banda-superior") {
+    // Va encimada, más angosta: por eso punteada, se ve que está arriba.
     partes.push(
       `<rect x="${W * 0.1}" y="${H * 0.3}" width="${W * 0.8}" height="${H * 0.4}" fill="none" stroke="${TRAZO}" stroke-width="4" stroke-dasharray="14 8"/>`
     );
+  } else {
+    // Banda inferior con chutes: la banda va abajo y por los lados salen las
+    // bocas por donde se tira la fruta que se aparta.
+    partes.push(
+      `<rect x="${W * 0.08}" y="${H * 0.34}" width="${W * 0.84}" height="${H * 0.32}" fill="none" stroke="${TRAZO}" stroke-width="4"/>`
+    );
+    const cuantos = Math.max(2, Math.floor(W / 90));
+    const paso = (W - 40) / cuantos;
+    for (let i = 0; i < cuantos; i++) {
+      const x = 20 + i * paso + paso * 0.2;
+      const w = paso * 0.6;
+      partes.push(
+        `<path d="M ${x} ${H * 0.12} L ${x + w} ${H * 0.12} L ${x + w * 0.75} ${H * 0.3} L ${x + w * 0.25} ${H * 0.3} Z" fill="none" stroke="${TRAZO}" stroke-width="3"/>`
+      );
+      partes.push(
+        `<path d="M ${x} ${H * 0.88} L ${x + w} ${H * 0.88} L ${x + w * 0.75} ${H * 0.7} L ${x + w * 0.25} ${H * 0.7} Z" fill="none" stroke="${TRAZO}" stroke-width="3"/>`
+      );
+    }
+    return envoltura(W, H, partes.join(""));
   }
 
   // Los travesaños de la banda
   for (let x = 24; x < W - 24; x += 26) {
     partes.push(`<line x1="${x}" y1="${H * 0.14}" x2="${x}" y2="${H * 0.86}" stroke="${FINO}" stroke-width="1.5"/>`);
+  }
+  return envoltura(W, H, partes.join(""));
+}
+
+/**
+ * Descanicador: saca la fruta muy chiquita antes de que se gaste en lavarla.
+ * El fijo trae los rodillos a una separación de fábrica; el ajustable trae el
+ * mecanismo para abrirlos o cerrarlos; el de malla no lleva rodillos.
+ */
+export function svgDescanicador(largo: number, ancho: number, tipo: TipoDescanicador): string {
+  const W = Math.round(largo * 100);
+  const H = Math.round(ancho * 100);
+  const partes: string[] = [];
+
+  if (tipo === "malla") {
+    // Cuadrícula: es malla, no rodillos.
+    for (let x = 16; x < W - 12; x += 20) {
+      partes.push(`<line x1="${x}" y1="12" x2="${x}" y2="${H - 12}" stroke="${FINO}" stroke-width="1.5"/>`);
+    }
+    for (let y = 16; y < H - 12; y += 20) {
+      partes.push(`<line x1="12" y1="${y}" x2="${W - 12}" y2="${y}" stroke="${FINO}" stroke-width="1.5"/>`);
+    }
+    return envoltura(W, H, partes.join(""));
+  }
+
+  // Los rodillos, cruzados a lo ancho
+  for (let x = 16; x < W - 12; x += 18) {
+    partes.push(`<line x1="${x}" y1="12" x2="${x}" y2="${H - 12}" stroke="${FINO}" stroke-width="5"/>`);
+  }
+  if (tipo === "ajustable") {
+    // La barra de ajuste a un costado, con sus flechas de apriete.
+    partes.push(`<line x1="14" y1="${H * 0.5}" x2="${W - 14}" y2="${H * 0.5}" stroke="${TRAZO}" stroke-width="4" stroke-dasharray="12 7"/>`);
+    partes.push(
+      `<path d="M ${W * 0.5 - 26} ${H * 0.5 - 16} L ${W * 0.5 - 10} ${H * 0.5} L ${W * 0.5 - 26} ${H * 0.5 + 16} M ${W * 0.5 + 26} ${H * 0.5 - 16} L ${W * 0.5 + 10} ${H * 0.5} L ${W * 0.5 + 26} ${H * 0.5 + 16}" fill="none" stroke="${TRAZO}" stroke-width="4"/>`
+    );
   }
   return envoltura(W, H, partes.join(""));
 }

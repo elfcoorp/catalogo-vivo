@@ -45,6 +45,8 @@ export interface Modulo {
   imagen?: string;
   /** Qué figura le toca, para volver a dibujarla si cambian las medidas. */
   dibujo?: Dibujo;
+  /** Cuál variante de esa figura (guía de la mesa, tipo de descanicador). */
+  variante?: string;
   /** Giro del dibujo en grados. */
   rotacion: 0 | 90 | 180 | 270;
   /** Voltea el dibujo como espejo: las salidas cambian de lado. */
@@ -57,12 +59,17 @@ export interface Espacio {
 }
 
 /** Qué dibujo le toca a cada equipo de la línea. */
-export type Dibujo = "cepilladora" | "mesa" | "tolva" | "banda" | "caseta" | "ninguno";
+export type Dibujo = "cepilladora" | "mesa" | "tolva" | "banda" | "caseta" | "descanicador" | "ninguno";
 
 export interface Equipo {
   tipo: string;
   /** Dónde sale en la lista, para no dejar 20 botones en una sola tira. */
   grupo: string;
+  /**
+   * Cuál de las variantes del dibujo le toca: la guía de la mesa, o si el
+   * descanicador es fijo, ajustable o de malla.
+   */
+  variante?: string;
   /** Largo típico en metros, sacado de los planos. El vendedor lo corrige. */
   largo: number;
   /**
@@ -84,42 +91,79 @@ export interface Equipo {
  * partida para que el vendedor teclee la medida buena en el empaque.
  */
 export const EQUIPOS: Equipo[] = [
-  // Recepción
+  // Recepción — Eduardo la dejó en estas tres y nada más. La banda de
+  // cangilones y el elevador de rodillos los quitó: "ni van".
   { tipo: "Volteadora de bins", grupo: "Recepción", largo: 8, ancho: 3.7, dibujo: "ninguno" },
-  { tipo: "Tolva de recepción", grupo: "Recepción", largo: 6, dibujo: "tolva" },
+  // PROVISIONAL: no viene en los planos.
+  { tipo: "Volteadora de taras", grupo: "Recepción", largo: 2, dibujo: "ninguno" },
   { tipo: "Tina de lavado", grupo: "Recepción", largo: 4, dibujo: "banda" },
-  { tipo: "Elevador de rodillos", grupo: "Recepción", largo: 3, dibujo: "banda" },
-  { tipo: "Banda de cangilones", grupo: "Recepción", largo: 2, ancho: 0.41, dibujo: "banda" },
 
-  // Limpieza
+  // Selección — va ANTES de limpieza, y no al revés. Razón de Eduardo: el
+  // descanicador saca la fruta muy chiquita, y no tiene caso lavarla, secarla
+  // ni encerarla si de todos modos no tiene costo. El descanicador unos lo
+  // ponen antes de la selección manual y otros después.
+  // Cada tipo es su propio botón: así se escoge el que se está viendo, en vez
+  // de tocar la mesa y luego tener que llenar otro campo aparte.
+  { tipo: "Selección manual con guía central", grupo: "Selección", largo: 3.4, dibujo: "mesa", variante: "guia-central" },
+  { tipo: "Selección manual con banda superior", grupo: "Selección", largo: 3.4, dibujo: "mesa", variante: "banda-superior" },
+  {
+    tipo: "Selección manual con banda inferior y chutes",
+    grupo: "Selección",
+    largo: 3.4,
+    dibujo: "mesa",
+    variante: "banda-inferior-chutes",
+  },
+  { tipo: "Descanicador fijo", grupo: "Selección", largo: 1.5, dibujo: "descanicador", variante: "fijo" },
+  { tipo: "Descanicador ajustable", grupo: "Selección", largo: 1.5, dibujo: "descanicador", variante: "ajustable" },
+  { tipo: "Descanicador en malla", grupo: "Selección", largo: 1.5, dibujo: "descanicador", variante: "malla" },
+
+  // Limpieza — nada más las tres cepilladoras.
   { tipo: "Cepilladora lavadora", grupo: "Limpieza", largo: 2.27, dibujo: "cepilladora" },
   { tipo: "Cepilladora secadora", grupo: "Limpieza", largo: 2.27, dibujo: "cepilladora" },
   { tipo: "Cepilladora enceradora", grupo: "Limpieza", largo: 2.27, dibujo: "cepilladora" },
-  { tipo: "Descanicador de rodillos", grupo: "Limpieza", largo: 1.5, dibujo: "banda" },
 
-  // Selección
-  { tipo: "Selección manual", grupo: "Selección", largo: 3.4, dibujo: "mesa" },
-  { tipo: "Mesa de rodillos", grupo: "Selección", largo: 3, dibujo: "mesa" },
-  { tipo: "Mesa descarnadora", grupo: "Selección", largo: 3, dibujo: "mesa" },
-  { tipo: "Singulador", grupo: "Selección", largo: 3.05, dibujo: "banda" },
+  // Transporte de CAJA, no de fruta. Las cuatro que dejó Eduardo. Los largos
+  // y el ancho de 16" (0.41 m) salen de "Layout Linea de Tomate".
+  { tipo: "Transportador motorizado", grupo: "Transporte de caja llena y vacía", largo: 20, ancho: 0.41, dibujo: "banda" },
+  // PROVISIONAL: el de gravedad no viene con medida en los planos.
+  { tipo: "Transportador de gravedad", grupo: "Transporte de caja llena y vacía", largo: 10, ancho: 0.41, dibujo: "banda" },
+  {
+    tipo: "Transportador de banda de PVC",
+    grupo: "Transporte de caja llena y vacía",
+    largo: 17,
+    ancho: 0.41,
+    dibujo: "banda",
+  },
+  {
+    tipo: "Transportador de caja vacía",
+    grupo: "Transporte de caja llena y vacía",
+    largo: 30,
+    ancho: 0.41,
+    dibujo: "banda",
+  },
 
-  // Transporte de la fruta
-  { tipo: "Banda de PVC", grupo: "Transporte", largo: 3, ancho: 1.8, dibujo: "banda" },
-  { tipo: "Banda sanitaria", grupo: "Transporte", largo: 7, ancho: 0.77, dibujo: "banda" },
+  // Empaque y cajas — nada más estas tres, dicho por Eduardo.
+  // La tolva es la que recibe la fruta ya clasificada y le va cayendo a los
+  // empacadores; salió de "Recepción" cuando ese grupo se dejó en tres.
+  { tipo: "Tolvas", grupo: "Empaque y cajas", largo: 6, dibujo: "tolva" },
+  // PROVISIONAL: la báscula no viene con medida en los planos.
+  { tipo: "Básculas", grupo: "Empaque y cajas", largo: 0.6, ancho: 0.6, dibujo: "ninguno" },
+  // Medida de su cotización de tomate grape: "BANCO PARA LLENADO DE CAJA
+  // 0.30 M DE ANCHO X 0.45 M DE LONGITUD".
+  { tipo: "Bancos", grupo: "Empaque y cajas", largo: 0.45, ancho: 0.3, dibujo: "ninguno" },
 
-  // Empaque y cajas
-  { tipo: "Módulo de empaque", grupo: "Empaque y cajas", largo: 3, dibujo: "ninguno" },
-  { tipo: "Llenadora", grupo: "Empaque y cajas", largo: 3, dibujo: "ninguno" },
-  { tipo: "Transportador de caja llena", grupo: "Empaque y cajas", largo: 20, ancho: 0.41, dibujo: "banda" },
-  { tipo: "Transportador de caja vacía", grupo: "Empaque y cajas", largo: 30, ancho: 0.41, dibujo: "banda" },
-  // PROVISIONAL: no viene en los planos.
-  { tipo: "Volteadora de cajas", grupo: "Empaque y cajas", largo: 2, ancho: 1.2, dibujo: "ninguno" },
+  // Los que fueron saliendo de otros grupos al irlos acotando. No se borraron
+  // porque todos vienen en sus planos — falta que él diga en qué parte van.
+  { tipo: "Singulador", grupo: "Otros equipos", largo: 3.05, dibujo: "banda" },
+  { tipo: "Mesa de rodillos", grupo: "Otros equipos", largo: 3, dibujo: "mesa" },
+  { tipo: "Mesa descarnadora", grupo: "Otros equipos", largo: 3, dibujo: "mesa" },
+  // Éstas dos llevan FRUTA, no caja: por eso salieron de "Transporte".
+  { tipo: "Banda de PVC para fruta", grupo: "Otros equipos", largo: 3, ancho: 1.8, dibujo: "banda" },
+  { tipo: "Banda sanitaria", grupo: "Otros equipos", largo: 7, ancho: 0.77, dibujo: "banda" },
 
-  // Lo que no es máquina pero ocupa piso
-  { tipo: "Caseta de control", grupo: "Otras cosas del piso", largo: 4.6, ancho: 4.6, dibujo: "caseta" },
-  // PROVISIONAL: no viene en los planos.
-  { tipo: "Bodega o cámara", grupo: "Otras cosas del piso", largo: 6, ancho: 4, dibujo: "ninguno" },
-  { tipo: "Otro", grupo: "Otras cosas del piso", largo: 3, dibujo: "ninguno" },
+  // Accesorios — Eduardo lo dejó en la caseta y nada más. Se quitaron la
+  // bodega y el "Otro". La medida sale del plano "LINEA DE 6X12+1".
+  { tipo: "Caseta de vigilancia", grupo: "Accesorios", largo: 4.6, ancho: 4.6, dibujo: "caseta" },
 ];
 
 /** Los grupos en el orden en que van, sin repetir. */

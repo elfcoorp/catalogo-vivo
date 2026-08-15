@@ -11,7 +11,6 @@ import {
   anchoDeLinea,
   lineasQueAlcanza,
   enPulgadas,
-  TIPOS_MESA,
   comoDataUri,
   medidaClasificadora,
   nombreClasificadora,
@@ -19,10 +18,12 @@ import {
   svgCaseta,
   svgCepilladora,
   svgClasificadora,
+  svgDescanicador,
   svgMesaSeleccion,
   svgTolva,
   type ClasificadoraParams,
   type Lado,
+  type TipoDescanicador,
   type TipoMesa,
 } from "@/lib/dibujos";
 import {
@@ -71,25 +72,30 @@ function abreviar(tipo: string): string {
     if (t.startsWith("cepilladora lavadora")) return "CEP LAV";
     if (t.startsWith("cepilladora secadora")) return "CEP SEC";
     if (t.startsWith("cepilladora encer")) return "CEP ENC";
+    if (t.startsWith("selección manual con guía")) return "SEL GUÍA";
+    if (t.startsWith("selección manual con banda superior")) return "SEL B.SUP";
+    if (t.startsWith("selección manual con banda inferior")) return "SEL CHUTE";
     if (t.startsWith("selección")) return "SELECC";
     if (t.startsWith("tolva")) return "TOLVA";
     if (t.startsWith("tina")) return "TINA";
-    if (t.startsWith("banda de cangilones")) return "CANGIL";
     if (t.startsWith("banda de pvc")) return "PVC";
     if (t.startsWith("banda sanitaria")) return "SANIT";
-    if (t.startsWith("elevador")) return "ELEV";
+    if (t.startsWith("descanicador fijo")) return "DESC FIJO";
+    if (t.startsWith("descanicador ajustable")) return "DESC AJUS";
+    if (t.startsWith("descanicador en malla")) return "DESC MALLA";
     if (t.startsWith("descanicador")) return "DESCAN";
     if (t.startsWith("mesa de rodillos")) return "RODILL";
     if (t.startsWith("mesa descarnadora")) return "DESCARN";
     if (t.startsWith("singulador")) return "SINGUL";
-    if (t.startsWith("transportador de caja llena")) return "CJ LLENA";
+    if (t.startsWith("transportador motorizado")) return "T. MOTOR";
+    if (t.startsWith("transportador de gravedad")) return "T. GRAV";
+    if (t.startsWith("transportador de banda")) return "T. PVC";
     if (t.startsWith("transportador de caja vacía")) return "CJ VACÍA";
     if (t.startsWith("volteadora de bins")) return "V. BINS";
-    if (t.startsWith("volteadora de cajas")) return "V. CAJAS";
-    if (t.startsWith("módulo de empaque")) return "EMPAQUE";
-    if (t.startsWith("llenadora")) return "LLENAD";
+    if (t.startsWith("volteadora de taras")) return "V. TARAS";
+    if (t.startsWith("báscula")) return "BÁSCULA";
+    if (t.startsWith("banco")) return "BANCO";
     if (t.startsWith("caseta")) return "CASETA";
-    if (t.startsWith("bodega")) return "BODEGA";
     return tipo.slice(0, 7).toUpperCase();
   }
 }
@@ -99,12 +105,14 @@ function abreviar(tipo: string): string {
  * momento. Se vuelve a generar cuando el vendedor teclea la medida buena: si
  * no, el dibujo se quedaba estirado y los cepillos salían deformes.
  */
-function svgDe(dibujo: Dibujo | undefined, largo: number, ancho: number, tipoMesa: TipoMesa): string | undefined {
+function svgDe(dibujo: Dibujo | undefined, largo: number, ancho: number, variante?: string): string | undefined {
   switch (dibujo) {
     case "cepilladora":
       return svgCepilladora(largo, ancho);
     case "mesa":
-      return svgMesaSeleccion(largo, ancho, tipoMesa);
+      return svgMesaSeleccion(largo, ancho, (variante as TipoMesa) ?? "guia-central");
+    case "descanicador":
+      return svgDescanicador(largo, ancho, (variante as TipoDescanicador) ?? "fijo");
     case "tolva":
       return svgTolva(largo, ancho);
     case "banda":
@@ -239,7 +247,6 @@ export function Planeador() {
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
   const [notas, setNotas] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [tipoMesa, setTipoMesa] = useState<TipoMesa>("guia-central");
   /**
    * Lo que se va tecleando en los campos de medida, guardado como TEXTO y
    * aparte del módulo. Si se guarda como número con Math.max(), al borrar el
@@ -269,6 +276,9 @@ export function Planeador() {
   });
 
   const lienzoRef = useRef<HTMLDivElement>(null);
+  // Para poder llevarlo al dibujo cuando mete la clasificadora: el botón está
+  // muy arriba y en el teléfono no se alcanza a ver que pasó algo.
+  const cardDibujoRef = useRef<HTMLDivElement>(null);
   const arrastre = useRef<{ id: string; dx: number; dy: number } | null>(null);
 
   // Todo se posiciona en PORCENTAJES del lienzo, no en pixeles: así el dibujo
@@ -291,6 +301,8 @@ export function Planeador() {
   const numeros = numerosDeModulo(modulos);
   /** "3. Cepilladora lavadora", como se lee en las listas y en los avisos. */
   const nombreDe = (m: Modulo) => conNumero(numeros[m.id], m.tipo);
+  /** Qué números traen las clasificadoras que ya están puestas. */
+  const clasificadorasPuestas = modulos.filter((m) => m.tipo.startsWith("Clasificadora")).map((m) => numeros[m.id]);
 
   /**
    * Mete la pieza nueva y, si el vendedor todavía no ha movido nada con el
@@ -341,6 +353,8 @@ export function Planeador() {
       rotacion: 0,
       espejo: false,
     });
+    // Y se le baja al dibujo, para que vea que sí pasó algo.
+    requestAnimationFrame(() => cardDibujoRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }));
   }
 
   /**
@@ -352,7 +366,7 @@ export function Planeador() {
   function agregarEquipo(eq: Equipo) {
     const largo = eq.largo;
     const ancho = eq.ancho ?? anchoLinea;
-    const svg = svgDe(eq.dibujo, largo, ancho, tipoMesa);
+    const svg = svgDe(eq.dibujo, largo, ancho, eq.variante);
 
     const id = nuevoId();
     ponerModulo({
@@ -396,7 +410,7 @@ export function Planeador() {
    */
   function figuraDe(m: Modulo, largo: number, ancho: number): string | undefined {
     const deLado = m.rotacion === 90 || m.rotacion === 270;
-    const svg = svgDe(m.dibujo, deLado ? ancho : largo, deLado ? largo : ancho, tipoMesa);
+    const svg = svgDe(m.dibujo, deLado ? ancho : largo, deLado ? largo : ancho, m.variante);
     return svg ? comoDataUri(svg) : undefined;
   }
 
@@ -431,19 +445,6 @@ export function Planeador() {
       delete copia[`${m.id}-ancho`];
       return copia;
     });
-  }
-
-  /** Cambia la guía de TODAS las mesas y les vuelve a dibujar la figura. */
-  function cambiarGuiaMesas(nuevo: TipoMesa) {
-    setTipoMesa(nuevo);
-    setModulos((prev) =>
-      prev.map((m) => {
-        if (m.dibujo !== "mesa") return m;
-        const deLado = m.rotacion === 90 || m.rotacion === 270;
-        const svg = svgMesaSeleccion(deLado ? m.ancho : m.largo, deLado ? m.largo : m.ancho, nuevo);
-        return { ...m, imagen: comoDataUri(svg) };
-      })
-    );
   }
 
   function borrar(id: string) {
@@ -718,8 +719,21 @@ export function Planeador() {
         <p className="text-center text-xs text-ink-mute">{nombreClasificadora(clasifFinal)}</p>
 
         <button type="button" onClick={agregarClasificadora} className="btn-marca self-start">
-          <Icon name="lucide:plus" size={18} /> Meterla al dibujo
+          <Icon name="lucide:plus" size={18} />
+          {clasificadorasPuestas.length === 0 ? "Ponerla en el empaque" : "Poner otra clasificadora"}
         </button>
+
+        {/* Sin esto se picaba el botón y no se veía que hubiera pasado nada:
+            el dibujo queda muy abajo, fuera de la pantalla del teléfono. */}
+        {clasificadorasPuestas.length > 0 && (
+          <p
+            className="rounded-xl p-3 text-sm"
+            style={{ background: "color-mix(in srgb, #2f9e44 16%, transparent)", color: "var(--ink)" }}
+          >
+            <Icon name="lucide:check" size={15} /> Ya quedó en el empaque como la{" "}
+            <b>{clasificadorasPuestas.map((n) => `#${n}`).join(" y la ")}</b>. Abajo la ves en el dibujo.
+          </p>
+        )}
       </div>
 
       {/* 4. Ve alrededor y ve marcando todo lo que hay, sin medir todavía */}
@@ -789,7 +803,7 @@ export function Planeador() {
       </div>
 
       {/* El dibujo: aquí van cayendo y aquí se acomodan */}
-      <div className="card flex flex-col gap-3 p-5">
+      <div ref={cardDibujoRef} className="card flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm font-semibold text-ink">Acomódalos arrastrando con el dedo</p>
           <div className="flex flex-wrap items-center gap-3 text-xs text-ink-mute">
@@ -889,24 +903,6 @@ export function Planeador() {
               ancho total no tiene nada que ver con el paso de la fruta.
             </p>
           </div>
-
-          {/* La guía se pregunta una sola vez, y solo si ya hay alguna mesa. */}
-          {modulos.some((m) => m.dibujo === "mesa") && (
-            <label className="flex flex-col gap-1 text-xs text-ink-mute">
-              Guía de las mesas
-              <select
-                value={tipoMesa}
-                onChange={(e) => cambiarGuiaMesas(e.target.value as TipoMesa)}
-                className="self-start rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-              >
-                {TIPOS_MESA.map((t) => (
-                  <option key={t.valor} value={t.valor}>
-                    {t.etiqueta}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
 
           <div className="flex flex-col divide-y divide-line">
             {modulos.map((m) => {
