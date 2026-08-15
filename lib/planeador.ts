@@ -70,6 +70,11 @@ export interface Modulo {
    * otra vez sería preguntarle dos veces lo mismo.
    */
   largoAutomatico?: boolean;
+  /**
+   * Cuántos cepillos trae la cepilladora. El vendedor NO mide la máquina:
+   * los cuenta, y con el espesor que le toca a la fruta sale el largo.
+   */
+  cepillos?: number;
   /** Giro del dibujo en grados. */
   rotacion: 0 | 90 | 180 | 270;
   /** Voltea el dibujo como espejo: las salidas cambian de lado. */
@@ -331,26 +336,35 @@ export interface FrutaLinea {
   copita?: "clip" | "charola";
   /** El paso exacto, si él ya lo dijo (ej. '3¾"'). */
   medida?: string;
+  /**
+   * Espesor del cepillo en pulgadas, dictado por Eduardo. La fruta normal va
+   * de 5"; la chiquita (tomate grape, chile morrón) de 4½". Ya viene en
+   * camino uno de 3" para el grape, pero todavía no hay máquinas, así que no
+   * se pone. Sirve para sacar el largo de la cepilladora contando cepillos:
+   * el vendedor no mide, cuenta.
+   */
+  espesorCepillo?: number;
   /** Aclaración que sale bajo la fruta escogida. */
   nota?: string;
 }
 
 export const FRUTAS_LINEA: FrutaLinea[] = [
-  { nombre: "Tomate", foto: "/frutas/f-tomate.png", copita: "clip", medida: '3¾"' },
-  { nombre: "Tomate grape", foto: "/frutas/f-tomate-grape.png", copita: "clip", medida: '1¼"' },
-  { nombre: "Chile morrón", foto: "/frutas/f-morron.png", copita: "charola", medida: '6"' },
+  { nombre: "Tomate", foto: "/frutas/f-tomate.png", copita: "clip", medida: '3¾"', espesorCepillo: 5 },
+  { nombre: "Tomate grape", foto: "/frutas/f-tomate-grape.png", copita: "clip", medida: '1¼"', espesorCepillo: 4.5 },
+  { nombre: "Chile morrón", foto: "/frutas/f-morron.png", copita: "charola", medida: '6"', espesorCepillo: 4.5 },
   {
     nombre: "Pepino",
     foto: "/frutas/f-pepino.png",
     copita: "charola",
     medida: '6"',
+    espesorCepillo: 5,
     nota: "El pepino lleva la charola de 6\" especial.",
   },
-  { nombre: "Cítricos", foto: "/frutas/f-citricos.png", copita: "clip" },
-  { nombre: "Limón persa", foto: "/frutas/f-limon-persa.png", copita: "clip", medida: '3"' },
-  { nombre: "Mango", foto: "/frutas/f-mango.png" },
+  { nombre: "Cítricos", foto: "/frutas/f-citricos.png", copita: "clip", espesorCepillo: 5 },
+  { nombre: "Limón persa", foto: "/frutas/f-limon-persa.png", copita: "clip", medida: '3"', espesorCepillo: 5 },
+  { nombre: "Mango", foto: "/frutas/f-mango.png", espesorCepillo: 5 },
   { nombre: "Aguacate", foto: "/frutas/f-aguacate.png" },
-  { nombre: "Cebolla", foto: "/frutas/f-cebolla.png" },
+  { nombre: "Cebolla", foto: "/frutas/f-cebolla.png", espesorCepillo: 5 },
   { nombre: "Papa", foto: "/frutas/f-papa.png" },
   { nombre: "Otra" },
 ];

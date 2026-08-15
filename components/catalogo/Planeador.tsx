@@ -60,6 +60,9 @@ function redondea(v: number) {
   return Math.round(v / PASO) * PASO;
 }
 
+/** Dónde se guarda el levantamiento en el teléfono. */
+const CLAVE_GUARDADO = "elfco-planeador";
+
 let contador = 0;
 function nuevoId() {
   contador += 1;
@@ -237,6 +240,8 @@ export function Planeador() {
   const [moverTodo, setMoverTodo] = useState(false);
   // Voltear el teléfono y trabajar en grande.
   const [pantallaCompleta, setPantallaCompleta] = useState(false);
+  // Hasta que no se recupera lo guardado, nada se guarda ni se crea solo.
+  const [listo, setListo] = useState(false);
   // El ancho útil que se hereda: lo que él teclee en la primera pieza pasa a
   // las demás. Vacío = todavía manda el número de líneas de la clasificadora.
   const [anchoUtil, setAnchoUtil] = useState<number | null>(null);
@@ -430,6 +435,7 @@ export function Planeador() {
    */
   const claveClasif = JSON.stringify(clasifFinal);
   useEffect(() => {
+    if (!listo) return; // primero se recupera lo guardado, si había algo
     const p: ClasificadoraParams = JSON.parse(claveClasif);
     const { largo, ancho } = medidaClasificadora(p);
     const imagen = comoDataUri(svgClasificadora(p));
@@ -458,7 +464,99 @@ export function Planeador() {
     });
     // Solo depende de cómo quedó armada la clasificadora.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claveClasif]);
+  }, [claveClasif, listo]);
+
+  /**
+   * El levantamiento se guarda SOLO en el teléfono, conforme lo va haciendo.
+   * Sin esto, si se bloquea la pantalla, se acaba la pila o se cierra la
+   * pestaña, pierde todo el recorrido del empaque y hay que volver a
+   * levantarlo enfrente del cliente.
+   */
+  useEffect(() => {
+    try {
+      const crudo = localStorage.getItem(CLAVE_GUARDADO);
+      if (crudo) {
+        const g = JSON.parse(crudo);
+        if (g.largoTxt) setLargoTxt(g.largoTxt);
+        if (g.anchoTxt) setAnchoTxt(g.anchoTxt);
+        if (Array.isArray(g.modulos)) setModulos(g.modulos);
+        if (g.medidas) setMedidas(g.medidas);
+        if (typeof g.fruta === "string") setFruta(g.fruta);
+        if (g.clasif) setClasif(g.clasif);
+        if (g.salidasTxt) setSalidasTxt(g.salidasTxt);
+        if (typeof g.anchoClasifTxt === "string") setAnchoClasifTxt(g.anchoClasifTxt);
+        if (typeof g.anchoUtil === "number") setAnchoUtil(g.anchoUtil);
+        if (typeof g.notas === "string") setNotas(g.notas);
+        if (typeof g.whatsapp === "string") setWhatsapp(g.whatsapp);
+        if (typeof g.acomodadoAMano === "boolean") setAcomodadoAMano(g.acomodadoAMano);
+        // Los ids no se pueden repetir con los que se acaban de recuperar.
+        for (const m of g.modulos ?? []) {
+          const n = Number(String(m.id).replace("m", ""));
+          if (Number.isFinite(n) && n > contador) contador = n;
+        }
+      }
+    } catch {
+      // Si lo guardado quedó corrupto, se empieza limpio y ya.
+    }
+    setListo(true);
+  }, []);
+
+  useEffect(() => {
+    if (!listo) return;
+    try {
+      localStorage.setItem(
+        CLAVE_GUARDADO,
+        JSON.stringify({
+          largoTxt,
+          anchoTxt,
+          modulos,
+          medidas,
+          fruta,
+          clasif,
+          salidasTxt,
+          anchoClasifTxt,
+          anchoUtil,
+          notas,
+          whatsapp,
+          acomodadoAMano,
+        })
+      );
+    } catch {
+      // Sin espacio en el teléfono: se sigue trabajando, nomás no se guarda.
+    }
+  }, [
+    listo,
+    largoTxt,
+    anchoTxt,
+    modulos,
+    medidas,
+    fruta,
+    clasif,
+    salidasTxt,
+    anchoClasifTxt,
+    anchoUtil,
+    notas,
+    whatsapp,
+    acomodadoAMano,
+  ]);
+
+  /** Borra el levantamiento y empieza uno nuevo, con otro cliente. */
+  function empezarDeNuevo() {
+    if (!confirm("¿Borrar este levantamiento y empezar uno nuevo?")) return;
+    try {
+      localStorage.removeItem(CLAVE_GUARDADO);
+    } catch {
+      // da igual: lo que importa es dejar la pantalla limpia
+    }
+    setModulos([]);
+    setMedidas({});
+    setFruta("");
+    setAnchoUtil(null);
+    setNotas("");
+    setWhatsapp("");
+    setAcomodadoAMano(false);
+    setSeleccionado(null);
+  }
 
   /** Mete al dibujo la clasificadora armada con lo que se pidió arriba. */
   function agregarClasificadora() {
@@ -573,6 +671,26 @@ export function Planeador() {
     if (tecleado !== undefined) return tecleado;
     if (cual === "largo") return "";
     return String(+m[cual].toFixed(2));
+  }
+
+  /**
+   * Los cepillos de la cepilladora. El vendedor no la mide: cuenta cuántos
+   * cepillos trae, y con el espesor que le toca a la fruta sale el largo.
+   */
+  function textoCepillos(m: Modulo): string {
+    return medidas[`${m.id}-cepillos`] ?? (m.cepillos ? String(m.cepillos) : "");
+  }
+
+  function tecleaCepillos(m: Modulo, texto: string) {
+    setMedidas((prev) => ({ ...prev, [`${m.id}-cepillos`]: texto }));
+    const cuantos = Number(texto);
+    const espesor = frutaInfo?.espesorCepillo;
+    if (!(cuantos > 0) || !espesor) return;
+    const largo = +(cuantos * espesor * 0.0254).toFixed(2);
+    const svg = figuraDe(m, largo, m.ancho);
+    actualizar(m.id, { cepillos: Math.round(cuantos), largo, imagen: svg ?? m.imagen });
+    // El largo tecleado a mano se limpia: ahora lo mandan los cepillos.
+    setMedidas((prev) => ({ ...prev, [`${m.id}-largo`]: String(largo) }));
   }
 
   /** Cuántas piezas son, cuando lo que importa es la cantidad (básculas). */
@@ -692,6 +810,14 @@ export function Planeador() {
           </label>
           <p className="pb-2.5 text-sm text-ink-mute">{areaEspacio.toFixed(1)} m² de piso</p>
         </div>
+
+        {/* El levantamiento se guarda solo en el teléfono. Este botón es para
+            cuando ya lo mandó y va a empezar con OTRO cliente. */}
+        {modulos.length > 0 && (
+          <button type="button" onClick={empezarDeNuevo} className="btn-ghost self-start !py-2 !text-sm">
+            <Icon name="lucide:rotate-ccw" size={15} /> Empezar otro levantamiento
+          </button>
+        )}
       </div>
 
       {/* 2. La fruta: de ahí se desprende todo lo demás */}
@@ -1191,6 +1317,23 @@ export function Planeador() {
                           // Largo y ancho van EN EL MISMO RENGLÓN: separados,
                           // en el teléfono el largo se iba muy arriba.
                           <div className="flex flex-wrap items-center gap-2 pl-8">
+                            {/* La cepilladora no se mide: se cuentan sus
+                                cepillos. Con el espesor que le toca a la
+                                fruta, el largo sale solo. */}
+                            {m.dibujo === "cepilladora" && frutaInfo?.espesorCepillo && (
+                              <label className="flex items-center gap-1.5 text-xs text-ink-mute">
+                                Cepillos
+                                <input
+                                  type="number"
+                                  inputMode="numeric"
+                                  value={textoCepillos(m)}
+                                  onChange={(e) => tecleaCepillos(m, e.target.value)}
+                                  className="w-16 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
+                                  aria-label={`Cuántos cepillos trae la ${numeros[m.id]}`}
+                                />
+                                <span>de {enPulgadas(frutaInfo.espesorCepillo)}</span>
+                              </label>
+                            )}
                             {m.largoAutomatico ? (
                               // El largo ya salió de las salidas: no se teclea.
                               <span className="text-xs text-ink-mute">
