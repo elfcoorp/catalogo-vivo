@@ -156,7 +156,9 @@ export function medidaClasificadora(p: ClasificadoraParams): { largo: number; an
 
 export function nombreClasificadora(p: ClasificadoraParams): string {
   const copita = p.tipoCopita === "charola" ? "Charola" : "Clip";
-  const salidas = p.lado === "ambos" ? `${p.salidas * 2} salidas` : `${p.salidas} salidas`;
+  // Son las MISMAS salidas aunque caigan a los dos lados: en la salida 1 sale
+  // chico de los dos lados, en la 2 mediano de los dos, y así. No se duplican.
+  const salidas = `${p.salidas} salidas`;
   // El lado va en el nombre: es lo primero que se pregunta al cotizar.
   const lado =
     p.lado === "ambos" ? "a los dos lados" : p.lado === "izquierda" ? "al lado izquierdo" : "al lado derecho";

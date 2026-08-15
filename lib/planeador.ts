@@ -53,6 +53,17 @@ export interface Modulo {
    * varias etapas, y en el layout del cliente hay que poder distinguirlas.
    */
   etapa?: string;
+  /**
+   * Si su ancho lo manda la línea (cepilladoras, mesas, tolvas). SOLO a
+   * éstas se les avisa "alcanza hasta N líneas": una banda de segunda
+   * calidad puede ser de 20 cm y está bien, no hay nada que avisar.
+   */
+  sigueLinea?: boolean;
+  /**
+   * Cuántas piezas son, cuando lo que importa es la cantidad y no la
+   * huella — el caso de las básculas.
+   */
+  cantidad?: number;
   /** Giro del dibujo en grados. */
   rotacion: 0 | 90 | 180 | 270;
   /** Voltea el dibujo como espejo: las salidas cambian de lado. */
@@ -296,12 +307,37 @@ export function acomodarEnOrden(modulos: Modulo[], espacio: Espacio): Modulo[] {
 /**
  * Las frutas que se trabajan, para arrancar el levantamiento por ahí.
  * Las fotos salen del catálogo de CepaMex, con su permiso.
+ *
+ * Cada fruta trae la copita que le toca, dictada por Eduardo. Al escogerla,
+ * la pantalla ya no ofrece la otra familia: si el tomate va con clip, no
+ * tiene caso enseñar los botones de charola. Las que traen `medida` la
+ * dejan puesta sola; las que solo traen `copita` esperan que él escoja el
+ * paso. Las que no traen nada TODAVÍA NO LAS HA DICHO — no inventar.
  */
-export const FRUTAS_LINEA: { nombre: string; foto?: string }[] = [
-  { nombre: "Tomate", foto: "/frutas/f-tomate.png" },
-  { nombre: "Chile morrón", foto: "/frutas/f-morron.png" },
-  { nombre: "Pepino", foto: "/frutas/f-pepino.png" },
-  { nombre: "Cítricos", foto: "/frutas/f-citricos.png" },
+export interface FrutaLinea {
+  nombre: string;
+  foto?: string;
+  /** "clip" o "charola". Si va vacío, se ofrecen las dos familias. */
+  copita?: "clip" | "charola";
+  /** El paso exacto, si él ya lo dijo (ej. '3¾"'). */
+  medida?: string;
+  /** Aclaración que sale bajo la fruta escogida. */
+  nota?: string;
+}
+
+export const FRUTAS_LINEA: FrutaLinea[] = [
+  { nombre: "Tomate", foto: "/frutas/f-tomate.png", copita: "clip", medida: '3¾"' },
+  { nombre: "Tomate grape", foto: "/frutas/f-tomate.png", copita: "clip", medida: '1¼"' },
+  { nombre: "Chile morrón", foto: "/frutas/f-morron.png", copita: "charola", medida: '6"' },
+  {
+    nombre: "Pepino",
+    foto: "/frutas/f-pepino.png",
+    copita: "charola",
+    medida: '6"',
+    nota: "El pepino lleva la charola de 6\" especial.",
+  },
+  { nombre: "Cítricos", foto: "/frutas/f-citricos.png", copita: "clip" },
+  { nombre: "Limón persa", foto: "/frutas/f-citricos.png", copita: "clip", medida: '3"' },
   { nombre: "Mango", foto: "/frutas/f-mango.png" },
   { nombre: "Aguacate", foto: "/frutas/f-aguacate.png" },
   { nombre: "Cebolla", foto: "/frutas/f-cebolla.png" },

@@ -45,6 +45,7 @@ import {
   type Dibujo,
   type Equipo,
   type Espacio,
+  type FrutaLinea,
   type Modulo,
   type Origen,
 } from "@/lib/planeador";
@@ -60,38 +61,6 @@ let contador = 0;
 function nuevoId() {
   contador += 1;
   return `m${contador}`;
-}
-
-/**
- * Nombre corto para que quepa encima del bloque y todavía se lea. El número
- * de la pieza NO va aquí: ese va grande en medio del recuadro.
- */
-function abreviar(tipo: string): string {
-  const t = tipo.toLowerCase();
-  {
-    if (t.startsWith("clasificadora")) return "CLASIF";
-    if (t.startsWith("cepilladora lavadora")) return "CEP LAV";
-    if (t.startsWith("cepilladora secadora")) return "CEP SEC";
-    if (t.startsWith("cepilladora encer")) return "CEP ENC";
-    if (t.startsWith("selección manual con guía")) return "SEL GUÍA";
-    if (t.startsWith("selección manual con banda superior")) return "SEL B.SUP";
-    if (t.startsWith("selección manual con banda inferior")) return "SEL CHUTE";
-    if (t.startsWith("selección")) return "SELECC";
-    if (t.startsWith("tolva")) return "TOLVA";
-    if (t.startsWith("tina")) return "TINA";
-    if (t.startsWith("banda de pvc")) return "PVC";
-    if (t.startsWith("descanicador")) return "DESCAN";
-    if (t.startsWith("transportador motorizado")) return "T. MOTOR";
-    if (t.startsWith("transportador de gravedad")) return "T. GRAV";
-    if (t.startsWith("transportador de banda")) return "T. PVC";
-    if (t.startsWith("transportador de caja vacía")) return "CJ VACÍA";
-    if (t.startsWith("volteadora de bins")) return "V. BINS";
-    if (t.startsWith("volteadora de taras")) return "V. TARAS";
-    if (t.startsWith("vaciado")) return "VACIADO";
-    if (t.startsWith("banco")) return "BANCO";
-    if (t.startsWith("caseta")) return "CASETA";
-    return tipo.slice(0, 7).toUpperCase();
-  }
 }
 
 /**
@@ -300,6 +269,17 @@ export function Planeador() {
   const numeros = numerosDeModulo(modulos);
   /** "3. Cepilladora lavadora", como se lee en las listas y en los avisos. */
   const nombreDe = (m: Modulo) => conNumero(numeros[m.id], m.tipo);
+  // La fruta manda la copita. Si él ya la escogió, solo se enseña esa familia:
+  // si el tomate va con clip, no tiene caso enseñar los botones de charola.
+  const frutaInfo = FRUTAS_LINEA.find((f) => f.nombre === fruta);
+  const familiasDeCopita: ("clip" | "charola")[] = frutaInfo?.copita ? [frutaInfo.copita] : ["clip", "charola"];
+
+  // Las etapas que ya tienen piezas puestas, en el orden del recorrido. La
+  // clasificadora no trae etapa, así que se le pone la suya al final.
+  const etapasConPiezas = [...GRUPOS_DEL_RECORRIDO, GRUPO_LINEA, "La clasificadora"].filter((etapa) =>
+    modulos.some((m) => (m.etapa ?? "La clasificadora") === etapa)
+  );
+
   /** Qué números traen las clasificadoras que ya están puestas. */
   const clasificadorasPuestas = modulos.filter((m) => m.tipo.startsWith("Clasificadora")).map((m) => numeros[m.id]);
 
@@ -385,6 +365,31 @@ export function Planeador() {
     );
   }
 
+  /**
+   * Al escoger la fruta se define sola la copita que le toca: el tomate va
+   * con clip 3¾", el morrón con charola 6", el grape con clip 1¼"… Así ya no
+   * se le enseñan los botones de la familia que no aplica.
+   */
+  function escogerFruta(f: FrutaLinea | null) {
+    setFruta(f ? f.nombre : "");
+    if (!f?.copita) return;
+    const dela = COPITAS.filter((c) => c.tipo === f.copita);
+    const escogida = dela.find((c) => c.medida === f.medida) ?? dela[0];
+    if (!escogida) return;
+    setClasif((s) => ({
+      ...s,
+      tipoCopita: escogida.tipo,
+      medidaCopita: escogida.medida,
+      pasoSalidas: escogida.salidas.includes(s.pasoSalidas) ? s.pasoSalidas : escogida.salidas[0],
+    }));
+  }
+
+  /** Quita la última pieza que se puso: para el dedo que se resbaló. */
+  function deshacer() {
+    setModulos((prev) => prev.slice(0, -1));
+    setSeleccionado(null);
+  }
+
   /** Vuelve a formarlos 1, 2, 3… en medio del empaque. */
   function ordenarPorNumero() {
     setModulos((prev) => acomodarEnOrden(prev, espacio));
@@ -446,6 +451,9 @@ export function Planeador() {
       dibujo: eq.dibujo,
       variante: eq.variante,
       etapa: eq.grupo,
+      // Si no trae ancho propio, su ancho lo manda la línea: a ésas sí les
+      // aplica el aviso de "alcanza hasta N líneas".
+      sigueLinea: eq.ancho === undefined,
       rotacion: 0,
       espejo: false,
     });
@@ -494,9 +502,21 @@ export function Planeador() {
     return String(+m[cual].toFixed(2));
   }
 
+  /** Cuántas piezas son, cuando lo que importa es la cantidad (básculas). */
+  function textoCantidad(m: Modulo): string {
+    return medidas[`${m.id}-cantidad`] ?? (m.cantidad ? String(m.cantidad) : "");
+  }
+
+  function tecleaCantidad(m: Modulo, texto: string) {
+    setMedidas((prev) => ({ ...prev, [`${m.id}-cantidad`]: texto }));
+    const valor = Number(texto);
+    if (valor > 0) actualizar(m.id, { cantidad: Math.round(valor) });
+  }
+
   /** ¿A esta pieza todavía no le han puesto el largo real? */
   function faltaMedirla(m: Modulo): boolean {
     if (m.tipo.startsWith("Clasificadora")) return false; // el suyo se calcula
+    if (m.tipo.startsWith("Básculas")) return false; // de ésas se pide cuántas
     const t = medidas[`${m.id}-largo`];
     return t === undefined || !(Number(t) > 0);
   }
@@ -601,7 +621,7 @@ export function Planeador() {
               <button
                 key={f.nombre}
                 type="button"
-                onClick={() => setFruta(elegida ? "" : f.nombre)}
+                onClick={() => escogerFruta(elegida ? null : f)}
                 className="flex flex-col items-center gap-1.5 rounded-2xl border p-2.5 text-xs font-semibold transition"
                 style={
                   elegida
@@ -719,23 +739,40 @@ export function Planeador() {
                 title={`${nombreDe(m)} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
               >
                 <DibujoModulo m={m} />
-                {/* El número va GRANDE en medio: es el mismo de la lista de
-                    medidas y del layout, y se ve aunque la pieza sea chica. */}
-                <span
-                  className="pointer-events-none absolute inset-0 grid place-items-center text-[15px] font-black leading-none"
-                  style={{ color, textShadow: "0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff" }}
-                >
-                  {numeros[m.id]}
-                </span>
-                {/* El nombre va SIEMPRE encima: si no, dos bloques chicos se
-                    ven iguales y no se sabe cuál es cuál. */}
-                <span
-                  className="pointer-events-none absolute left-0 top-0 max-w-full truncate rounded-br px-1 py-px text-[11px] font-extrabold leading-tight tracking-tight"
-                  style={{ background: color, color: "#fff" }}
-                >
-                  {abreviar(m.tipo)}
-                </span>
               </div>
+            );
+          })}
+
+          {/* Los números van en su PROPIA capa, encima de todo. Dentro de la
+              pieza no servían: una banda de 1.20 m en un empaque de 20 m mide
+              nueve píxeles de alto y el número salía cortado. Aquí siempre se
+              ven del mismo tamaño, sin importar qué tan chica sea la pieza.
+              Los nombres se quitaron a propósito: estorbaban al número. */}
+          {modulos.map((m) => {
+            const malo = conProblema.has(m.id);
+            const elegido = m.id === seleccionado;
+            const color = malo ? "#c92a2a" : colorDeOrigen(m.origen);
+            return (
+              <span
+                key={`num-${m.id}`}
+                onPointerDown={(e) => alBajarDedo(e, m)}
+                // El número ES la manija: mide 40 px, o sea como dos
+                // centímetros de dedo. La pieza puede ser una rayita de nueve
+                // píxeles de alto y aun así se agarra y se arrastra de aquí.
+                className="absolute z-30 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 cursor-grab select-none place-items-center rounded-full text-[15px] font-black leading-none active:cursor-grabbing"
+                style={{
+                  left: pctX(m.x + m.largo / 2),
+                  top: pctY(m.y + m.ancho / 2),
+                  background: "#fff",
+                  color,
+                  boxShadow: elegido
+                    ? `0 0 0 3px #f7c530, 0 2px 6px rgba(0,0,0,0.5)`
+                    : `0 0 0 2px ${color}, 0 1px 4px rgba(0,0,0,0.45)`,
+                  touchAction: "none",
+                }}
+              >
+                {numeros[m.id]}
+              </span>
             );
           })}
         </div>
@@ -745,6 +782,13 @@ export function Planeador() {
             A escala: {espacio.largo.toFixed(2)} m de largo x {espacio.ancho.toFixed(2)} m de ancho, visto desde arriba.
             En <span style={{ color: "#c92a2a" }}>rojo</span> lo que se encima o se sale.
           </p>
+          {/* Deshacer: si el dedo se resbaló y puso quince transportadores,
+              con esto se van saliendo uno por uno sin buscarlos en la lista. */}
+          {modulos.length > 0 && (
+            <button type="button" onClick={deshacer} className="btn-ghost !py-2 !text-sm">
+              <Icon name="lucide:undo-2" size={15} /> Quitar la última
+            </button>
+          )}
           {/* Para volver a formarlos si ya los movió y se le revolvieron. */}
           {modulos.length > 1 && (
             <button type="button" onClick={ordenarPorNumero} className="btn-ghost !py-2 !text-sm">
@@ -767,7 +811,7 @@ export function Planeador() {
 
         {/* Copita: de un toque, sin teclear medidas. Clip y charola van en
             bloques APARTE — revueltos en una sola tira no se distinguían. */}
-        {(["clip", "charola"] as const).map((familia) => (
+        {familiasDeCopita.map((familia) => (
           <div key={familia} className="flex flex-col gap-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">
               {familia === "clip" ? "Clip" : "Charola"}
@@ -826,6 +870,20 @@ export function Planeador() {
           </div>
         </div>
 
+        {/* Cuántas salidas — va ANTES del lado: primero se dice cuántas y
+            luego para dónde caen. Son las mismas aunque caigan a los dos
+            lados: en la salida 1 sale chico de los dos, en la 2 mediano… */}
+        <label className="flex flex-col gap-1 text-xs text-ink-mute">
+          ¿Cuántas salidas?
+          <input
+            type="number"
+            inputMode="numeric"
+            value={salidasTxt}
+            onChange={(e) => setSalidasTxt(e.target.value)}
+            className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
+          />
+        </label>
+
         {/* Lado de las salidas */}
         <div className="flex flex-col gap-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">Salidas hacia</p>
@@ -878,18 +936,8 @@ export function Planeador() {
           </div>
         </div>
 
-        {/* Cuántas salidas y qué tan ancho es el cuerpo */}
+        {/* Qué tan ancho es el cuerpo */}
         <div className="flex flex-wrap gap-3">
-          <label className="flex flex-col gap-1 text-xs text-ink-mute">
-            ¿Cuántas salidas por lado?
-            <input
-              type="number"
-              inputMode="numeric"
-              value={salidasTxt}
-              onChange={(e) => setSalidasTxt(e.target.value)}
-              className="w-24 rounded-xl border border-line-strong bg-bg-2 p-2.5 text-base text-ink outline-none focus:border-marca"
-            />
-          </label>
           <label className="flex flex-col gap-1 text-xs text-ink-mute">
             Ancho del cuerpo (m)
             <input
@@ -964,94 +1012,136 @@ export function Planeador() {
             </p>
           </div>
 
-          <div className="flex flex-col divide-y divide-line">
-            {modulos.map((m) => {
-              const elegido = m.id === seleccionado;
-              return (
-                <div
-                  key={m.id}
-                  onFocus={() => setSeleccionado(m.id)}
-                  className="flex flex-wrap items-center gap-2 rounded-lg px-1.5 py-2.5"
-                  // Se resalta el mismo que está elegido en el dibujo, para no
-                  // perderse entre quince renglones.
-                  style={elegido ? { background: "color-mix(in srgb, #f7c530 14%, transparent)" } : undefined}
-                >
-                  <span className="inline-block h-3 w-3 shrink-0 rounded" style={{ background: colorDeOrigen(m.origen) }} />
-                  <span className="min-w-[8.5rem] flex-1 text-sm text-ink">{nombreDe(m)}</span>
-                  <label className="flex items-center gap-1.5 text-xs text-ink-mute">
-                    Largo
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      step={0.5}
-                      value={textoMedida(m, "largo")}
-                      onChange={(e) => tecleaMedida(m, "largo", e.target.value)}
-                      className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
-                      aria-label={`Largo de ${nombreDe(m)}, en metros`}
-                    />
-                  </label>
-                  <label className="flex items-center gap-1.5 text-xs text-ink-mute">
-                    Ancho útil
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      step={0.1}
-                      value={textoMedida(m, "ancho")}
-                      onChange={(e) => tecleaMedida(m, "ancho", e.target.value)}
-                      className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
-                      aria-label={`Ancho útil de ${nombreDe(m)}, en metros`}
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => borrar(m.id)}
-                    className="rounded-lg p-2 text-ink-mute hover:text-ink"
-                    aria-label={`Quitar ${nombreDe(m)}`}
-                  >
-                    <Icon name="lucide:trash-2" size={16} />
-                  </button>
-
-                  {/* El aviso de la venta: hay clientes que dejaron la línea
-                      ancha a propósito, pensando en crecer. Si ya les alcanza,
-                      esa pieza no se cambia — y eso abarata el upgrade. */}
-                  {(() => {
-                    if (m.tipo.startsWith("Clasificadora")) return null;
-                    if (faltaMedirla(m)) {
-                      return (
-                        <p className="w-full text-xs" style={{ color: "#f7c530" }}>
-                          Falta ponerle el largo.
-                        </p>
-                      );
-                    }
-                    const alcanza = lineasQueAlcanza(m.ancho);
-                    if (alcanza === null) {
-                      return (
-                        <p className="w-full text-xs" style={{ color: "#c92a2a" }}>
-                          Con {m.ancho.toFixed(2)} m no alcanza ni para 2 líneas.
-                        </p>
-                      );
-                    }
-                    if (alcanza >= clasif.lineas) {
-                      return (
-                        <p className="w-full text-xs" style={{ color: "#2f9e44" }}>
-                          Alcanza hasta {alcanza} líneas
-                          {alcanza > clasif.lineas && " — le sobra para la que se está armando, no hay que cambiarla"}.
-                        </p>
-                      );
-                    }
+          {/* Separadas por etapa, en el mismo orden del recorrido: así se ve
+              de un golpe qué falta medir de cada parte del empaque. */}
+          {etapasConPiezas.map((etapa) => (
+            <div key={etapa} className="flex flex-col gap-1">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">{etapa}</p>
+              <div className="flex flex-col divide-y divide-line">
+                {modulos
+                  .filter((m) => (m.etapa ?? "La clasificadora") === etapa)
+                  .map((m) => {
+                    const elegido = m.id === seleccionado;
+                    const esClasificadora = m.tipo.startsWith("Clasificadora");
+                    const porCantidad = m.tipo.startsWith("Básculas");
                     return (
-                      <p className="w-full text-xs" style={{ color: "#c92a2a" }}>
-                        Se queda corta: alcanza para {alcanza} líneas y se está armando de {clasif.lineas}. Necesita{" "}
-                        {anchoDeLinea(clasif.lineas).toFixed(2)} m.
-                      </p>
-                    );
-                  })()}
-                </div>
-              );
-            })}
-          </div>
+                      <div
+                        key={m.id}
+                        onFocus={() => setSeleccionado(m.id)}
+                        className="flex flex-col gap-1.5 rounded-lg px-1.5 py-2.5"
+                        // Se resalta el mismo que está elegido en el dibujo,
+                        // para no perderse entre quince renglones.
+                        style={elegido ? { background: "color-mix(in srgb, #f7c530 14%, transparent)" } : undefined}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-black"
+                            style={{ background: colorDeOrigen(m.origen), color: "#fff" }}
+                          >
+                            {numeros[m.id]}
+                          </span>
+                          <span className="flex-1 text-sm text-ink">{m.tipo}</span>
+                          <button
+                            type="button"
+                            onClick={() => borrar(m.id)}
+                            className="rounded-lg p-2 text-ink-mute hover:text-ink"
+                            aria-label={`Quitar ${nombreDe(m)} del dibujo`}
+                            title="Quitarla del dibujo"
+                          >
+                            <Icon name="lucide:trash-2" size={16} />
+                          </button>
+                        </div>
 
-          <p className="text-xs text-ink-mute">Las medidas van en metros. Ya que las tengas, sube al dibujo y acomódalas.</p>
+                        {/* La clasificadora NO se pregunta: su medida sale
+                            sola de la copita, las líneas y las salidas. */}
+                        {esClasificadora ? (
+                          <p className="pl-8 text-xs text-ink-mute">
+                            Mide {m.largo.toFixed(2)} × {m.ancho.toFixed(2)} m. Sale sola de lo que escogiste arriba.
+                          </p>
+                        ) : porCantidad ? (
+                          <label className="flex items-center gap-1.5 pl-8 text-xs text-ink-mute">
+                            ¿Cuántas?
+                            <input
+                              type="number"
+                              inputMode="numeric"
+                              value={textoCantidad(m)}
+                              onChange={(e) => tecleaCantidad(m, e.target.value)}
+                              className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
+                              aria-label={`Cuántas básculas, la ${numeros[m.id]}`}
+                            />
+                          </label>
+                        ) : (
+                          // Largo y ancho van EN EL MISMO RENGLÓN: separados,
+                          // en el teléfono el largo se iba muy arriba.
+                          <div className="flex flex-wrap items-center gap-2 pl-8">
+                            <label className="flex items-center gap-1.5 text-xs text-ink-mute">
+                              Largo
+                              <input
+                                type="number"
+                                inputMode="decimal"
+                                step={0.5}
+                                value={textoMedida(m, "largo")}
+                                onChange={(e) => tecleaMedida(m, "largo", e.target.value)}
+                                className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
+                                aria-label={`Largo de ${nombreDe(m)}, en metros`}
+                              />
+                            </label>
+                            <label className="flex items-center gap-1.5 text-xs text-ink-mute">
+                              Ancho útil
+                              <input
+                                type="number"
+                                inputMode="decimal"
+                                step={0.1}
+                                value={textoMedida(m, "ancho")}
+                                onChange={(e) => tecleaMedida(m, "ancho", e.target.value)}
+                                className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
+                                aria-label={`Ancho útil de ${nombreDe(m)}, en metros`}
+                              />
+                            </label>
+                          </div>
+                        )}
+
+                        {/* El aviso de la venta, SOLO para lo que va en fila
+                            con la clasificadora. Una banda de segunda calidad
+                            puede ser de 20 cm y está perfecta: ahí no hay nada
+                            que avisar. */}
+                        {(() => {
+                          if (esClasificadora || porCantidad) return null;
+                          if (faltaMedirla(m)) {
+                            return (
+                              <p className="pl-8 text-xs" style={{ color: "#f7c530" }}>
+                                Falta ponerle el largo.
+                              </p>
+                            );
+                          }
+                          if (!m.sigueLinea) return null;
+                          const alcanza = lineasQueAlcanza(m.ancho);
+                          if (alcanza === null) return null;
+                          if (alcanza >= clasif.lineas) {
+                            return (
+                              <p className="pl-8 text-xs" style={{ color: "#2f9e44" }}>
+                                Alcanza hasta {alcanza} líneas
+                                {alcanza > clasif.lineas && " — le sobra, no hay que cambiarla"}.
+                              </p>
+                            );
+                          }
+                          return (
+                            <p className="pl-8 text-xs" style={{ color: "#c92a2a" }}>
+                              Se queda corta: alcanza para {alcanza} líneas y se está armando de {clasif.lineas}.
+                            </p>
+                          );
+                        })()}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          ))}
+
+          <p className="text-xs text-ink-mute">
+            Las medidas van en metros. El bote de basura <b>quita esa pieza del dibujo</b>. Ya que las tengas, sube y
+            acomódalas.
+          </p>
         </div>
       )}
 
