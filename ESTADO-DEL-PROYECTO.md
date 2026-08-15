@@ -279,16 +279,21 @@ tiene; hasta que vio todo, decide qué clasificadora le conviene proponer.
 
 Dictado por Eduardo, siguiendo el recorrido de la fruta:
 
+**En el paso 3** (lo que se ve al recorrer el empaque):
+
 | Etapa | Qué lleva |
 |---|---|
-| **Recepción** | Volteadora de bins · Volteadora de cajas · Vaciado manual · Banco para vaciar la caja · Tina de lavado · Banda de PVC |
-| **Rezaga o desecho** | Las 3 mesas de selección manual · Descanicador de tubos · Descanicador en malla |
+| **Recepción** | Volteadora de bins · Volteadora de cajas · Vaciado manual · Tina de lavado · Banda de PVC |
+| **Rezaga o desecho** | Las 3 mesas de selección manual · Descanicador |
 | **Lavado** | Cepilladora lavadora · secadora · enceradora |
 | **Clasificación de segunda calidad** | Las 3 mesas otra vez · Banda de segunda calidad |
-| **Transporte de caja llena y vacía** | Motorizado · De gravedad · De banda de PVC · De caja vacía |
-| **Empaque y cajas** | Tolvas · Básculas · Bancos |
-| **Otros equipos** | Lo que fue saliendo de otros grupos y él no mandó borrar |
 | **Accesorios** | Caseta de vigilancia |
+
+**En el paso 4**, junto con la clasificadora (`GRUPO_LINEA`):
+
+| Grupo | Qué lleva |
+|---|---|
+| **Lo que va con la clasificadora** | Tolvas · Bancos · Básculas · Transportador motorizado · de gravedad · de banda de PVC · de caja vacía |
 
 - **Rezaga va ANTES de lavado**: el descanicador saca la fruta muy chiquita, y
   no tiene caso lavarla, secarla ni encerarla si no tiene costo.
@@ -298,6 +303,41 @@ Dictado por Eduardo, siguiendo el recorrido de la fruta:
 - Las 3 mesas son: **guía central**, **banda superior** y **con chutes**.
   Cada una es su propio botón con su propio dibujo — ya no se pregunta la
   guía aparte.
+- **El descanicador va sin apellido.** Se probó con tubos / ajustable / malla
+  y él lo dejó en uno solo: lo único que importa es su ancho y su largo.
+- **El vaciado manual no es máquina**, es gente: se dibuja con monitos
+  vaciando su caja (`svgVaciado`) para que se entienda en el layout.
+- **Lo del paso 4 va aparte porque depende de las salidas**: cuántas tolvas,
+  bancos y básculas hacen falta sale de cuántas salidas lleve la máquina.
+  Lleva su propio botón *"Ya los tiene / Se los cotizamos"*, porque al meter
+  una clasificadora se quita la banda que el cliente tenía, pero **sus bancos
+  y sus descansadores de caja llena se reaprovechan** y eso no se le cobra.
+- **Clip y charola van en dos bloques aparte.** Revueltos en una sola tira no
+  se distinguían.
+
+### 5.1.3 UN SOLO dibujo, no dos
+
+Él preguntó si iban a ser dos zonas de arrastre. **Va una sola.** Con el
+dibujo partido en dos no se puede contestar lo único que importa —¿cabe?—,
+porque lo que el cliente ya tiene y lo que se le va a vender se pelean el
+mismo piso. Lo que cambia es *cuándo* cae cada cosa y de qué color:
+el paso 3 cae en verde y el paso 4 en blanco, con la **misma numeración
+corrida**. El dibujo vive entre el paso 3 y el 4.
+
+### 5.1.4 La numeración y el acomodo automático
+
+- Las piezas se numeran **1, 2, 3, 4… corrido**, en el orden en que se tocan.
+  Antes se numeraban por tipo y salían puros unos, que no decían nada.
+- El mismo número sale **grande en medio de la pieza**, en la lista de
+  medidas, en el mensaje de WhatsApp y en los globitos del layout.
+- Al tocarlas **se forman solas en fila, centradas** en el empaque
+  (`acomodarEnOrden`). Cuando ya no cabe más a lo largo, siguen en otro
+  renglón.
+- **En cuanto mueve una con el dedo se deja de reacomodar solo**, para no
+  desbaratarle lo que ya puso. El botón *"Formarlos 1, 2, 3…"* las vuelve a
+  alinear cuando él quiera.
+- Si la línea va **en escuadra**, él baja la pieza con el dedo y ahí se queda;
+  las cotas a las paredes se recalculan solas.
 
 ### 5.1.2 Los colores del layout del cliente
 
@@ -307,6 +347,29 @@ Dictado por Eduardo, siguiendo el recorrido de la fruta:
 - La lista de abajo va **separada en tres**: lo que ya tiene el cliente, lo
   usado de ELFCO y lo nuevo a fabricar, cada equipo con su número del plano
   y sus dos medidas.
+- El PDF se manda con la **medida exacta de la hoja**: plotter de 90 × 60
+  (así viene por defecto), oficio o carta. Se escoge en la barra de arriba.
+
+### 5.1.5 Pendientes del planeador
+
+- **Los monitos en cada salida** de la clasificadora, para ver cuánto espacio
+  ocupan los empacadores. Detenido: depende del ancho de la tolva y **cada
+  tolva es distinta** (1.00 m, 1.20 m…). Además, *normalmente el cliente usa
+  sus propias tolvas* — solo en un proyecto totalmente nuevo se fabrican.
+- **La fruta se queda en el paso 2.** Se le preguntó si la quería adentro de
+  la sección de la clasificadora y dijo que da lo mismo.
+
+### 5.1.6 IDEA A FUTURO — que la fruta configure la línea sola
+
+Dicho por él, y **no es para ahorita**: *"ahorita nomás estamos si cabe o no
+cabe"*. La idea es que al escoger la fruta se definan solos:
+- El espesor de los cepillos (4½" o 5").
+- Las mesas de selección manual que le tocan.
+- El paso de la **cadena pernada** (20-60, pin a cada media pulgada) — más
+  angosta o más ancha según el tamaño de la fruta, para que no se caiga entre
+  los rodillos.
+
+No empezar esto sin que él lo pida.
 
 ### 5.2 Ancho útil
 
@@ -314,12 +377,13 @@ Dictado por Eduardo, siguiendo el recorrido de la fruta:
 máquinas muy robustas cuyo ancho total no tiene que ver con el paso de la fruta.
 Palabras de él: *"ya si con el puro ancho útil no cabe, pues no cabe"*.
 
-### 5.3 Faltan equipos de los layouts
+### 5.3 Los equipos — LISTOS, y él los acotó uno por uno
 
-Ya entraron varios (transportador de caja llena y vacía, banda de cangilones,
-tina de lavado, mesa de rodillos, descanicador, singulador, volteadora de cajas,
-caseta de control). Falta revisar contra sus planos si queda alguno, y la
-**caseta de vigilancia** que pidió expresamente.
+La lista de `EQUIPOS` ya la revisó grupo por grupo (ver 5.1.1). **Lo que él
+mandó QUITAR, no volver a meterlo:** banda de cangilones, elevador de rodillos,
+singulador, mesa de rodillos, mesa descarnadora, banda sanitaria, banda de PVC
+para fruta, bodega o cámara, el comodín "Otro", el banco de recepción y los
+descanicadores con apellido (tubos / ajustable / malla).
 
 ### 5.4 Otros pendientes chicos
 
