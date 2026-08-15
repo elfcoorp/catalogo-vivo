@@ -126,21 +126,70 @@ export const EQUIPOS: Equipo[] = [
 export const GRUPOS_EQUIPO: string[] = [...new Set(EQUIPOS.map((e) => e.grupo))];
 
 /**
- * Como se puede poner la misma máquina varias veces, cada una lleva su
- * número: "Mesa de rodillos #1", "#2". Sin esto no se sabe de cuál se está
- * preguntando la medida. Si solo hay una, se queda sin número.
+ * El número de orden de cada pieza: 1, 2, 3, 4… corrido, en el orden en que
+ * el vendedor las fue tocando. Antes se numeraba por tipo ("Mesa #1, #2") y
+ * salían puros unos, que no decían nada. Con el número corrido, el que trae
+ * el 5 en el dibujo es el mismo 5 de la lista de medidas y el del layout.
  */
-export function nombresNumerados(modulos: Modulo[]): Record<string, string> {
-  const total: Record<string, number> = {};
-  for (const m of modulos) total[m.tipo] = (total[m.tipo] ?? 0) + 1;
+export function numerosDeModulo(modulos: Modulo[]): Record<string, number> {
+  const numeros: Record<string, number> = {};
+  modulos.forEach((m, i) => (numeros[m.id] = i + 1));
+  return numeros;
+}
 
-  const van: Record<string, number> = {};
-  const nombres: Record<string, string> = {};
+/** "3. Cepilladora lavadora" — el nombre como se lee en las listas. */
+export function conNumero(numero: number, tipo: string): string {
+  return `${numero}. ${tipo}`;
+}
+
+/** Separación entre piezas cuando se acomodan solas, en metros. */
+const HUECO = 0.15;
+
+/**
+ * Acomoda TODAS las piezas en su orden numérico, en una fila a lo largo y
+ * centrada en el empaque — así se ve como se ve una línea de verdad. Cuando
+ * ya no cabe más a lo largo, sigue en otra fila abajo.
+ *
+ * Es el punto de partida: el vendedor toca todo lo que ve, le queda ordenado
+ * solo, y de ahí nada más las corre a la izquierda, derecha, arriba o abajo.
+ */
+export function acomodarEnOrden(modulos: Modulo[], espacio: Espacio): Modulo[] {
+  // 1. Se reparten en filas, respetando el orden en que se tocaron.
+  const filas: Modulo[][] = [];
+  let fila: Modulo[] = [];
+  let largoFila = 0;
+
   for (const m of modulos) {
-    van[m.tipo] = (van[m.tipo] ?? 0) + 1;
-    nombres[m.id] = total[m.tipo] > 1 ? `${m.tipo} #${van[m.tipo]}` : m.tipo;
+    const suma = largoFila === 0 ? m.largo : largoFila + HUECO + m.largo;
+    if (fila.length > 0 && suma > espacio.largo) {
+      filas.push(fila);
+      fila = [m];
+      largoFila = m.largo;
+    } else {
+      fila.push(m);
+      largoFila = suma;
+    }
   }
-  return nombres;
+  if (fila.length > 0) filas.push(fila);
+
+  // 2. Todo el bloque queda centrado a lo alto del empaque.
+  const altoDeFila = filas.map((f) => Math.max(...f.map((m) => m.ancho), 0));
+  const altoTotal = altoDeFila.reduce((t, a) => t + a, 0) + HUECO * Math.max(0, filas.length - 1);
+  let y = (espacio.ancho - altoTotal) / 2;
+
+  const acomodados: Modulo[] = [];
+  filas.forEach((f, i) => {
+    const anchoFila = f.reduce((t, m) => t + m.largo, 0) + HUECO * Math.max(0, f.length - 1);
+    let x = (espacio.largo - anchoFila) / 2;
+    for (const m of f) {
+      // Cada pieza va centrada dentro del alto de su fila.
+      acomodados.push({ ...m, x: +x.toFixed(2), y: +(y + (altoDeFila[i] - m.ancho) / 2).toFixed(2) });
+      x += m.largo + HUECO;
+    }
+    y += altoDeFila[i] + HUECO;
+  });
+
+  return acomodados;
 }
 
 /**
@@ -274,12 +323,12 @@ export function resumenLevantamiento(
   whatsapp: string,
   fruta = ""
 ): string {
-  const nombres = nombresNumerados(modulos);
+  const numeros = numerosDeModulo(modulos);
   const linea = (m: Modulo) => {
     const giro = m.rotacion !== 0 ? ` · girada ${m.rotacion}°` : "";
     const esp = m.espejo ? " · en espejo (salidas del otro lado)" : "";
     // El ancho es el ÚTIL, y así se dice, para que nadie lo confunda con el total.
-    return `- ${nombres[m.id]}: ${m.largo.toFixed(2)} m de largo x ${m.ancho.toFixed(2)} m de ancho útil${giro}${esp}`;
+    return `- ${conNumero(numeros[m.id], m.tipo)}: ${m.largo.toFixed(2)} m de largo x ${m.ancho.toFixed(2)} m de ancho útil${giro}${esp}`;
   };
   const porOrigen = (o: Origen) => modulos.filter((m) => m.origen === o);
 

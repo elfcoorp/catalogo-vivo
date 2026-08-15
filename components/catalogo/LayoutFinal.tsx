@@ -87,7 +87,15 @@ function Cota({
 }
 
 /** El plano en planta, a escala, acotado a las paredes. */
-function PlanoFinal({ espacio, modulos }: { espacio: Espacio; modulos: Modulo[] }) {
+function PlanoFinal({
+  espacio,
+  modulos,
+  numeros,
+}: {
+  espacio: Espacio;
+  modulos: Modulo[];
+  numeros: Record<string, number>;
+}) {
   const tam = Math.max(espacio.largo, espacio.ancho);
   const u = tam / 500; // grosor base de raya
   // La letra va en metros del plano, no en píxeles: así se ve igual de grande
@@ -108,7 +116,7 @@ function PlanoFinal({ espacio, modulos }: { espacio: Espacio; modulos: Modulo[] 
       <rect x={0} y={0} width={espacio.largo} height={espacio.ancho} fill="#fff" stroke="#111" strokeWidth={u * 2.2} />
 
       {/* Las máquinas, cada una con su dibujo girado como quedó */}
-      {modulos.map((m, i) => {
+      {modulos.map((m) => {
         const color = colorDeOrigen(m.origen);
         const deLado = m.rotacion === 90 || m.rotacion === 270;
         const w0 = deLado ? m.ancho : m.largo;
@@ -135,7 +143,7 @@ function PlanoFinal({ espacio, modulos }: { espacio: Espacio; modulos: Modulo[] 
             <line x1={cx} y1={gy} x2={cx} y2={arriba ? m.y : m.y + m.ancho} stroke="#111" strokeWidth={u * 0.7} />
             <circle cx={cx} cy={gy} r={r} fill="#fff" stroke="#111" strokeWidth={u * 1.2} />
             <text x={cx} y={gy} fontSize={r * 1.25} textAnchor="middle" dominantBaseline="central" fill="#111" fontWeight={700}>
-              {i + 1}
+              {numeros[m.id]}
             </text>
           </g>
         );
@@ -246,7 +254,7 @@ function PlanoFinal({ espacio, modulos }: { espacio: Espacio; modulos: Modulo[] 
 export function LayoutFinal({
   espacio,
   modulos,
-  nombres,
+  numeros,
   clasif,
   fruta,
   cabe,
@@ -255,7 +263,8 @@ export function LayoutFinal({
 }: {
   espacio: Espacio;
   modulos: Modulo[];
-  nombres: Record<string, string>;
+  /** El número corrido de cada pieza: el mismo del dibujo y de la lista. */
+  numeros: Record<string, number>;
   clasif: ClasificadoraParams;
   fruta: string;
   cabe: boolean;
@@ -340,7 +349,7 @@ export function LayoutFinal({
 
         {/* El plano */}
         <div className="my-4 border border-black/15 p-2">
-          <PlanoFinal espacio={espacio} modulos={modulos} />
+          <PlanoFinal espacio={espacio} modulos={modulos} numeros={numeros} />
         </div>
 
         {/* La ficha de la clasificadora: es el corazón de la cotización */}
@@ -374,16 +383,16 @@ export function LayoutFinal({
 
         {/* La lista numerada, igual que en sus planos */}
         <div className="grid grid-cols-1 gap-x-8 gap-y-1 text-[13px] leading-snug text-black sm:grid-cols-2">
-          {modulos.map((m, i) => (
+          {modulos.map((m) => (
             <div key={m.id} className="flex gap-2 border-b border-black/10 py-1">
-              <span className="w-5 shrink-0 text-right font-bold">{i + 1}.</span>
+              <span className="w-5 shrink-0 text-right font-bold">{numeros[m.id]}.</span>
               <span
                 className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
                 style={{ background: colorDeOrigen(m.origen) }}
                 aria-hidden
               />
               <span className="flex-1">
-                {nombres[m.id]}
+                {m.tipo}
                 <span className="text-black/60">
                   {" "}
                   — {m.largo.toFixed(2)} m de largo × {m.ancho.toFixed(2)} m de ancho útil

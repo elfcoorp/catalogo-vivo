@@ -34,7 +34,9 @@ import {
   buscarHueco,
   colorDeOrigen,
   modulosConProblema,
-  nombresNumerados,
+  acomodarEnOrden,
+  conNumero,
+  numerosDeModulo,
   pegarAOtros,
   puedeVoltearse,
   resumenLevantamiento,
@@ -58,12 +60,13 @@ function nuevoId() {
   return `m${contador}`;
 }
 
-/** Nombre corto para que quepa encima del bloque y todavía se lea. */
-function abreviar(nombre: string): string {
-  const t = nombre.toLowerCase();
-  // El número va aparte para que no se lo coma el recorte del nombre.
-  const numero = nombre.match(/#(\d+)$/)?.[1];
-  const corto = (() => {
+/**
+ * Nombre corto para que quepa encima del bloque y todavía se lea. El número
+ * de la pieza NO va aquí: ese va grande en medio del recuadro.
+ */
+function abreviar(tipo: string): string {
+  const t = tipo.toLowerCase();
+  {
     if (t.startsWith("clasificadora")) return "CLASIF";
     if (t.startsWith("cepilladora lavadora")) return "CEP LAV";
     if (t.startsWith("cepilladora secadora")) return "CEP SEC";
@@ -87,9 +90,8 @@ function abreviar(nombre: string): string {
     if (t.startsWith("llenadora")) return "LLENAD";
     if (t.startsWith("caseta")) return "CASETA";
     if (t.startsWith("bodega")) return "BODEGA";
-    return nombre.replace(/ #\d+$/, "").slice(0, 7).toUpperCase();
-  })();
-  return numero ? `${corto} ${numero}` : corto;
+    return tipo.slice(0, 7).toUpperCase();
+  }
 }
 
 /**
@@ -250,6 +252,8 @@ export function Planeador() {
   const [poniendo, setPoniendo] = useState<Origen>("cliente");
   // La hoja limpia que se le enseña al cliente, aparte de esta pantalla.
   const [verLayout, setVerLayout] = useState(false);
+  // En cuanto mueve una pieza con el dedo, se deja de reacomodar solo.
+  const [acomodadoAMano, setAcomodadoAMano] = useState(false);
   // Como texto, para poder borrarlo y teclear otra cantidad.
   const [salidasTxt, setSalidasTxt] = useState("12");
   // Vacío = se usa el ancho de los módulos, que es solo una aproximación.
@@ -284,7 +288,31 @@ export function Planeador() {
   const cabe = maquinas.length > 0 && conProblema.size === 0;
   const ocupado = areaOcupada(modulos);
   const areaEspacio = espacio.largo * espacio.ancho;
-  const nombres = nombresNumerados(modulos);
+  const numeros = numerosDeModulo(modulos);
+  /** "3. Cepilladora lavadora", como se lee en las listas y en los avisos. */
+  const nombreDe = (m: Modulo) => conNumero(numeros[m.id], m.tipo);
+
+  /**
+   * Mete la pieza nueva y, si el vendedor todavía no ha movido nada con el
+   * dedo, vuelve a acomodar TODO en orden numérico. En cuanto arrastra algo
+   * se deja de reacomodar solo: si no, le desbarataría lo que ya puso.
+   */
+  function ponerModulo(nuevo: Modulo) {
+    setModulos((prev) => {
+      if (acomodadoAMano) {
+        const { x, y } = buscarHueco(prev, espacio, nuevo.largo, nuevo.ancho);
+        return [...prev, { ...nuevo, x, y }];
+      }
+      return acomodarEnOrden([...prev, nuevo], espacio);
+    });
+    setSeleccionado(nuevo.id);
+  }
+
+  /** Vuelve a formarlos 1, 2, 3… en medio del empaque. */
+  function ordenarPorNumero() {
+    setModulos((prev) => acomodarEnOrden(prev, espacio));
+    setAcomodadoAMano(false);
+  }
 
   // El ancho útil de los equipos que van en fila lo mandan las LÍNEAS de la
   // clasificadora: 2→0.60, 4→0.90, 6→1.20, 8→1.80 m. Así la cepilladora, la
@@ -301,14 +329,18 @@ export function Planeador() {
     const { largo, ancho } = medidaClasificadora(clasifFinal);
     const imagen = comoDataUri(svgClasificadora(clasifFinal));
     const tipo = nombreClasificadora(clasifFinal);
-    setModulos((prev) => {
-      const { x, y } = buscarHueco(prev, espacio, largo, ancho);
-      return [
-        ...prev,
-        { id, tipo, largo, ancho, x, y, origen: "nueva" as Origen, imagen, rotacion: 0 as const, espejo: false },
-      ];
+    ponerModulo({
+      id,
+      tipo,
+      largo,
+      ancho,
+      x: 0,
+      y: 0,
+      origen: "nueva",
+      imagen,
+      rotacion: 0,
+      espejo: false,
     });
-    setSeleccionado(id);
   }
 
   /**
@@ -323,26 +355,19 @@ export function Planeador() {
     const svg = svgDe(eq.dibujo, largo, ancho, tipoMesa);
 
     const id = nuevoId();
-    setModulos((prev) => {
-      const { x, y } = buscarHueco(prev, espacio, largo, ancho);
-      return [
-        ...prev,
-        {
-          id,
-          tipo: eq.tipo,
-          largo,
-          ancho,
-          x,
-          y,
-          origen: poniendo,
-          imagen: svg ? comoDataUri(svg) : undefined,
-          dibujo: eq.dibujo,
-          rotacion: 0 as const,
-          espejo: false,
-        },
-      ];
+    ponerModulo({
+      id,
+      tipo: eq.tipo,
+      largo,
+      ancho,
+      x: 0,
+      y: 0,
+      origen: poniendo,
+      imagen: svg ? comoDataUri(svg) : undefined,
+      dibujo: eq.dibujo,
+      rotacion: 0,
+      espejo: false,
     });
-    setSeleccionado(id);
   }
 
   function actualizar(id: string, cambios: Partial<Modulo>) {
@@ -454,6 +479,8 @@ export function Planeador() {
     // Se pega solo a las orillas de las otras piezas: alinear al centímetro
     // con el dedo en un teléfono no se puede.
     const pegado = pegarAOtros(m, modulos, espacio, redondea(p.x - a.dx), redondea(p.y - a.dy));
+    // Ya lo está acomodando él: de aquí en adelante nada se mueve solo.
+    if (pegado.x !== m.x || pegado.y !== m.y) setAcomodadoAMano(true);
     actualizar(a.id, pegado);
   }
 
@@ -733,7 +760,9 @@ export function Planeador() {
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">{grupo}</p>
             <div className="flex flex-wrap gap-2">
               {EQUIPOS.filter((e) => e.grupo === grupo).map((eq) => {
-                const cuantos = modulos.filter((m) => m.tipo === eq.tipo).length;
+                // Los números que ya se le asignaron a este equipo. Antes salía
+                // cuántos había y todos marcaban "1", que no decía nada.
+                const suyos = modulos.filter((m) => m.tipo === eq.tipo).map((m) => numeros[m.id]);
                 return (
                   <button
                     key={eq.tipo}
@@ -743,12 +772,12 @@ export function Planeador() {
                     style={{ borderColor: "var(--line-strong)", color: "var(--ink-soft)" }}
                   >
                     {eq.tipo}
-                    {cuantos > 0 && (
+                    {suyos.length > 0 && (
                       <span
                         className="ml-1.5 inline-block rounded-full px-1.5 text-xs font-bold text-white"
-                        style={{ background: colorDeOrigen(poniendo) }}
+                        style={{ background: "var(--marca)" }}
                       >
-                        {cuantos}
+                        {suyos.join("·")}
                       </span>
                     )}
                   </button>
@@ -812,27 +841,42 @@ export function Planeador() {
                   boxShadow: elegido ? "0 0 0 3px rgba(247,197,48,0.35)" : "0 1px 4px rgba(0,0,0,0.35)",
                   touchAction: "none",
                 }}
-                title={`${nombres[m.id]} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
+                title={`${nombreDe(m)} — ${m.largo.toFixed(2)} x ${m.ancho.toFixed(2)} m`}
               >
                 <DibujoModulo m={m} />
+                {/* El número va GRANDE en medio: es el mismo de la lista de
+                    medidas y del layout, y se ve aunque la pieza sea chica. */}
+                <span
+                  className="pointer-events-none absolute inset-0 grid place-items-center text-[15px] font-black leading-none"
+                  style={{ color, textShadow: "0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff" }}
+                >
+                  {numeros[m.id]}
+                </span>
                 {/* El nombre va SIEMPRE encima: si no, dos bloques chicos se
                     ven iguales y no se sabe cuál es cuál. */}
                 <span
                   className="pointer-events-none absolute left-0 top-0 max-w-full truncate rounded-br px-1 py-px text-[11px] font-extrabold leading-tight tracking-tight"
                   style={{ background: color, color: "#fff" }}
                 >
-                  {abreviar(nombres[m.id])}
+                  {abreviar(m.tipo)}
                 </span>
               </div>
             );
           })}
         </div>
 
-        <p className="text-xs text-ink-mute">
-          A escala: {espacio.largo.toFixed(2)} m de largo x {espacio.ancho.toFixed(2)} m de ancho, visto desde arriba. En{" "}
-          <span style={{ color: "#c92a2a" }}>rojo</span> lo que se encima o se sale.
-        </p>
-
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="flex-1 text-xs text-ink-mute">
+            A escala: {espacio.largo.toFixed(2)} m de largo x {espacio.ancho.toFixed(2)} m de ancho, visto desde arriba.
+            En <span style={{ color: "#c92a2a" }}>rojo</span> lo que se encima o se sale.
+          </p>
+          {/* Para volver a formarlos si ya los movió y se le revolvieron. */}
+          {modulos.length > 1 && (
+            <button type="button" onClick={ordenarPorNumero} className="btn-ghost !py-2 !text-sm">
+              <Icon name="lucide:list-ordered" size={15} /> Formarlos 1, 2, 3…
+            </button>
+          )}
+        </div>
       </div>
 
       {/* 5. Ya con todo puesto, ahora sí las medidas de cada uno */}
@@ -877,7 +921,7 @@ export function Planeador() {
                   style={elegido ? { background: "color-mix(in srgb, #f7c530 14%, transparent)" } : undefined}
                 >
                   <span className="inline-block h-3 w-3 shrink-0 rounded" style={{ background: colorDeOrigen(m.origen) }} />
-                  <span className="min-w-[8.5rem] flex-1 text-sm text-ink">{nombres[m.id]}</span>
+                  <span className="min-w-[8.5rem] flex-1 text-sm text-ink">{nombreDe(m)}</span>
                   <label className="flex items-center gap-1.5 text-xs text-ink-mute">
                     Largo
                     <input
@@ -887,7 +931,7 @@ export function Planeador() {
                       value={textoMedida(m, "largo")}
                       onChange={(e) => tecleaMedida(m, "largo", e.target.value)}
                       className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
-                      aria-label={`Largo de ${nombres[m.id]}, en metros`}
+                      aria-label={`Largo de ${nombreDe(m)}, en metros`}
                     />
                   </label>
                   <label className="flex items-center gap-1.5 text-xs text-ink-mute">
@@ -899,14 +943,14 @@ export function Planeador() {
                       value={textoMedida(m, "ancho")}
                       onChange={(e) => tecleaMedida(m, "ancho", e.target.value)}
                       className="w-20 rounded-lg border border-line-strong bg-bg-2 p-2 text-sm text-ink outline-none focus:border-marca"
-                      aria-label={`Ancho útil de ${nombres[m.id]}, en metros`}
+                      aria-label={`Ancho útil de ${nombreDe(m)}, en metros`}
                     />
                   </label>
                   <button
                     type="button"
                     onClick={() => borrar(m.id)}
                     className="rounded-lg p-2 text-ink-mute hover:text-ink"
-                    aria-label={`Quitar ${nombres[m.id]}`}
+                    aria-label={`Quitar ${nombreDe(m)}`}
                   >
                     <Icon name="lucide:trash-2" size={16} />
                   </button>
@@ -959,7 +1003,7 @@ export function Planeador() {
       {activo && (
         <div className="card flex flex-col gap-4 p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-semibold text-ink">{nombres[activo.id]}</p>
+            <p className="text-sm font-semibold text-ink">{nombreDe(activo)}</p>
             <button
               type="button"
               onClick={() => borrar(activo.id)}
@@ -977,7 +1021,7 @@ export function Planeador() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={activo.imagen}
-                alt={nombres[activo.id]}
+                alt={nombreDe(activo)}
                 style={{
                   maxHeight: 180,
                   maxWidth: "100%",
@@ -1114,7 +1158,7 @@ export function Planeador() {
               style={{ background: "color-mix(in srgb, #f7c530 16%, transparent)", color: "var(--ink)" }}
             >
               Falta ponerle el largo a {sinMedir.length}{" "}
-              {sinMedir.length === 1 ? "pieza" : "piezas"}: {sinMedir.map((m) => nombres[m.id]).join(", ")}.
+              {sinMedir.length === 1 ? "pieza" : "piezas"}: {sinMedir.map(nombreDe).join(", ")}.
             </p>
           );
         })()}
@@ -1148,11 +1192,11 @@ export function Planeador() {
         <LayoutFinal
           espacio={espacio}
           modulos={modulos}
-          nombres={nombres}
+          numeros={numeros}
           clasif={clasifFinal}
           fruta={fruta}
           cabe={cabe}
-          sinMedir={modulos.filter(faltaMedirla).map((m) => nombres[m.id])}
+          sinMedir={modulos.filter(faltaMedirla).map(nombreDe)}
           onCerrar={() => setVerLayout(false)}
         />
       )}
