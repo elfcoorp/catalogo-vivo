@@ -104,6 +104,13 @@ export interface Equipo {
  * Las dos marcadas PROVISIONAL no vienen en ningún plano: son un punto de
  * partida para que el vendedor teclee la medida buena en el empaque.
  */
+/**
+ * El grupo que NO se toca al recorrer el empaque: se arma junto con la
+ * clasificadora que se le propone, porque cuántas tolvas, bancos y básculas
+ * hacen falta depende de las salidas que lleve.
+ */
+export const GRUPO_LINEA = "Lo que va con la clasificadora";
+
 export const EQUIPOS: Equipo[] = [
   // 1. RECEPCIÓN — cómo se vacía la fruta que llega: en bins, en cajas o a
   // mano. Y por dónde entra a la línea: a una tina o a una banda.
@@ -187,33 +194,26 @@ export const EQUIPOS: Equipo[] = [
     dibujo: "banda",
   },
 
-  // Transporte de CAJA, no de fruta. Las cuatro que dejó Eduardo. Los largos
-  // y el ancho de 16" (0.41 m) salen de "Layout Linea de Tomate".
-  { tipo: "Transportador motorizado", grupo: "Transporte de caja llena y vacía", largo: 20, ancho: 0.41, dibujo: "banda" },
-  // PROVISIONAL: el de gravedad no viene con medida en los planos.
-  { tipo: "Transportador de gravedad", grupo: "Transporte de caja llena y vacía", largo: 10, ancho: 0.41, dibujo: "banda" },
-  {
-    tipo: "Transportador de banda de PVC",
-    grupo: "Transporte de caja llena y vacía",
-    largo: 17,
-    ancho: 0.41,
-    dibujo: "banda",
-  },
-  {
-    tipo: "Transportador de caja vacía",
-    grupo: "Transporte de caja llena y vacía",
-    largo: 30,
-    ancho: 0.41,
-    dibujo: "banda",
-  },
-
-  // Empaque y cajas — nada más estas tres, dicho por Eduardo.
-  // La tolva es la que recibe la fruta ya clasificada y le va cayendo a los
-  // empacadores; salió de "Recepción" cuando ese grupo se dejó en tres.
-  { tipo: "Tolvas", grupo: "Empaque y cajas", largo: 6, dibujo: "tolva" },
+  // 5. LO QUE VA CON LA CLASIFICADORA. Esto NO se toca al recorrer el
+  // empaque: se arma junto con la línea que se le propone, porque cuántas
+  // tolvas, bancos y básculas se necesitan depende de las salidas.
+  //
+  // Cada uno puede ir en verde: al meter una clasificadora se quita la banda
+  // que el cliente tenía, pero sus bancos y sus descansadores de caja llena
+  // se reaprovechan. Por eso lleva "ya los tiene / se los cotizamos".
+  { tipo: "Tolvas", grupo: GRUPO_LINEA, largo: 6, dibujo: "tolva" },
   // Medida de su cotización de tomate grape: "BANCO PARA LLENADO DE CAJA
   // 0.30 M DE ANCHO X 0.45 M DE LONGITUD".
-  { tipo: "Bancos", grupo: "Empaque y cajas", largo: 0.45, ancho: 0.3, dibujo: "ninguno" },
+  { tipo: "Bancos", grupo: GRUPO_LINEA, largo: 0.45, ancho: 0.3, dibujo: "ninguno" },
+  // PROVISIONAL: la báscula no viene con medida en los planos.
+  { tipo: "Básculas", grupo: GRUPO_LINEA, largo: 0.6, ancho: 0.6, dibujo: "ninguno" },
+  // Transporte de CAJA, no de fruta. Los largos y el ancho de 16" (0.41 m)
+  // salen de "Layout Linea de Tomate".
+  { tipo: "Transportador motorizado", grupo: GRUPO_LINEA, largo: 20, ancho: 0.41, dibujo: "banda" },
+  // PROVISIONAL: el de gravedad no viene con medida en los planos.
+  { tipo: "Transportador de gravedad", grupo: GRUPO_LINEA, largo: 10, ancho: 0.41, dibujo: "banda" },
+  { tipo: "Transportador de banda de PVC", grupo: GRUPO_LINEA, largo: 17, ancho: 0.41, dibujo: "banda" },
+  { tipo: "Transportador de caja vacía", grupo: GRUPO_LINEA, largo: 30, ancho: 0.41, dibujo: "banda" },
 
   // Accesorios — Eduardo lo dejó en la caseta y nada más. Se quitaron la
   // bodega y el "Otro". La medida sale del plano "LINEA DE 6X12+1".
@@ -222,6 +222,9 @@ export const EQUIPOS: Equipo[] = [
 
 /** Los grupos en el orden en que van, sin repetir. */
 export const GRUPOS_EQUIPO: string[] = [...new Set(EQUIPOS.map((e) => e.grupo))];
+
+/** Los que se van tocando al recorrer el empaque (todo menos la línea nueva). */
+export const GRUPOS_DEL_RECORRIDO: string[] = GRUPOS_EQUIPO.filter((g) => g !== GRUPO_LINEA);
 
 /**
  * El número de orden de cada pieza: 1, 2, 3, 4… corrido, en el orden en que

@@ -29,7 +29,8 @@ import {
 import {
   EQUIPOS,
   FRUTAS_LINEA,
-  GRUPOS_EQUIPO,
+  GRUPOS_DEL_RECORRIDO,
+  GRUPO_LINEA,
   ORIGENES,
   areaOcupada,
   buscarHueco,
@@ -252,6 +253,9 @@ export function Planeador() {
   const [fruta, setFruta] = useState("");
   // Al empezar el vendedor va marcando lo que YA HAY parado en el empaque.
   const [poniendo, setPoniendo] = useState<Origen>("cliente");
+  // Lo que va con la clasificadora arranca como cotizado, pero sus bancos y
+  // descansadores se pueden reaprovechar: por eso lleva su propio botón.
+  const [poniendoLinea, setPoniendoLinea] = useState<Origen>("nueva");
   // La hoja limpia que se le enseña al cliente, aparte de esta pantalla.
   const [verLayout, setVerLayout] = useState(false);
   // En cuanto mueve una pieza con el dedo, se deja de reacomodar solo.
@@ -315,6 +319,72 @@ export function Planeador() {
     setSeleccionado(nuevo.id);
   }
 
+  /**
+   * Los botones de equipo, agrupados. Se usa dos veces: en el paso 3 con lo
+   * que se va viendo al recorrer el empaque, y en el paso 4 con lo que va
+   * junto a la clasificadora que se le propone.
+   */
+  function paleta(grupos: string[], origen: Origen) {
+    return grupos.map((grupo) => (
+      <div key={grupo} className="flex flex-col gap-2">
+        <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">{grupo}</p>
+        <div className="flex flex-wrap gap-2">
+          {EQUIPOS.filter((e) => e.grupo === grupo).map((eq) => {
+            // Los números que ya se le asignaron a este equipo. Antes salía
+            // cuántos había y todos marcaban "1", que no decía nada.
+            const suyos = modulos.filter((m) => m.tipo === eq.tipo && m.etapa === eq.grupo).map((m) => numeros[m.id]);
+            return (
+              <button
+                key={`${eq.grupo}-${eq.tipo}`}
+                type="button"
+                onClick={() => agregarEquipo(eq, origen)}
+                className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
+                style={{ borderColor: "var(--line-strong)", color: "var(--ink-soft)" }}
+              >
+                {eq.tipo}
+                {suyos.length > 0 && (
+                  <span
+                    className="ml-1.5 inline-block rounded-full px-1.5 text-xs font-bold text-white"
+                    style={{ background: "var(--marca)" }}
+                  >
+                    {suyos.join("·")}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    ));
+  }
+
+  /** Los dos botones de "ya lo tiene" / "se lo ponemos". */
+  function botonesOrigen(valor: Origen, cambiar: (o: Origen) => void) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {(["cliente", "nueva"] as Origen[]).map((o) => {
+          const info = ORIGENES.find((x) => x.valor === o)!;
+          const puesto = valor === o;
+          return (
+            <button
+              key={o}
+              type="button"
+              onClick={() => cambiar(o)}
+              className="flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition"
+              style={
+                puesto
+                  ? { background: info.color, color: "#fff", borderColor: info.color }
+                  : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+              }
+            >
+              {o === "cliente" ? "Ya los tiene" : "Se los cotizamos"}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
   /** Vuelve a formarlos 1, 2, 3… en medio del empaque. */
   function ordenarPorNumero() {
     setModulos((prev) => acomodarEnOrden(prev, espacio));
@@ -358,7 +428,7 @@ export function Planeador() {
    * marcando lo que hay, sin detenerse a medir cada cosa.
    * Se puede tocar el mismo botón varias veces: cada toque es otra máquina.
    */
-  function agregarEquipo(eq: Equipo) {
+  function agregarEquipo(eq: Equipo, origen: Origen) {
     const largo = eq.largo;
     const ancho = eq.ancho ?? anchoLinea;
     const svg = svgDe(eq.dibujo, largo, ancho, eq.variante);
@@ -371,7 +441,7 @@ export function Planeador() {
       ancho,
       x: 0,
       y: 0,
-      origen: poniendo,
+      origen,
       imagen: svg ? comoDataUri(svg) : undefined,
       dibujo: eq.dibujo,
       variante: eq.variante,
@@ -590,37 +660,7 @@ export function Planeador() {
           })}
         </div>
 
-        {GRUPOS_EQUIPO.map((grupo) => (
-          <div key={grupo} className="flex flex-col gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">{grupo}</p>
-            <div className="flex flex-wrap gap-2">
-              {EQUIPOS.filter((e) => e.grupo === grupo).map((eq) => {
-                // Los números que ya se le asignaron a este equipo. Antes salía
-                // cuántos había y todos marcaban "1", que no decía nada.
-                const suyos = modulos.filter((m) => m.tipo === eq.tipo && m.etapa === eq.grupo).map((m) => numeros[m.id]);
-                return (
-                  <button
-                    key={`${eq.grupo}-${eq.tipo}`}
-                    type="button"
-                    onClick={() => agregarEquipo(eq)}
-                    className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
-                    style={{ borderColor: "var(--line-strong)", color: "var(--ink-soft)" }}
-                  >
-                    {eq.tipo}
-                    {suyos.length > 0 && (
-                      <span
-                        className="ml-1.5 inline-block rounded-full px-1.5 text-xs font-bold text-white"
-                        style={{ background: "var(--marca)" }}
-                      >
-                        {suyos.join("·")}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+        {paleta(GRUPOS_DEL_RECORRIDO, poniendo)}
       </div>
 
       {/* El dibujo: aquí van cayendo y aquí se acomodan */}
@@ -725,38 +765,44 @@ export function Planeador() {
           </p>
         </div>
 
-        {/* Copita: de un toque, sin teclear medidas */}
-        <div className="flex flex-col gap-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">Copita</p>
-          <div className="flex flex-wrap gap-2">
-            {COPITAS.map((c) => {
-              const elegida = clasif.tipoCopita === c.tipo && clasif.medidaCopita === c.medida;
-              return (
-                <button
-                  key={c.etiqueta}
-                  type="button"
-                  onClick={() =>
-                    setClasif((s) => ({
-                      ...s,
-                      tipoCopita: c.tipo,
-                      medidaCopita: c.medida,
-                      // Se ajusta el paso al primero válido de esa copita.
-                      pasoSalidas: c.salidas.includes(s.pasoSalidas) ? s.pasoSalidas : c.salidas[0],
-                    }))
-                  }
-                  className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
-                  style={
-                    elegida
-                      ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
-                      : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
-                  }
-                >
-                  {c.etiqueta}
-                </button>
-              );
-            })}
+        {/* Copita: de un toque, sin teclear medidas. Clip y charola van en
+            bloques APARTE — revueltos en una sola tira no se distinguían. */}
+        {(["clip", "charola"] as const).map((familia) => (
+          <div key={familia} className="flex flex-col gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-mute">
+              {familia === "clip" ? "Clip" : "Charola"}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {COPITAS.filter((c) => c.tipo === familia).map((c) => {
+                const elegida = clasif.tipoCopita === c.tipo && clasif.medidaCopita === c.medida;
+                return (
+                  <button
+                    key={c.etiqueta}
+                    type="button"
+                    onClick={() =>
+                      setClasif((s) => ({
+                        ...s,
+                        tipoCopita: c.tipo,
+                        medidaCopita: c.medida,
+                        // Se ajusta el paso al primero válido de esa copita.
+                        pasoSalidas: c.salidas.includes(s.pasoSalidas) ? s.pasoSalidas : c.salidas[0],
+                      }))
+                    }
+                    className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
+                    style={
+                      elegida
+                        ? { background: "var(--marca)", color: "#fff", borderColor: "var(--marca)" }
+                        : { borderColor: "var(--line-strong)", color: "var(--ink-soft)" }
+                    }
+                  >
+                    {/* La familia ya va en el título, aquí basta la medida. */}
+                    {c.medida}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        ))}
 
         {/* Líneas */}
         <div className="flex flex-col gap-2">
@@ -887,9 +933,24 @@ export function Planeador() {
             style={{ background: "color-mix(in srgb, #2f9e44 16%, transparent)", color: "var(--ink)" }}
           >
             <Icon name="lucide:check" size={15} /> Ya quedó en el empaque como la{" "}
-            <b>{clasificadorasPuestas.map((n) => `#${n}`).join(" y la ")}</b>. Abajo la ves en el dibujo.
+            <b>{clasificadorasPuestas.map((n) => `#${n}`).join(" y la ")}</b>. Arriba la ves en el dibujo.
           </p>
         )}
+
+        {/* Lo que va junto con la clasificadora. Cuántas tolvas, bancos y
+            básculas hacen falta depende de las salidas, por eso se arma aquí
+            y no allá arriba con lo que se ve al recorrer el empaque. */}
+        <div className="mt-2 flex flex-col gap-3 border-t border-line pt-4">
+          <div>
+            <p className="text-sm font-semibold text-ink">Lo que va con la clasificadora</p>
+            <p className="mt-1 text-xs text-ink-mute">
+              Al meter una clasificadora se quita la banda que tenía, pero sus <b>bancos</b> y sus{" "}
+              <b>descansadores de caja llena</b> se reaprovechan. Marca cuáles ya tiene para que no se le coticen.
+            </p>
+          </div>
+          {botonesOrigen(poniendoLinea, setPoniendoLinea)}
+          {paleta([GRUPO_LINEA], poniendoLinea)}
+        </div>
       </div>
 
       {/* 5. Ya con todo puesto, ahora sí las medidas de cada uno */}
