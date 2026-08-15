@@ -65,7 +65,15 @@ export interface Espacio {
 }
 
 /** Qué dibujo le toca a cada equipo de la línea. */
-export type Dibujo = "cepilladora" | "mesa" | "tolva" | "banda" | "caseta" | "descanicador" | "ninguno";
+export type Dibujo =
+  | "cepilladora"
+  | "mesa"
+  | "tolva"
+  | "banda"
+  | "caseta"
+  | "descanicador"
+  | "vaciado"
+  | "ninguno";
 
 export interface Equipo {
   tipo: string;
@@ -102,10 +110,9 @@ export const EQUIPOS: Equipo[] = [
   { tipo: "Volteadora de bins", grupo: "Recepción", largo: 8, ancho: 3.7, dibujo: "ninguno" },
   // PROVISIONAL: no vienen con medida en los planos.
   { tipo: "Volteadora de cajas", grupo: "Recepción", largo: 2, dibujo: "ninguno" },
-  { tipo: "Vaciado manual", grupo: "Recepción", largo: 3, dibujo: "ninguno" },
-  // El banquito donde se descansa la caja al vaciarla a mano. Medida de su
-  // cotización de tomate grape: 0.30 m de ancho x 0.45 m de longitud.
-  { tipo: "Banco para vaciar la caja", grupo: "Recepción", largo: 0.45, ancho: 0.3, dibujo: "ninguno" },
+  // No es máquina: es gente vaciando cajas. Por eso lleva monitos de dibujo,
+  // para que en el layout se entienda de un golpe.
+  { tipo: "Vaciado manual", grupo: "Recepción", largo: 3, dibujo: "vaciado" },
   { tipo: "Tina de lavado", grupo: "Recepción", largo: 4, dibujo: "banda" },
   { tipo: "Banda de PVC", grupo: "Recepción", largo: 3, ancho: 1.8, dibujo: "banda" },
 
@@ -135,11 +142,9 @@ export const EQUIPOS: Equipo[] = [
     dibujo: "mesa",
     variante: "banda-inferior-chutes",
   },
-  // Nombre completo porque así tiene que salir en la lista del layout del
-  // cliente: "Descanicador de tubos — 2.00 m de largo x 1.20 m de ancho útil".
-  // El largo de 2 m lo dictó Eduardo.
-  { tipo: "Descanicador de tubos", grupo: "Rezaga o desecho", largo: 2, dibujo: "descanicador", variante: "fijo" },
-  { tipo: "Descanicador en malla", grupo: "Rezaga o desecho", largo: 2, dibujo: "descanicador", variante: "malla" },
+  // Uno solo, sin apellido: de él lo único que importa es el ancho y el
+  // largo. El largo de 2 m lo dictó Eduardo.
+  { tipo: "Descanicador", grupo: "Rezaga o desecho", largo: 2, dibujo: "descanicador" },
 
   // 3. LAVADO — nada más las tres cepilladoras. Si el empaque no cepilla, no
   // se toca nada de aquí.
@@ -206,20 +211,9 @@ export const EQUIPOS: Equipo[] = [
   // La tolva es la que recibe la fruta ya clasificada y le va cayendo a los
   // empacadores; salió de "Recepción" cuando ese grupo se dejó en tres.
   { tipo: "Tolvas", grupo: "Empaque y cajas", largo: 6, dibujo: "tolva" },
-  // PROVISIONAL: la báscula no viene con medida en los planos.
-  { tipo: "Básculas", grupo: "Empaque y cajas", largo: 0.6, ancho: 0.6, dibujo: "ninguno" },
   // Medida de su cotización de tomate grape: "BANCO PARA LLENADO DE CAJA
   // 0.30 M DE ANCHO X 0.45 M DE LONGITUD".
   { tipo: "Bancos", grupo: "Empaque y cajas", largo: 0.45, ancho: 0.3, dibujo: "ninguno" },
-
-  // Los que fueron saliendo de otros grupos al irlos acotando. No se borraron
-  // porque todos vienen en sus planos — falta que él diga en qué parte van.
-  { tipo: "Singulador", grupo: "Otros equipos", largo: 3.05, dibujo: "banda" },
-  { tipo: "Mesa de rodillos", grupo: "Otros equipos", largo: 3, dibujo: "mesa" },
-  { tipo: "Mesa descarnadora", grupo: "Otros equipos", largo: 3, dibujo: "mesa" },
-  // Éstas dos llevan FRUTA, no caja: por eso salieron de "Transporte".
-  { tipo: "Banda de PVC para fruta", grupo: "Otros equipos", largo: 3, ancho: 1.8, dibujo: "banda" },
-  { tipo: "Banda sanitaria", grupo: "Otros equipos", largo: 7, ancho: 0.77, dibujo: "banda" },
 
   // Accesorios — Eduardo lo dejó en la caseta y nada más. Se quitaron la
   // bodega y el "Otro". La medida sale del plano "LINEA DE 6X12+1".

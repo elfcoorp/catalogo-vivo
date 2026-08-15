@@ -238,8 +238,10 @@ export const ANCHOS_EN_LINEA = [0.6, 0.9, 1.2, 1.8];
  */
 export type TipoMesa = "guia-central" | "banda-superior" | "banda-inferior-chutes";
 
-/** Los tres descanicadores. El de malla no lleva rodillos, lleva malla. */
-export type TipoDescanicador = "fijo" | "ajustable" | "malla";
+/**
+ * El descanicador va sin apellido: Eduardo lo dejó en uno solo. De él lo
+ * único que importa en el levantamiento es el ancho y el largo.
+ */
 
 const TRAZO = "#1f6f5c";
 const FINO = "#7cc0ad";
@@ -313,31 +315,51 @@ export function svgMesaSeleccion(largo: number, ancho: number, tipo: TipoMesa): 
  * El fijo trae los rodillos a una separación de fábrica; el ajustable trae el
  * mecanismo para abrirlos o cerrarlos; el de malla no lleva rodillos.
  */
-export function svgDescanicador(largo: number, ancho: number, tipo: TipoDescanicador): string {
+export function svgDescanicador(largo: number, ancho: number): string {
   const W = Math.round(largo * 100);
   const H = Math.round(ancho * 100);
   const partes: string[] = [];
-
-  if (tipo === "malla") {
-    // Cuadrícula: es malla, no rodillos.
-    for (let x = 16; x < W - 12; x += 20) {
-      partes.push(`<line x1="${x}" y1="12" x2="${x}" y2="${H - 12}" stroke="${FINO}" stroke-width="1.5"/>`);
-    }
-    for (let y = 16; y < H - 12; y += 20) {
-      partes.push(`<line x1="12" y1="${y}" x2="${W - 12}" y2="${y}" stroke="${FINO}" stroke-width="1.5"/>`);
-    }
-    return envoltura(W, H, partes.join(""));
-  }
-
   // Los rodillos, cruzados a lo ancho
   for (let x = 16; x < W - 12; x += 18) {
     partes.push(`<line x1="${x}" y1="12" x2="${x}" y2="${H - 12}" stroke="${FINO}" stroke-width="5"/>`);
   }
-  if (tipo === "ajustable") {
-    // La barra de ajuste a un costado, con sus flechas de apriete.
-    partes.push(`<line x1="14" y1="${H * 0.5}" x2="${W - 14}" y2="${H * 0.5}" stroke="${TRAZO}" stroke-width="4" stroke-dasharray="12 7"/>`);
+  return envoltura(W, H, partes.join(""));
+}
+
+/**
+ * Vaciado manual: no es máquina, es gente vaciando cajas. Se dibujan los
+ * monitos vistos desde arriba (cabeza y hombros) con su caja al lado, para
+ * que en el layout se entienda de un golpe que ahí se vacía a mano.
+ */
+export function svgVaciado(largo: number, ancho: number): string {
+  const W = Math.round(largo * 100);
+  const H = Math.round(ancho * 100);
+  const partes: string[] = [];
+
+  // Cuántos monitos caben, uno cada metro y medio más o menos
+  const cuantos = Math.max(1, Math.round(W / 150));
+  const paso = W / cuantos;
+  // TODO va medido contra el alto del recuadro: si se mide contra el radio,
+  // en una pieza angosta la caja se sale por abajo y se ve cortada.
+  const r = Math.min(H * 0.12, paso * 0.11);
+  const yCabeza = H * 0.26;
+  const yHombros = H * 0.4;
+  const yCaja = H * 0.58;
+  const altoCaja = H * 0.3;
+  const anchoCaja = Math.min(paso * 0.5, H * 0.42);
+
+  for (let i = 0; i < cuantos; i++) {
+    const cx = paso * (i + 0.5);
+    // Hombros y cabeza, vistos desde arriba
+    partes.push(`<ellipse cx="${cx}" cy="${yHombros}" rx="${r * 1.9}" ry="${r * 0.9}" fill="${FINO}"/>`);
+    partes.push(`<circle cx="${cx}" cy="${yCabeza}" r="${r}" fill="${TRAZO}"/>`);
+    // Los brazos, hacia la caja
     partes.push(
-      `<path d="M ${W * 0.5 - 26} ${H * 0.5 - 16} L ${W * 0.5 - 10} ${H * 0.5} L ${W * 0.5 - 26} ${H * 0.5 + 16} M ${W * 0.5 + 26} ${H * 0.5 - 16} L ${W * 0.5 + 10} ${H * 0.5} L ${W * 0.5 + 26} ${H * 0.5 + 16}" fill="none" stroke="${TRAZO}" stroke-width="4"/>`
+      `<path d="M ${cx - r * 1.7} ${yHombros + r * 0.5} L ${cx - anchoCaja * 0.42} ${yCaja} M ${cx + r * 1.7} ${yHombros + r * 0.5} L ${cx + anchoCaja * 0.42} ${yCaja}" stroke="${TRAZO}" stroke-width="${Math.max(2, r * 0.4)}" fill="none"/>`
+    );
+    // La caja que está vaciando
+    partes.push(
+      `<rect x="${cx - anchoCaja / 2}" y="${yCaja}" width="${anchoCaja}" height="${altoCaja}" fill="none" stroke="${TRAZO}" stroke-width="3"/>`
     );
   }
   return envoltura(W, H, partes.join(""));

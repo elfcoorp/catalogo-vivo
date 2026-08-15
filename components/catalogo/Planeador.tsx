@@ -19,11 +19,11 @@ import {
   svgCepilladora,
   svgClasificadora,
   svgDescanicador,
+  svgVaciado,
   svgMesaSeleccion,
   svgTolva,
   type ClasificadoraParams,
   type Lado,
-  type TipoDescanicador,
   type TipoMesa,
 } from "@/lib/dibujos";
 import {
@@ -79,21 +79,14 @@ function abreviar(tipo: string): string {
     if (t.startsWith("tolva")) return "TOLVA";
     if (t.startsWith("tina")) return "TINA";
     if (t.startsWith("banda de pvc")) return "PVC";
-    if (t.startsWith("banda sanitaria")) return "SANIT";
-    if (t.startsWith("descanicador de tubos")) return "DESC TUBOS";
-    if (t.startsWith("descanicador ajustable")) return "DESC AJUS";
-    if (t.startsWith("descanicador en malla")) return "DESC MALLA";
     if (t.startsWith("descanicador")) return "DESCAN";
-    if (t.startsWith("mesa de rodillos")) return "RODILL";
-    if (t.startsWith("mesa descarnadora")) return "DESCARN";
-    if (t.startsWith("singulador")) return "SINGUL";
     if (t.startsWith("transportador motorizado")) return "T. MOTOR";
     if (t.startsWith("transportador de gravedad")) return "T. GRAV";
     if (t.startsWith("transportador de banda")) return "T. PVC";
     if (t.startsWith("transportador de caja vacía")) return "CJ VACÍA";
     if (t.startsWith("volteadora de bins")) return "V. BINS";
     if (t.startsWith("volteadora de taras")) return "V. TARAS";
-    if (t.startsWith("báscula")) return "BÁSCULA";
+    if (t.startsWith("vaciado")) return "VACIADO";
     if (t.startsWith("banco")) return "BANCO";
     if (t.startsWith("caseta")) return "CASETA";
     return tipo.slice(0, 7).toUpperCase();
@@ -112,7 +105,9 @@ function svgDe(dibujo: Dibujo | undefined, largo: number, ancho: number, variant
     case "mesa":
       return svgMesaSeleccion(largo, ancho, (variante as TipoMesa) ?? "guia-central");
     case "descanicador":
-      return svgDescanicador(largo, ancho, (variante as TipoDescanicador) ?? "fijo");
+      return svgDescanicador(largo, ancho);
+    case "vaciado":
+      return svgVaciado(largo, ancho);
     case "tolva":
       return svgTolva(largo, ancho);
     case "banda":
