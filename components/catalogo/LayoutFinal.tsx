@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
 import { enPulgadas, medidaClasificadora, type ClasificadoraParams } from "@/lib/dibujos";
-import { ORIGENES, colorDeOrigen, type Espacio, type Modulo } from "@/lib/planeador";
+import { ORIGENES, colorDeOrigen, type Espacio, type Modulo, type Origen } from "@/lib/planeador";
 
 /**
  * El layout final que ve el CLIENTE. Es otra cosa que la pantalla del
@@ -16,6 +16,17 @@ import { ORIGENES, colorDeOrigen, type Espacio, type Modulo } from "@/lib/planea
  * lienzo que se arrastra: así las cotas, las flechas y el texto salen
  * parejos en pantalla y en el PDF, sin importar el tamaño de la hoja.
  */
+
+/**
+ * Cómo se encabeza cada lista en la hoja del cliente. En la pantalla del
+ * vendedor se dice corto ("Ya lo tiene el cliente"); aquí se dice completo,
+ * porque es lo que decide qué se le va a cobrar y qué no.
+ */
+const TITULOS_LISTA: Record<Origen, string> = {
+  cliente: "Equipo que ya tiene el cliente",
+  usada: "Equipo usado de ELFCO",
+  nueva: "Equipo nuevo a fabricar",
+};
 
 /** Punta de flecha de las cotas, del tamaño que le toque al plano. */
 function Flechas({ u }: { u: number }) {
@@ -381,37 +392,43 @@ export function LayoutFinal({
           </div>
         )}
 
-        {/* La lista numerada, igual que en sus planos */}
-        <div className="grid grid-cols-1 gap-x-8 gap-y-1 text-[13px] leading-snug text-black sm:grid-cols-2">
-          {modulos.map((m) => (
-            <div key={m.id} className="flex gap-2 border-b border-black/10 py-1">
-              <span className="w-5 shrink-0 text-right font-bold">{numeros[m.id]}.</span>
-              <span
-                className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
-                style={{ background: colorDeOrigen(m.origen) }}
-                aria-hidden
-              />
-              <span className="flex-1">
-                {m.tipo}
-                <span className="text-black/60">
-                  {" "}
-                  — {m.largo.toFixed(2)} m de largo × {m.ancho.toFixed(2)} m de ancho útil
+        {/* La lista numerada, SEPARADA por de quién es cada cosa: el cliente
+            tiene que ver de un golpe qué es suyo y qué le pone ELFCO, cada
+            uno con su medida. Los números son los mismos del plano. */}
+        {usados.map((o) => {
+          const suyos = modulos.filter((m) => m.origen === o.valor);
+          return (
+            <div key={o.valor} className="mb-4 break-inside-avoid">
+              <p className="mb-1 flex items-center gap-2 border-b-2 border-black/70 pb-1 text-[11px] font-bold uppercase tracking-wider text-black">
+                <span className="inline-block h-3 w-3 rounded-sm" style={{ background: o.color }} />
+                {TITULOS_LISTA[o.valor]}
+                <span className="font-normal text-black/50">
+                  ({suyos.length} {suyos.length === 1 ? "equipo" : "equipos"})
                 </span>
-              </span>
+              </p>
+              <div className="grid grid-cols-1 gap-x-8 text-[13px] leading-snug text-black sm:grid-cols-2">
+                {suyos.map((m) => (
+                  <div key={m.id} className="flex gap-2 border-b border-black/10 py-1">
+                    <span className="w-5 shrink-0 text-right font-bold">{numeros[m.id]}.</span>
+                    <span className="flex-1">
+                      {m.tipo}
+                      {/* La etapa distingue la misma mesa usada en rezaga de
+                          la que está en clasificación de segunda calidad. */}
+                      {m.etapa && <span className="text-black/45"> · {m.etapa.toLowerCase()}</span>}
+                      <span className="text-black/60">
+                        {" "}
+                        — {m.largo.toFixed(2)} m de largo × {m.ancho.toFixed(2)} m de ancho útil
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
 
-        {/* Qué quiere decir cada color */}
-        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-black/20 pt-3 text-xs text-black/70">
-          {usados.map((o) => (
-            <span key={o.valor} className="inline-flex items-center gap-1.5">
-              <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: o.color }} /> {o.etiqueta}
-            </span>
-          ))}
-          <span className="ml-auto">
-            {CONFIG.marca.negocio} · {CONFIG.marca.ciudad} · WhatsApp {CONFIG.marca.whatsappPrincipal}
-          </span>
+        <div className="mt-4 border-t border-black/20 pt-3 text-right text-xs text-black/70">
+          {CONFIG.marca.negocio} · {CONFIG.marca.ciudad} · WhatsApp {CONFIG.marca.whatsappPrincipal}
         </div>
       </div>
     </div>,

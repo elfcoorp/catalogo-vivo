@@ -47,6 +47,12 @@ export interface Modulo {
   dibujo?: Dibujo;
   /** Cuál variante de esa figura (guía de la mesa, tipo de descanicador). */
   variante?: string;
+  /**
+   * En qué etapa del proceso lo puso el vendedor: recepción, rezaga, lavado,
+   * clasificación de segunda. La misma mesa de selección manual se usa en
+   * varias etapas, y en el layout del cliente hay que poder distinguirlas.
+   */
+  etapa?: string;
   /** Giro del dibujo en grados. */
   rotacion: 0 | 90 | 180 | 270;
   /** Voltea el dibujo como espejo: las salidas cambian de lado. */
@@ -91,36 +97,90 @@ export interface Equipo {
  * partida para que el vendedor teclee la medida buena en el empaque.
  */
 export const EQUIPOS: Equipo[] = [
-  // Recepción — Eduardo la dejó en estas tres y nada más. La banda de
-  // cangilones y el elevador de rodillos los quitó: "ni van".
+  // 1. RECEPCIÓN — cómo se vacía la fruta que llega: en bins, en cajas o a
+  // mano. Y por dónde entra a la línea: a una tina o a una banda.
   { tipo: "Volteadora de bins", grupo: "Recepción", largo: 8, ancho: 3.7, dibujo: "ninguno" },
-  // PROVISIONAL: no viene en los planos.
-  { tipo: "Volteadora de taras", grupo: "Recepción", largo: 2, dibujo: "ninguno" },
+  // PROVISIONAL: no vienen con medida en los planos.
+  { tipo: "Volteadora de cajas", grupo: "Recepción", largo: 2, dibujo: "ninguno" },
+  { tipo: "Vaciado manual", grupo: "Recepción", largo: 3, dibujo: "ninguno" },
+  // El banquito donde se descansa la caja al vaciarla a mano. Medida de su
+  // cotización de tomate grape: 0.30 m de ancho x 0.45 m de longitud.
+  { tipo: "Banco para vaciar la caja", grupo: "Recepción", largo: 0.45, ancho: 0.3, dibujo: "ninguno" },
   { tipo: "Tina de lavado", grupo: "Recepción", largo: 4, dibujo: "banda" },
+  { tipo: "Banda de PVC", grupo: "Recepción", largo: 3, ancho: 1.8, dibujo: "banda" },
 
-  // Selección — va ANTES de limpieza, y no al revés. Razón de Eduardo: el
-  // descanicador saca la fruta muy chiquita, y no tiene caso lavarla, secarla
-  // ni encerarla si de todos modos no tiene costo. El descanicador unos lo
-  // ponen antes de la selección manual y otros después.
-  // Cada tipo es su propio botón: así se escoge el que se está viendo, en vez
-  // de tocar la mesa y luego tener que llenar otro campo aparte.
-  { tipo: "Selección manual con guía central", grupo: "Selección", largo: 3.4, dibujo: "mesa", variante: "guia-central" },
-  { tipo: "Selección manual con banda superior", grupo: "Selección", largo: 3.4, dibujo: "mesa", variante: "banda-superior" },
+  // 2. REZAGA O DESECHO — va ANTES del lavado, y no al revés. Razón de
+  // Eduardo: el descanicador saca la fruta muy chiquita, y no tiene caso
+  // lavarla, secarla ni encerarla si de todos modos no tiene costo.
+  // Cada tipo de mesa es su propio botón: así se escoge la que se está
+  // viendo, en vez de tocarla y luego tener que llenar otro campo aparte.
   {
-    tipo: "Selección manual con banda inferior y chutes",
-    grupo: "Selección",
+    tipo: "Selección manual con guía central",
+    grupo: "Rezaga o desecho",
+    largo: 3.4,
+    dibujo: "mesa",
+    variante: "guia-central",
+  },
+  {
+    tipo: "Selección manual con banda superior",
+    grupo: "Rezaga o desecho",
+    largo: 3.4,
+    dibujo: "mesa",
+    variante: "banda-superior",
+  },
+  {
+    tipo: "Selección manual con chutes",
+    grupo: "Rezaga o desecho",
     largo: 3.4,
     dibujo: "mesa",
     variante: "banda-inferior-chutes",
   },
-  { tipo: "Descanicador fijo", grupo: "Selección", largo: 1.5, dibujo: "descanicador", variante: "fijo" },
-  { tipo: "Descanicador ajustable", grupo: "Selección", largo: 1.5, dibujo: "descanicador", variante: "ajustable" },
-  { tipo: "Descanicador en malla", grupo: "Selección", largo: 1.5, dibujo: "descanicador", variante: "malla" },
+  // Nombre completo porque así tiene que salir en la lista del layout del
+  // cliente: "Descanicador de tubos — 2.00 m de largo x 1.20 m de ancho útil".
+  // El largo de 2 m lo dictó Eduardo.
+  { tipo: "Descanicador de tubos", grupo: "Rezaga o desecho", largo: 2, dibujo: "descanicador", variante: "fijo" },
+  { tipo: "Descanicador en malla", grupo: "Rezaga o desecho", largo: 2, dibujo: "descanicador", variante: "malla" },
 
-  // Limpieza — nada más las tres cepilladoras.
-  { tipo: "Cepilladora lavadora", grupo: "Limpieza", largo: 2.27, dibujo: "cepilladora" },
-  { tipo: "Cepilladora secadora", grupo: "Limpieza", largo: 2.27, dibujo: "cepilladora" },
-  { tipo: "Cepilladora enceradora", grupo: "Limpieza", largo: 2.27, dibujo: "cepilladora" },
+  // 3. LAVADO — nada más las tres cepilladoras. Si el empaque no cepilla, no
+  // se toca nada de aquí.
+  { tipo: "Cepilladora lavadora", grupo: "Lavado", largo: 2.27, dibujo: "cepilladora" },
+  { tipo: "Cepilladora secadora", grupo: "Lavado", largo: 2.27, dibujo: "cepilladora" },
+  { tipo: "Cepilladora enceradora", grupo: "Lavado", largo: 2.27, dibujo: "cepilladora" },
+
+  // 4. CLASIFICACIÓN DE SEGUNDA CALIDAD — las mismas tres mesas otra vez,
+  // porque la segunda calidad se vuelve a revisar a mano. Van repetidas a
+  // propósito: cada pieza guarda su etapa, así el layout las distingue.
+  {
+    tipo: "Selección manual con guía central",
+    grupo: "Clasificación de segunda calidad",
+    largo: 3.4,
+    dibujo: "mesa",
+    variante: "guia-central",
+  },
+  {
+    tipo: "Selección manual con banda superior",
+    grupo: "Clasificación de segunda calidad",
+    largo: 3.4,
+    dibujo: "mesa",
+    variante: "banda-superior",
+  },
+  {
+    tipo: "Selección manual con chutes",
+    grupo: "Clasificación de segunda calidad",
+    largo: 3.4,
+    dibujo: "mesa",
+    variante: "banda-inferior-chutes",
+  },
+  // La segunda calidad o se va a un bin (cuando se vende a proceso) o se
+  // vuelve a clasificar en una bandita. Por eso de ésta hay que medir el
+  // ancho Y el largo: PROVISIONAL, no viene en los planos.
+  {
+    tipo: "Banda de segunda calidad",
+    grupo: "Clasificación de segunda calidad",
+    largo: 3,
+    ancho: 0.6,
+    dibujo: "banda",
+  },
 
   // Transporte de CAJA, no de fruta. Las cuatro que dejó Eduardo. Los largos
   // y el ancho de 16" (0.41 m) salen de "Layout Linea de Tomate".

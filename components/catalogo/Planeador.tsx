@@ -80,7 +80,7 @@ function abreviar(tipo: string): string {
     if (t.startsWith("tina")) return "TINA";
     if (t.startsWith("banda de pvc")) return "PVC";
     if (t.startsWith("banda sanitaria")) return "SANIT";
-    if (t.startsWith("descanicador fijo")) return "DESC FIJO";
+    if (t.startsWith("descanicador de tubos")) return "DESC TUBOS";
     if (t.startsWith("descanicador ajustable")) return "DESC AJUS";
     if (t.startsWith("descanicador en malla")) return "DESC MALLA";
     if (t.startsWith("descanicador")) return "DESCAN";
@@ -379,6 +379,8 @@ export function Planeador() {
       origen: poniendo,
       imagen: svg ? comoDataUri(svg) : undefined,
       dibujo: eq.dibujo,
+      variante: eq.variante,
+      etapa: eq.grupo,
       rotacion: 0,
       espejo: false,
     });
@@ -776,10 +778,10 @@ export function Planeador() {
               {EQUIPOS.filter((e) => e.grupo === grupo).map((eq) => {
                 // Los números que ya se le asignaron a este equipo. Antes salía
                 // cuántos había y todos marcaban "1", que no decía nada.
-                const suyos = modulos.filter((m) => m.tipo === eq.tipo).map((m) => numeros[m.id]);
+                const suyos = modulos.filter((m) => m.tipo === eq.tipo && m.etapa === eq.grupo).map((m) => numeros[m.id]);
                 return (
                   <button
-                    key={eq.tipo}
+                    key={`${eq.grupo}-${eq.tipo}`}
                     type="button"
                     onClick={() => agregarEquipo(eq)}
                     className="rounded-full border px-3.5 py-2 text-sm font-medium transition"
