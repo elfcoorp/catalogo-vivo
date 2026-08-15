@@ -160,24 +160,22 @@ export function medidaClasificadora(p: ClasificadoraParams): { largo: number; an
  * cuánto, el largo ya está dado y teclearlo sería pedirle dos veces lo mismo.
  *
  * Reglas dictadas por Eduardo:
- *  - Bancos: hasta la última salida, al ras del corrido.
- *  - Motorizado, gravedad y banda de PVC: el corrido + 3 m de excedente,
- *    porque la caja sale del último banco y todavía tiene que correr.
+ *  - Bancos: de la primera a la última salida, al ras del corrido.
+ *  - Motorizado: igual, de la primera a la última salida. SIN excedente.
+ *  - Banda de PVC: va debajo de los bancos, también al ras, y de ahí
+ *    entrega a los de gravedad.
+ *  - De gravedad: ÉSOS son los que salen 3 m después, hacia el pallet.
  *  - Caja vacía: del inicio al final de la clasificadora, sin excedente.
  * Devuelve null si a ese equipo no le toca largo automático.
  */
 export function largoPegadoALaClasificadora(tipo: string, p: ClasificadoraParams): number | null {
-  const corrido = p.salidas * p.pasoSalidas * PULGADA;
+  const corrido = +(p.salidas * p.pasoSalidas * PULGADA).toFixed(2);
   const t = tipo.toLowerCase();
-  if (t.startsWith("bancos")) return +corrido.toFixed(2);
+  if (t.startsWith("bancos")) return corrido;
+  if (t.startsWith("transportador motorizado")) return corrido;
+  if (t.startsWith("transportador de banda")) return corrido;
+  if (t.startsWith("transportador de gravedad")) return +(corrido + EXCEDENTE).toFixed(2);
   if (t.startsWith("transportador de caja vacía")) return medidaClasificadora(p).largo;
-  if (
-    t.startsWith("transportador motorizado") ||
-    t.startsWith("transportador de gravedad") ||
-    t.startsWith("transportador de banda")
-  ) {
-    return +(corrido + EXCEDENTE).toFixed(2);
-  }
   return null;
 }
 

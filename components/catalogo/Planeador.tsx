@@ -234,6 +234,9 @@ export function Planeador() {
   // Arrastrar el grupo completo, para correr la línea ya formada sin
   // desalinearla. Se apaga para ajustar pieza por pieza.
   const [moverTodo, setMoverTodo] = useState(false);
+  // El ancho útil que se hereda: lo que él teclee en la primera pieza pasa a
+  // las demás. Vacío = todavía manda el número de líneas de la clasificadora.
+  const [anchoUtil, setAnchoUtil] = useState<number | null>(null);
   // Como texto, para poder borrarlo y teclear otra cantidad.
   const [salidasTxt, setSalidasTxt] = useState("12");
   // Vacío = se usa el ancho de los módulos, que es solo una aproximación.
@@ -449,7 +452,7 @@ export function Planeador() {
     // Lo que corre pegado a la clasificadora saca su largo de las salidas.
     const auto = largoPegadoALaClasificadora(eq.tipo, clasifFinal);
     const largo = auto ?? eq.largo;
-    const ancho = eq.ancho ?? anchoLinea;
+    const ancho = eq.ancho ?? anchoUtil ?? anchoLinea;
     const svg = svgDe(eq.dibujo, largo, ancho, eq.variante);
 
     const id = nuevoId();
@@ -491,6 +494,21 @@ export function Planeador() {
     const ancho = cual === "ancho" ? valor : m.ancho;
     const svg = figuraDe(m, largo, ancho);
     actualizar(m.id, { largo, ancho, imagen: svg ?? m.imagen });
+
+    // El ancho útil del inicio manda en toda la línea: es rarísimo encontrar
+    // una de 1.20 junto a una de 0.90. Se le pasa a las demás que TODAVÍA no
+    // han sido tecleadas — las que él ya corrigió a mano no se tocan.
+    if (cual !== "ancho" || !m.sigueLinea) return;
+    setAnchoUtil(valor);
+    setModulos((prev) =>
+      prev.map((o) => {
+        if (o.id === m.id || !o.sigueLinea) return o;
+        if (medidas[`${o.id}-ancho`] !== undefined) return o;
+        const deLado = o.rotacion === 90 || o.rotacion === 270;
+        const svgO = svgDe(o.dibujo, deLado ? valor : o.largo, deLado ? o.largo : valor, o.variante);
+        return { ...o, ancho: valor, imagen: svgO ? comoDataUri(svgO) : o.imagen };
+      })
+    );
   }
 
   /**
@@ -1084,6 +1102,10 @@ export function Planeador() {
               <div className="flex flex-col divide-y divide-line">
                 {modulos
                   .filter((m) => (m.etapa ?? "La clasificadora") === etapa)
+                  // Los bancos ya están resueltos: el largo sale de las
+                  // salidas y el ancho lo hereda de la línea. No hay nada
+                  // que preguntarle, así que no se le pone renglón.
+                  .filter((m) => !m.tipo.startsWith("Bancos"))
                   .map((m) => {
                     const elegido = m.id === seleccionado;
                     const esClasificadora = m.tipo.startsWith("Clasificadora");
@@ -1340,9 +1362,24 @@ export function Planeador() {
         )}
       </div>
 
+      {/* 6. La hoja limpia para el cliente. Esta pantalla es la herramienta
+          del vendedor; el layout es lo que decide la venta, y va aparte. */}
+      {modulos.length > 0 && (
+        <div className="card flex flex-col gap-3 p-5">
+          <p className="text-sm font-semibold text-ink">6. Enséñaselo al cliente</p>
+          <p className="text-xs text-ink-mute">
+            La hoja sale limpia y a escala, con las cotas de cada máquina a su pared, la ficha de la clasificadora y la
+            lista de todo. Se guarda en PDF para mandarla.
+          </p>
+          <button type="button" onClick={() => setVerLayout(true)} className="btn-marca self-start">
+            <Icon name="lucide:file-text" size={18} /> Ver el layout para el cliente
+          </button>
+        </div>
+      )}
+
       {/* 6. Mandarlo */}
       <div className="card flex flex-col gap-4 p-5">
-        <p className="text-sm font-semibold text-ink">6. Mándalo para cotizar</p>
+        <p className="text-sm font-semibold text-ink">7. Mándalo para cotizar</p>
         <label className="flex flex-col gap-2 text-sm text-ink-soft">
           ¿Algo más que debamos saber? (fruta, capacidad, desniveles, altura del techo)
           <textarea
@@ -1389,21 +1426,6 @@ export function Planeador() {
           <Icon name="logos:whatsapp-icon" size={20} /> Mandar mi levantamiento
         </a>
       </div>
-
-      {/* 7. La hoja limpia para el cliente. Esta pantalla es la herramienta
-          del vendedor; el layout es lo que decide la venta, y va aparte. */}
-      {modulos.length > 0 && (
-        <div className="card flex flex-col gap-3 p-5">
-          <p className="text-sm font-semibold text-ink">7. Enséñaselo al cliente</p>
-          <p className="text-xs text-ink-mute">
-            La hoja sale limpia y a escala, con las cotas de cada máquina a su pared, la ficha de la clasificadora y la
-            lista de todo. Se guarda en PDF para mandarla.
-          </p>
-          <button type="button" onClick={() => setVerLayout(true)} className="btn-marca self-start">
-            <Icon name="lucide:file-text" size={18} /> Ver el layout para el cliente
-          </button>
-        </div>
-      )}
 
       {verLayout && (
         <LayoutFinal
