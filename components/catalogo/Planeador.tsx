@@ -252,6 +252,8 @@ export function Planeador() {
   const [salidasTxt, setSalidasTxt] = useState("12");
   // Vacío = se usa el ancho de los módulos, que es solo una aproximación.
   const [anchoClasifTxt, setAnchoClasifTxt] = useState("");
+  // Separación entre salidas fuera de la tabla, para fabricación especial.
+  const [pasoEspecialTxt, setPasoEspecialTxt] = useState("");
   const [clasif, setClasif] = useState<ClasificadoraParams>({
     lineas: 6,
     salidas: 12,
@@ -1315,7 +1317,31 @@ export function Planeador() {
                 </button>
               )
             )}
+            {/* Fabricación especial: la tabla no es camisa de fuerza. Hay
+                máquinas hechas a la medida — por ejemplo salidas @ 72" para
+                que quepan dos personas en cada una. */}
+            <label className="inline-flex items-center gap-2 rounded-full border border-line-strong px-3 py-1.5 text-sm text-ink-soft">
+              Especial
+              <input
+                type="number"
+                inputMode="decimal"
+                step={0.5}
+                placeholder='pulg.'
+                value={pasoEspecialTxt}
+                onChange={(e) => {
+                  setPasoEspecialTxt(e.target.value);
+                  const v = Number(e.target.value);
+                  if (v > 0) setClasif((c) => ({ ...c, pasoSalidas: v }));
+                }}
+                className="w-20 rounded-lg border border-line-strong bg-bg-2 p-1.5 text-sm text-ink outline-none focus:border-marca"
+                aria-label="Separación especial entre salidas, en pulgadas"
+              />
+            </label>
           </div>
+          <p className="text-xs text-ink-mute">
+            Si el cliente la pide a una medida que no está en la lista, se fabrica especial — escríbela en
+            &ldquo;Especial&rdquo;.
+          </p>
         </div>
 
         {/* Qué tan ancho es el cuerpo */}
