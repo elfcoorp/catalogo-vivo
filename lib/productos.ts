@@ -42,7 +42,7 @@ export const PRODUCTOS: Producto[] = [
     pasoCopita: "Rodillo 1¼\"",
     zona: "Noroeste de México",
     verificada: true,
-    precio: "$3,423,255 MXN + IVA",
+    precio: "$2,400,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. No incluye instalación.",
     bono: "Te conectamos con técnico especializado para instalación.",
     destacado: true,
@@ -100,7 +100,7 @@ export const PRODUCTOS: Producto[] = [
     videoYoutube: "https://youtu.be/TctLsLShK0A",
     verificada: true,
     zona: "Noroeste de México",
-    precio: "$4,500,000 MXN + IVA",
+    precio: "Precio a consultar",
     facilidades: "Pago de contado antes de embarque. Sin instalar.",
     fichaTecnica: [
       { etiqueta: "Clasifica por", valor: "Primera y segunda calidad (en las mesas de selección manual)" },
@@ -147,7 +147,7 @@ export const PRODUCTOS: Producto[] = [
     videoYoutube: "https://youtube.com/shorts/n_vXUN2YyXk",
     verificada: true,
     zona: "Noroeste de México",
-    precio: "$1,500,000 MXN",
+    precio: "$1,300,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. Sin instalación.",
     bono: "Incluye caseta de vigilancia.",
     fichaTecnica: [
@@ -245,7 +245,7 @@ export const PRODUCTOS: Producto[] = [
     pasoCopita: "Rodillo 4½\" (con peso)",
     verificada: true,
     zona: "Noroeste de México",
-    precio: "$3,500,000 MXN",
+    precio: "Precio a consultar",
     facilidades: "Pago de contado antes de embarque. No incluye instalación.",
     fichaTecnica: [
       { etiqueta: "Paso de rodillo", valor: "4½\" (con peso)" },
@@ -285,7 +285,7 @@ export const PRODUCTOS: Producto[] = [
     nombreCorto: "Volteadora de bins",
     videoYoutube: "https://youtube.com/shorts/GTJHDDYohWo",
     zona: "Noroeste de México",
-    precio: "$2,300,000 MXN",
+    precio: "Precio a consultar",
     fichaTecnica: [
       { etiqueta: "Marca", valor: "Rochin" },
       { etiqueta: "Condición", valor: "Nueva, nunca usada" },
@@ -371,7 +371,7 @@ export const PRODUCTOS: Producto[] = [
     videoYoutube: "https://youtube.com/shorts/QSAoBBOE6hY",
     verificada: true,
     zona: "Noroeste de México",
-    precio: "Precio a consultar",
+    precio: "$4,500,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. No incluye instalación.",
     fichaTecnica: [
       { etiqueta: "Volteadora lineal de cajas de campo", valor: "Incluye alimentador de cajas de 3 m y resbaladilla final" },

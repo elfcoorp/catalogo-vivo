@@ -97,6 +97,12 @@ body {
 .text-marca {
   color: var(--marca);
 }
+/* En fondo negro el verde oscuro de la marca casi no se ve. Para TEXTO se
+   usa el verde claro (--marca-2), que es el otro color de la misma marca.
+   Los botones y fondos se quedan con el oscuro, ahí sí luce. */
+.tema-oscuro .text-marca {
+  color: var(--marca-2);
+}
 .text-gradient-marca {
   background: linear-gradient(100deg, var(--marca), var(--marca-2));
   -webkit-background-clip: text;
@@ -135,6 +141,10 @@ body {
   font-weight: 600;
   letter-spacing: 0.01em;
   color: var(--marca);
+}
+.tema-oscuro .chip {
+  color: var(--marca-2);
+  border-color: color-mix(in srgb, var(--marca-2) 32%, transparent);
 }
 .chip-escasez {
   background: color-mix(in srgb, #e0533a 12%, transparent);

@@ -65,12 +65,24 @@ export function FichaProductoContenido({ producto: productoOriginal, relacionado
           <p className="text-sm font-semibold uppercase tracking-wide text-marca">{traducirCategoria(producto.categoria, lang)}</p>
           <h1 className="font-display text-4xl font-semibold uppercase leading-tight sm:text-5xl">{producto.nombre}</h1>
 
+          {/* Cuando no lleva precio, se dice AQUÍ —donde el cliente lo viene
+              buscando— y en verde de la marca, como invitación a preguntar.
+              No va como sello encima de la foto: ahí taparía la máquina y
+              gritaría "no te digo" antes de que vea qué es. */}
           <div className="flex flex-col gap-1 pt-2">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              {producto.precioAntes && <span className="text-lg text-ink-mute line-through">{producto.precioAntes}</span>}
-              <span className="font-display text-4xl font-semibold">{producto.precio}</span>
-            </div>
-            <span className="text-sm text-ink-mute">{t("precioSujeto")}</span>
+            {producto.precio === "Precio a consultar" ? (
+              <span className="font-display text-4xl font-semibold text-marca">{t("consultarPrecio")}</span>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  {producto.precioAntes && (
+                    <span className="text-lg text-ink-mute line-through">{producto.precioAntes}</span>
+                  )}
+                  <span className="font-display text-4xl font-semibold">{producto.precio}</span>
+                </div>
+                <span className="text-sm text-ink-mute">{t("precioSujeto")}</span>
+              </>
+            )}
           </div>
 
           {producto.zona && (
