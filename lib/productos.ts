@@ -184,7 +184,7 @@ export const PRODUCTOS: Producto[] = [
     frutas: ["tomate"],
     tipoCopita: "rodillo-clip",
     clasificaPor: ["diametro", "color"],
-    estatus: "disponible",
+    estatus: "apartada",
     marcaFabricante: "CIU",
     resumenTarjeta: "Capacidad 7.2 ton/línea",
     nombreCorto: "Calibrador · 2 líneas x 12 salidas",
@@ -192,7 +192,7 @@ export const PRODUCTOS: Producto[] = [
     videoYoutube: "https://youtube.com/shorts/M8GI_vTX3qc",
     verificada: true,
     zona: "Centro de México",
-    precio: "$1,300,000 MXN",
+    precio: "$1,300,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. No incluye instalación.",
     fichaTecnica: [
       { etiqueta: "Paso de rodillo", valor: "3¾\" (sin peso)" },
