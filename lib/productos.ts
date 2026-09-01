@@ -192,7 +192,7 @@ export const PRODUCTOS: Producto[] = [
     videoYoutube: "https://youtube.com/shorts/M8GI_vTX3qc",
     verificada: true,
     zona: "Centro de México",
-    precio: "$1,300,000 MXN + IVA",
+    precio: "Precio a consultar",
     facilidades: "Pago de contado antes de embarque. No incluye instalación.",
     fichaTecnica: [
       { etiqueta: "Paso de rodillo", valor: "3¾\" (sin peso)" },
