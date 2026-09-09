@@ -11,5 +11,14 @@ export function idDeYoutube(url: string): string | null {
 /** URL para incrustar (iframe) un video de YouTube dado su liga normal. */
 export function urlIncrustadaYoutube(url: string): string | null {
   const id = idDeYoutube(url);
-  return id ? `https://www.youtube.com/embed/${id}` : null;
+  /*
+   * rel=0 hace que los videos sugeridos al final sean del MISMO canal, o sea
+   * las otras máquinas de ELFCO, y no de cualquiera.
+   *
+   * Los logos y las caritas que YouTube pone abajo NO se pueden quitar:
+   * modestbranding dejó de funcionar en agosto de 2023. Si algún día se
+   * quiere el video sin nada de YouTube, hay que subir el archivo al
+   * catálogo y usar el campo `video` en lugar de `videoYoutube`.
+   */
+  return id ? `https://www.youtube.com/embed/${id}?rel=0&playsinline=1` : null;
 }

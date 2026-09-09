@@ -152,7 +152,7 @@ export const PRODUCTOS: Producto[] = [
     facilidades:
       "Por las dos cosas: la clasificadora y el descanicador. Un descanicador ajustable nuevo anda solo en $600,000. No incluye instalación.",
     bono:
-      "Se lleva también un descanicador de tubos ajustable CIU ORIGINAL, de corte láser — el que saca la canica. Va con motor NUEVO incluido. Se entrega como estructura: armarlo y ponerlo a andar corre por cuenta del comprador. Sujeto a disponibilidad: se va con la primera máquina que se venda.",
+      "Se lleva también un descanicador de tubos ajustable CIU ORIGINAL, de corte láser — el que saca la canica. Va con motor NUEVO incluido. Se entrega como estructura: armarlo y ponerlo a andar corre por cuenta del comprador. Nada más hay uno, y se va con la primera máquina que se venda.",
     fichaTecnica: [
       { etiqueta: "Qué se lleva", valor: "Singulador · clasificadora de 2 líneas x 22 salidas · banda de retorno · bancos · descanicador de tubos ajustable" },
       { etiqueta: "Antigüedad", valor: "Alrededor de 20 años. Se desmontó funcionando, no estaba parada" },
@@ -201,7 +201,7 @@ export const PRODUCTOS: Producto[] = [
     zona: "Noroeste de México",
     precio: "$1,500,000 MXN + IVA",
     facilidades: "Con facilidades de pago: se acuerda un anticipo y el resto antes de que la máquina salga. Sin instalación.",
-    bono: "Incluye caseta de vigilancia y, de regalo, el descanicador de tubos ajustable que le saca la galleta al morrón — se entrega tal como está, armarlo y ponerlo a andar corre por cuenta del comprador. Sujeto a disponibilidad: se va con la primera máquina que se venda.",
+    bono: "Incluye caseta de vigilancia y, de regalo, el descanicador de tubos ajustable que le saca la galleta al morrón — se entrega tal como está, armarlo y ponerlo a andar corre por cuenta del comprador. Nada más hay uno, y se va con la primera máquina que se venda.",
     fichaTecnica: [
       { etiqueta: "Tipo", valor: "Clasificadora de charolas paso 6\", 6 líneas x 12+1 salidas @ 30\"" },
       { etiqueta: "Acabado", valor: "Pintura electrostática nueva, color gris" },
