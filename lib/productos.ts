@@ -118,6 +118,56 @@ export const PRODUCTOS: Producto[] = [
     garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
   {
+    slug: "clasificadora-maf-2x22-tomate",
+    nombre: "Clasificadora MAF — 2 líneas x 22 salidas (tomate)",
+    categoria: "Líneas de empaque usadas",
+    imagen: "/productos/maf-2x22-1.jpg",
+    galeria: [
+      "/productos/maf-2x22-6.jpg",
+      "/productos/maf-2x22-4.jpg",
+      "/productos/maf-2x22-3.jpg",
+      "/productos/maf-2x22-2.jpg",
+      "/productos/maf-2x22-5.jpg",
+      "/productos/maf-2x22-7.jpg",
+      "/productos/maf-2x22-descanicador.jpg",
+    ],
+    paraQuien:
+      "Empaques chicos y medianos que hoy clasifican y escogen a mano, y que necesitan una línea corriendo para esta temporada — no dentro de seis meses, que es lo que tarda una nueva.",
+    beneficio:
+      "Se desmontó funcionando, y el técnico que la instaló y le ha dado servicio todos estos años sigue disponible para volverla a instalar.",
+    caracteristicas: [
+      "Marca MAF · 2 líneas x 22 salidas",
+      "Alrededor de 20 años, se quitó funcionando",
+      "Incluye singulador, banda de retorno y bancos",
+    ],
+    frutas: ["tomate"],
+    clasificaPor: ["peso"],
+    estatus: "disponible",
+    marcaFabricante: "MAF",
+    videoYoutube: "https://youtu.be/oXvpaKwFzqw",
+    resumenTarjeta: "Se quitó funcionando · con su técnico de siempre",
+    nombreCorto: "Clasificadora MAF · 2 líneas x 22 salidas",
+    zona: "Noroeste de México",
+    precio: "Menos de $500,000 MXN + IVA",
+    facilidades:
+      "Por las dos cosas: la clasificadora y el descanicador. Un descanicador ajustable nuevo anda solo en $600,000. No incluye instalación.",
+    bono:
+      "Se lleva también el descanicador de tubos ajustable que saca la canica — se entrega tal como está, armarlo y ponerlo a andar corre por cuenta del comprador. Sujeto a disponibilidad: se va con la primera máquina que se venda.",
+    fichaTecnica: [
+      { etiqueta: "Qué se lleva", valor: "Singulador · clasificadora de 2 líneas x 22 salidas · banda de retorno · bancos · descanicador de tubos ajustable" },
+      { etiqueta: "Antigüedad", valor: "Alrededor de 20 años. Se desmontó funcionando, no estaba parada" },
+      { etiqueta: "Qué hay que cambiarle", valor: "Las cadenas, por la antigüedad. Y las copitas: ya no se fabrican de línea, pero el técnico que la conoce las consigue" },
+      { etiqueta: "El técnico", valor: "El que la instaló y le ha dado servicio todos estos años sigue disponible y está dispuesto a instalarla para quien la compre. Su contacto se pasa cuando hay trato" },
+      { etiqueta: "Lo que no hay", valor: "No hay ficha técnica de fábrica ni layout. Lo que sí hay son fotos de la máquina trabajando, con gente y con fruta corriendo" },
+      { etiqueta: "Descanicador — capacidad", valor: "15.20 ton/h" },
+      { etiqueta: "Descanicador — medidas", valor: "3.00 m largo x 1.97 m ancho x 2.16 m alto · 1,033 kg" },
+      { etiqueta: "Descanicador — motor", valor: "2 HP · 220-440 V, 60 Hz · 1.49 kW/h · modelo DES-P-TA-1230-011" },
+      { etiqueta: "Descanicador — estado", valor: "Estructura completa: tubos, barras, chumaceras y taquetes buenos. Hay que ver la cadena y darle pintura. Se puede dejar ajustable o pasarlo a fijo" },
+    ],
+    garantia:
+      "Se vende como está y así se dice: la máquina tiene alrededor de 20 años, está guardada y hoy no se ve bonita. Lo que sí sabemos es que se desmontó trabajando y que el técnico que la conoce sigue ahí. Antes de que te la lleves puedes venir a verla en la bodega. Trabajamos con contrato firmado: anticipo antes de iniciar la carga, y el resto antes de que la máquina salga.",
+  },
+  {
     slug: "clasificadora-6-lineas",
     nombre: "Clasificadora 6 líneas x 12 salidas (mango, chile morrón, aguacate)",
     categoria: "Líneas de empaque usadas",
