@@ -137,7 +137,7 @@ export const PRODUCTOS: Producto[] = [
       "Se desmontó funcionando, y el técnico que la instaló y le ha dado servicio todos estos años sigue disponible para volverla a instalar.",
     caracteristicas: [
       "Marca MAF · 2 líneas x 22 salidas",
-      "Alrededor de 20 años, se quitó funcionando",
+      "Se quitó funcionando · un año guardada",
       "Incluye singulador, banda de retorno y bancos",
     ],
     frutas: ["tomate"],
@@ -158,15 +158,16 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Antigüedad", valor: "Alrededor de 20 años. Se desmontó funcionando, no estaba parada" },
       { etiqueta: "Qué hay que cambiarle", valor: "Las cadenas, por la antigüedad. Y las copitas: ya no se fabrican de línea, pero el técnico que la conoce las consigue" },
       { etiqueta: "El técnico", valor: "El que la instaló y le ha dado servicio todos estos años sigue disponible y está dispuesto a instalarla para quien la compre. Su contacto se pasa cuando hay trato" },
+      { etiqueta: "Cómo está hoy", valor: "Lleva un año desmontada y guardada a la intemperie, cubierta con plástico. Se vende tal como está: hay piezas que se van a poder usar y otras que hay que revisar. Por eso está a este precio" },
       { etiqueta: "Lo que no hay", valor: "No hay ficha técnica de fábrica ni layout. Lo que sí hay son fotos de la máquina trabajando, con gente y con fruta corriendo" },
       { etiqueta: "Descanicador — capacidad", valor: "15.20 ton/h" },
       { etiqueta: "Descanicador — medidas", valor: "3.00 m largo x 1.97 m ancho x 2.16 m alto · 1,033 kg" },
-      { etiqueta: "Descanicador — motor", valor: "Se va con MOTOR NUEVO incluido. No es el motor original de CIU, es de otra marca, pero está sin uso. De fábrica el modelo pide 2 HP · 220-440 V, 60 Hz · 1.49 kW/h" },
+      { etiqueta: "Descanicador — motor", valor: "El motor nuevo es para el DESCANICADOR, no para la clasificadora. Se va con motor nuevo incluido. No es el motor original de CIU, es de otra marca, pero está sin uso. De fábrica el modelo pide 2 HP · 220-440 V, 60 Hz · 1.49 kW/h" },
       { etiqueta: "Descanicador — qué es", valor: "Es un CIU ORIGINAL, no una copia: corte láser y la misma ingeniería de fábrica, ya probada y funcionando en campo" },
       { etiqueta: "Descanicador — estado", valor: "Estructura completa: tubos, barras, chumaceras y taquetes buenos y rescatables. Hay que ver la cadena y darle pintura. Se puede dejar ajustable o pasarlo a fijo" },
     ],
     garantia:
-      "Se vende como está y así se dice: la máquina tiene alrededor de 20 años, está guardada y hoy no se ve bonita. Lo que sí sabemos es que se desmontó trabajando y que el técnico que la conoce sigue ahí. Antes de que te la lleves puedes venir a verla en la bodega. Trabajamos con contrato firmado: anticipo antes de iniciar la carga, y el resto antes de que la máquina salga.",
+      "Aquí no hay letras chiquitas. La máquina tiene alrededor de 20 años, se desmontó FUNCIONANDO, y lleva un año guardada a la intemperie, cubierta con plástico. Hay piezas que se van a poder usar y otras que hay que revisar. Se vende TAL COMO ESTÁ, y por eso el precio es el que es. Lo que sí te garantizamos: vienes a la bodega y la ves con tus ojos antes de decidir, y el técnico que la instaló y le dio servicio todos estos años sigue disponible para volverla a montar. Trabajamos con contrato firmado: anticipo antes de iniciar la carga, y el resto antes de que la máquina salga.",
   },
   {
     slug: "clasificadora-6-lineas",
