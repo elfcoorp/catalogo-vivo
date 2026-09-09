@@ -152,7 +152,7 @@ export const PRODUCTOS: Producto[] = [
     facilidades:
       "Por las dos cosas: la clasificadora y el descanicador. Un descanicador ajustable nuevo anda solo en $600,000. No incluye instalación.",
     bono:
-      "Se lleva también un descanicador de tubos ajustable CIU ORIGINAL, de corte láser — el que saca la canica. Se entrega como estructura: no trae motor, y armarlo y ponerlo a andar corre por cuenta del comprador. Sujeto a disponibilidad: se va con la primera máquina que se venda.",
+      "Se lleva también un descanicador de tubos ajustable CIU ORIGINAL, de corte láser — el que saca la canica. Va con motor NUEVO incluido. Se entrega como estructura: armarlo y ponerlo a andar corre por cuenta del comprador. Sujeto a disponibilidad: se va con la primera máquina que se venda.",
     fichaTecnica: [
       { etiqueta: "Qué se lleva", valor: "Singulador · clasificadora de 2 líneas x 22 salidas · banda de retorno · bancos · descanicador de tubos ajustable" },
       { etiqueta: "Antigüedad", valor: "Alrededor de 20 años. Se desmontó funcionando, no estaba parada" },
@@ -161,9 +161,9 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Lo que no hay", valor: "No hay ficha técnica de fábrica ni layout. Lo que sí hay son fotos de la máquina trabajando, con gente y con fruta corriendo" },
       { etiqueta: "Descanicador — capacidad", valor: "15.20 ton/h" },
       { etiqueta: "Descanicador — medidas", valor: "3.00 m largo x 1.97 m ancho x 2.16 m alto · 1,033 kg" },
-      { etiqueta: "Descanicador — de fábrica lleva", valor: "Motor de 2 HP · 220-440 V, 60 Hz · 1.49 kW/h · modelo DES-P-TA-1230-011. OJO: esta unidad NO trae el motor, se entrega como estructura" },
+      { etiqueta: "Descanicador — motor", valor: "Se va con MOTOR NUEVO incluido. No es el motor original de CIU, es de otra marca, pero está sin uso. De fábrica el modelo pide 2 HP · 220-440 V, 60 Hz · 1.49 kW/h" },
       { etiqueta: "Descanicador — qué es", valor: "Es un CIU ORIGINAL, no una copia: corte láser y la misma ingeniería de fábrica, ya probada y funcionando en campo" },
-      { etiqueta: "Descanicador — estado", valor: "Estructura completa: tubos, barras, chumaceras y taquetes buenos y rescatables. No trae motor. Hay que ver la cadena y darle pintura. Se puede dejar ajustable o pasarlo a fijo" },
+      { etiqueta: "Descanicador — estado", valor: "Estructura completa: tubos, barras, chumaceras y taquetes buenos y rescatables. Hay que ver la cadena y darle pintura. Se puede dejar ajustable o pasarlo a fijo" },
     ],
     garantia:
       "Se vende como está y así se dice: la máquina tiene alrededor de 20 años, está guardada y hoy no se ve bonita. Lo que sí sabemos es que se desmontó trabajando y que el técnico que la conoce sigue ahí. Antes de que te la lleves puedes venir a verla en la bodega. Trabajamos con contrato firmado: anticipo antes de iniciar la carga, y el resto antes de que la máquina salga.",
