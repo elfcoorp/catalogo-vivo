@@ -12,6 +12,8 @@ import { traducirCategoria } from "@/lib/traducciones";
 interface CatalogoGridProps {
   vendedorSlug?: string | null;
   modoTecnico?: boolean;
+  /** Solo con la liga privada ?modo=dueno se ve el menú de herramientas. */
+  modoDueno?: boolean;
 }
 
 function normaliza(s: string): string {
@@ -43,7 +45,7 @@ function cumpleFiltros(p: (typeof PRODUCTOS)[number], f: FiltrosSeleccion) {
   return true;
 }
 
-export function CatalogoGrid({ vendedorSlug, modoTecnico }: CatalogoGridProps) {
+export function CatalogoGrid({ vendedorSlug, modoTecnico, modoDueno }: CatalogoGridProps) {
   const { t, lang } = useLang();
   const [filtro, setFiltro] = useState<string>("Todas");
   const [filtrosLaterales, setFiltrosLaterales] = useState<FiltrosSeleccion>(FILTROS_VACIOS);
@@ -71,7 +73,7 @@ export function CatalogoGrid({ vendedorSlug, modoTecnico }: CatalogoGridProps) {
 
   return (
     <>
-      <BarraSuperior busqueda={busqueda} onBusquedaChange={setBusqueda} modoTecnico={modoTecnico} />
+      <BarraSuperior busqueda={busqueda} onBusquedaChange={setBusqueda} modoTecnico={modoTecnico} modoDueno={modoDueno} />
 
       <section className="mx-auto max-w-6xl px-5 pb-24 pt-8">
       <div className="md:grid md:grid-cols-[220px_1fr] md:items-start md:gap-10">

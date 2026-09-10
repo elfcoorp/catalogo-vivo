@@ -387,7 +387,7 @@ export const PRODUCTOS: Producto[] = [
     videoYoutube: "https://youtube.com/shorts/QSAoBBOE6hY",
     verificada: true,
     zona: "Noroeste de México",
-    precio: "Precio a consultar",
+    precio: "$4,900,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. No incluye instalación.",
     fichaTecnica: [
       { etiqueta: "Volteadora lineal de cajas de campo", valor: "Incluye alimentador de cajas de 3 m y resbaladilla final" },

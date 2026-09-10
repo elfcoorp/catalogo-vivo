@@ -10,12 +10,14 @@ interface BarraSuperiorProps {
   busqueda: string;
   onBusquedaChange: (valor: string) => void;
   modoTecnico?: boolean;
+  /** Solo el dueño ve las herramientas del menú. */
+  modoDueno?: boolean;
 }
 
 /** Barra fija arriba: logo, buscador (filtra en automático) y menú de opciones. */
 const IDIOMAS: Lang[] = ["es", "en", "pt"];
 
-export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico }: BarraSuperiorProps) {
+export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico, modoDueno }: BarraSuperiorProps) {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [ligaCopiada, setLigaCopiada] = useState(false);
   const { lang, setLang, t } = useLang();
@@ -86,6 +88,8 @@ export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico }: Barra
                 className="absolute right-0 top-full z-50 mt-2 flex w-64 flex-col gap-1 rounded-2xl border border-line-strong p-2 shadow-2xl"
                 style={{ background: "var(--bg-2)" }}
               >
+                {modoDueno && (
+                <>
                 <Link
                   href="/planeador"
                   onClick={() => setMenuAbierto(false)}
@@ -124,6 +128,8 @@ export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico }: Barra
                       {ligaCopiada ? t("ligaCopiada") : t("ligaTecnicos")}
                     </button>
                   </>
+                )}
+                </>
                 )}
                 {modoTecnico && (
                   <p className="px-3 py-2 text-xs text-ink-mute">{t("versionTecnicos")}</p>
