@@ -123,6 +123,7 @@ export const PRODUCTOS: Producto[] = [
     categoria: "Líneas de empaque usadas",
     imagen: "/productos/maf-2x22-1.jpg",
     galeria: [
+      "/productos/maf-2x22-hardware.jpg",
       "/productos/maf-2x22-6.jpg",
       "/productos/maf-2x22-4.jpg",
       "/productos/maf-2x22-3.jpg",
@@ -158,6 +159,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Antigüedad", valor: "Alrededor de 20 años. Se desmontó funcionando, no estaba parada" },
       { etiqueta: "Qué hay que cambiarle", valor: "Las cadenas, por la antigüedad. Y las copitas: ya no se fabrican de línea, pero el técnico que la conoce las consigue" },
       { etiqueta: "El técnico", valor: "El que la instaló y le ha dado servicio todos estos años sigue disponible y está dispuesto a instalarla para quien la compre. Su contacto se pasa cuando hay trato" },
+      { etiqueta: "El equipo de cómputo", valor: "Servidor HP ProLiant ML350 con procesador Intel Xeon, monitor, cabezal de dos cámaras y tarjeta de control MAF RODA (CPS 05, V3.0). Va todo con la máquina" },
       { etiqueta: "Cómo está hoy", valor: "Lleva un año desmontada y guardada a la intemperie, cubierta con plástico. Se vende tal como está: hay piezas que se van a poder usar y otras que hay que revisar. Por eso está a este precio" },
       { etiqueta: "Lo que no hay", valor: "No hay ficha técnica de fábrica ni layout. Lo que sí hay son fotos de la máquina trabajando, con gente y con fruta corriendo" },
       { etiqueta: "Descanicador — capacidad", valor: "15.20 ton/h" },
@@ -219,6 +221,7 @@ export const PRODUCTOS: Producto[] = [
     nombre: "Clasificadora morrón, mango, cebolla y aguacate — 4 líneas x 12 salidas",
     categoria: "Líneas de empaque usadas",
     imagen: "/productos/clasificadora-4x12-morron-12.jpg",
+    plano: "/planos/clasificadora-4x12-morron-plano.png",
     galeria: [
       "/productos/clasificadora-4x12-morron-1.jpg",
       "/productos/clasificadora-4x12-morron-3.jpg",
