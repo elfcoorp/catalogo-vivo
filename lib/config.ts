@@ -17,7 +17,7 @@ export const CONFIG: Config = {
   // { slug: "nombre", nombre: "Nombre Apellido", whatsapp: "521..." }
   // Mientras esté vacío, todo "Lo quiero" llega al WhatsApp principal.
   vendedores: [],
-  categorias: ["Líneas de empaque usadas", "Materiales de embalaje", "Servicios"],
+  categorias: ["Líneas de empaque usadas", "Refacciones y equipo", "Materiales de embalaje", "Servicios"],
   mensajePlantilla:
     "{saludo}vi tu catálogo y me interesa {producto}. ¿Me pueden dar más información y precio?",
 };

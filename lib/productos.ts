@@ -118,6 +118,46 @@ export const PRODUCTOS: Producto[] = [
     garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
   {
+    slug: "ferba-vision-4x18",
+    nombre: "Equipo de visión y control Ferba — de línea 4 líneas x 18 salidas (tomate)",
+    categoria: "Refacciones y equipo",
+    imagen: "/productos/ferba-1.jpg",
+    galeria: [
+      "/productos/ferba-2.jpg",
+      "/productos/ferba-3.jpg",
+      "/productos/ferba-4.jpg",
+    ],
+    paraQuien:
+      "Empaques y técnicos que ya trabajan con Ferba y no se pueden dar el lujo de parar la línea en plena temporada. Esto se tiene en el estante, no se instala de nuevo.",
+    beneficio:
+      "Salió de una línea Ferba 4 x 18 de tomate que estaba trabajando. Es el juego completo: si se cae una cámara o el equipo de control a media temporada, aquí hay con qué seguir.",
+    caracteristicas: [
+      "Marca Ferba · de línea 4 líneas x 18 salidas de tomate",
+      "Dos cámaras Cognex a color, ya descontinuadas de fábrica",
+      "Se vende completo, no por piezas",
+    ],
+    frutas: ["tomate"],
+    estatus: "disponible",
+    marcaFabricante: "Ferba",
+    resumenTarjeta: "Juego completo de respaldo · listo para emergencia",
+    nombreCorto: "Visión y control Ferba · 4 x 18",
+    zona: "Noroeste de México",
+    precio: "Precio a consultar",
+    facilidades:
+      "Se vende el juego completo. Cuéntenos qué línea tienen y qué necesitan resolver, y le damos precio.",
+    fichaTecnica: [
+      { etiqueta: "Qué se lleva", valor: "La computadora completa · DOS cámaras Cognex con su soporte · el encoder Höhner · los cables. Todo junto — no se venden piezas por separado" },
+      { etiqueta: "De qué máquina salió", valor: "Clasificadora Ferba de 4 líneas x 18 salidas de tomate. El gabinete trae su etiqueta de origen: 15017 · FCDG4x18 (tomate) · Ferba, Desarrollos Tecnificados, Magdalena de Kino, Sonora" },
+      { etiqueta: "Las cámaras", valor: "Cognex Corporation, tipo 821-0036-1R Rev D, a 24 V y 800 mA, con conexión de red. Es el cabezal que usan las In-Sight 5100C y 5400C — la C es de color, que es lo que clasifica fruta" },
+      { etiqueta: "Por qué importa que sean éstas", valor: "Cognex YA DESCONTINUÓ este cabezal: de fábrica ya no se consigue. Quien tenga una línea con estas cámaras y se le caiga una, no la puede comprar nueva — la tiene que buscar usada" },
+      { etiqueta: "El encoder", valor: "Höhner, el que sincroniza las cámaras con el movimiento de la banda" },
+      { etiqueta: "Cómo se entrega", valor: "Tal como salió de la línea, con su computadora. El soporte y lo que toque de licencia del programa se ve directo con Ferba: nosotros vendemos el equipo" },
+      { etiqueta: "Dónde está", valor: "En la oficina de ELFCO, bajo techo. Se puede ver y revisar antes de comprar" },
+    ],
+    garantia:
+      "Se vende como está y se puede ver antes. Pregunte lo que quiera — modelos, números de serie, qué trae por dentro — y le mandamos foto de lo que pida. Lo que le decimos con seguridad es de dónde salió: de una línea Ferba 4 x 18 de tomate que estaba trabajando.",
+  },
+  {
     slug: "clasificadora-maf-2x22-tomate",
     nombre: "Clasificadora MAF — 2 líneas x 22 salidas (tomate)",
     categoria: "Líneas de empaque usadas",
