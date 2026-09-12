@@ -171,6 +171,7 @@ export const PRODUCTOS: Producto[] = [
       "/productos/maf-2x22-5.jpg",
       "/productos/maf-2x22-7.jpg",
       "/productos/maf-2x22-descanicador.jpg",
+      "/productos/maf-2x22-resguardo.jpg",
     ],
     paraQuien:
       "Empaques chicos y medianos que hoy clasifican y escogen a mano, y que necesitan una línea corriendo para esta temporada — no dentro de seis meses, que es lo que tarda una nueva.",
