@@ -28,6 +28,39 @@ const redis = new Redis({
 /** La clave son 6 letras/números; cualquier otra cosa se ignora sin ruido. */
 const CLAVE = /^[a-z0-9]{4,8}$/;
 
+/**
+ * EL REPORTE se pide aquí mismo, con GET, y no directo a Redis. Por qué: las
+ * llaves de Redis están marcadas "Sensitive" en Vercel, así que la máquina de
+ * Eduardo no las puede bajar (vercel env pull las entrega como [SENSITIVE]).
+ * Y está bien que sea así. Lo que sí tiene su máquina es REPORTE_TOKEN, una
+ * llave aparte que sólo sirve para LEER este reporte. Aquí adentro, el
+ * servidor sí tiene las de Redis.
+ *
+ * Devuelve claves y visitas, nada más. Los NOMBRES no están aquí: los pone el
+ * ERP en la máquina de Eduardo (herramientas/quien-abrio.mjs).
+ */
+export async function GET(req: Request) {
+  const esperado = process.env.REPORTE_TOKEN;
+  const auth = req.headers.get("authorization") ?? "";
+  if (!esperado || auth !== "Bearer " + esperado) {
+    return NextResponse.json({ ok: false }, { status: 401 });
+  }
+  const dias = Number(new URL(req.url).searchParams.get("dias") ?? 0) || 0;
+  const desde = dias ? Date.now() - dias * 86400000 : 0;
+
+  const claves = await redis.smembers("claves");
+  const salida: { c: string; vistas: { ruta: string; t: string }[] }[] = [];
+  for (const c of claves) {
+    const crudo = await redis.lrange<string | { ruta: string; t: string }>(`abrio:${c}`, 0, 199);
+    /* el cliente de Upstash a veces ya devuelve el JSON convertido */
+    const vistas = crudo
+      .map((s) => (typeof s === "string" ? (JSON.parse(s) as { ruta: string; t: string }) : s))
+      .filter((v) => new Date(v.t).getTime() >= desde);
+    if (vistas.length) salida.push({ c, vistas });
+  }
+  return NextResponse.json({ ok: true, claves: salida }, { headers: { "cache-control": "no-store" } });
+}
+
 export async function POST(req: Request) {
   let cuerpo: { c?: unknown; ruta?: unknown } = {};
   try {
