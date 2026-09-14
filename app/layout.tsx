@@ -8,6 +8,9 @@ import { LangProvider } from "@/lib/i18n";
    llegaron. Eduardo prendió Web Analytics en Vercel el 14 de septiembre de
    2026 (plan Hobby, gratis). NO ve teléfonos ni nombres — nadie puede. */
 import { Analytics } from "@vercel/analytics/next";
+/* Y esto es lo otro: QUIÉN de los contactos de Eduardo abrió (por la clave
+   que va en su liga). Ver components/ui/Huella.tsx y app/api/abrio. */
+import { Huella } from "@/components/ui/Huella";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://catalogo-vivo-kappa.vercel.app"),
@@ -42,6 +45,7 @@ export default function RootLayout({
         <ScrollAlCambiarPagina />
         <LangProvider>{children}</LangProvider>
         <Analytics />
+        <Huella />
       </body>
     </html>
   );
