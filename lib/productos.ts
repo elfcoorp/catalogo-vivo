@@ -288,6 +288,7 @@ export const PRODUCTOS: Producto[] = [
     clasificaPor: ["peso"],
     estatus: "disponible",
     videoYoutube: "https://youtu.be/tNgklxIraIc",
+    tiktok: "https://www.tiktok.com/@elfcoorp/video/7685473305901419783",
     marcaFabricante: "CIU",
     resumenTarjeta: "Se usó solo una temporada",
     nombreCorto: "Calibrador · 4 líneas x 12 salidas",

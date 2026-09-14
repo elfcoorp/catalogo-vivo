@@ -117,6 +117,13 @@ export interface Producto {
   /** URL de YouTube (shorts o normal) con el video de la máquina funcionando. Opcional. */
   videoYoutube?: string;
   /**
+   * URL del TikTok de la máquina. Solo se LIGA (botón "Ver en TikTok"): TikTok
+   * no se puede meter dentro de la ficha como YouTube, y aunque se pudiera,
+   * metería su rastreo y sus videos ajenos. Va la liga larga
+   * (tiktok.com/@elfcoorp/video/…), no la corta vt.tiktok.com. Opcional.
+   */
+  tiktok?: string;
+  /**
    * Solo `true` cuando ELFCO ya vio y probó la máquina en persona. NO se
    * deduce de tener video — hay videos de máquinas todavía sin verificar,
    * y máquinas verificadas a las que aún les falta el video.

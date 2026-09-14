@@ -104,6 +104,18 @@ export function FichaProductoContenido({ producto: productoOriginal, relacionado
               nombreArchivo={`${producto.slug}.pdf`}
               className="btn-ghost mt-2 w-full sm:w-auto"
             />
+            {/* Solo liga: TikTok no se incrusta. "TikTok" se dice igual en
+                los dos idiomas, por eso no pasa por t(). */}
+            {productoOriginal.tiktok && (
+              <a
+                href={productoOriginal.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-ghost mt-2 inline-flex w-full items-center gap-2 sm:w-auto"
+              >
+                <Icon name="lucide:video" size={16} /> {lang === "en" ? "Watch on TikTok" : "Ver en TikTok"}
+              </a>
+            )}
           </div>
         </div>
       </div>
