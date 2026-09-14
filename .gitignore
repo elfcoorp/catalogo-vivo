@@ -52,3 +52,6 @@ next-env.d.ts
 PARA-EL-ERP.md
 ESTADO-DEL-PROYECTO.md
 GENERADOR-DE-LAYOUTS.md
+
+.vercel
+.env*
