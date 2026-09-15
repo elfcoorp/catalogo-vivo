@@ -159,6 +159,45 @@ export const PRODUCTOS: Producto[] = [
       "Se vende como está y se puede ver antes. Pregunte lo que quiera — modelos, números de serie, qué trae por dentro — y le mandamos foto de lo que pida. Lo que le decimos con seguridad es de dónde salió: de una línea Ferba 4 x 18 de tomate que estaba trabajando.",
   },
   {
+    slug: "clasificadora-meganics-2x18",
+    nombre: "Clasificadora Meganics en inoxidable — 2 líneas x 18 salidas",
+    categoria: "Líneas de empaque usadas",
+    imagen: "/productos/meganics-2x18-4.jpg",
+    galeria: [
+      "/productos/meganics-2x18-2.jpg",
+      "/productos/meganics-2x18-3.jpg",
+      "/productos/meganics-2x18-1.jpg",
+    ],
+    paraQuien:
+      "Empaques de tomate o durazno del Bajío o de la zona de Culiacán que quieren clasificadora de rodillos en inoxidable, instalada y corriendo, sin pagar precio de nueva.",
+    beneficio:
+      "Se vende el corazón de la línea: singulador, clasificadora y los bancos donde cae la fruta, todo en acero inoxidable. Y a diferencia de otras del catálogo, ésta va con la instalación mecánica y eléctrica incluida.",
+    caracteristicas: [
+      "Marca Meganics · 2 líneas x 18 salidas",
+      "Acero inoxidable",
+      "Instalación mecánica y eléctrica incluida (Bajío o Culiacán)",
+    ],
+    frutas: ["tomate", "durazno"],
+    tipoCopita: "rodillo-clip",
+    estatus: "disponible",
+    marcaFabricante: "Meganics",
+    resumenTarjeta: "Instalación incluida",
+    nombreCorto: "Clasificadora · 2 líneas x 18 salidas",
+    precio: "$1,600,000 MXN + IVA",
+    facilidades:
+      "Incluye instalación mecánica y eléctrica si el empaque está en la zona del Bajío o de Culiacán. No incluye flete. Pago de contado antes de embarque.",
+    fichaTecnica: [
+      { etiqueta: "Qué se vende", valor: "El singulador, la clasificadora de rodillos y los bancos de salida. Todo en acero inoxidable" },
+      { etiqueta: "Líneas y salidas", valor: "2 líneas x 18 salidas (las salidas se confirman en sitio)" },
+      { etiqueta: "Para qué fruta", valor: "Tomate o durazno" },
+      { etiqueta: "Lo que se ve", valor: "Gabinete de control con pantalla táctil · gabinete grande sobre la línea · elevador de banda a la entrada · nave techada, instalación limpia" },
+      { etiqueta: "Lo que falta confirmar", valor: "Si clasifica por color, el paso de rodillo, el año y la capacidad. Pregunte y lo averiguamos antes de que venga a verla" },
+      { etiqueta: "Instalación", valor: "Mecánica y eléctrica, incluida en el precio, en zona del Bajío o Culiacán" },
+    ],
+    garantia:
+      "Ésta la estamos publicando con lo que hay: fotos de la máquina en su nave y lo que nos dijo el dueño. Antes de que usted la compre, la vamos a ver y le decimos cómo está de verdad. Lo que sí es seguro es lo que ve en las fotos: inoxidable, bajo techo, con su gabinete de control.",
+  },
+  {
     slug: "clasificadora-maf-2x22-tomate",
     nombre: "Clasificadora MAF — 2 líneas x 22 salidas (tomate)",
     categoria: "Líneas de empaque usadas",
