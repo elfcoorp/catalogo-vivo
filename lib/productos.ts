@@ -37,6 +37,7 @@ export const PRODUCTOS: Producto[] = [
     clasificaPor: ["diametro", "color"],
     estatus: "disponible",
     marcaFabricante: "CIU",
+    tiktok: "https://www.tiktok.com/@elfcoorp/video/7683160439311715605",
     resumenTarjeta: "Capacidad 450 kg/línea/hora",
     nombreCorto: "Calibrador · 4 líneas x 12 salidas",
     pasoCopita: "Rodillo 1¼\"",
