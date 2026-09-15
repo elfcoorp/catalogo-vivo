@@ -181,6 +181,7 @@ export const PRODUCTOS: Producto[] = [
     tipoCopita: "rodillo-clip",
     estatus: "disponible",
     marcaFabricante: "Meganics",
+    zona: "Sinaloa",
     resumenTarjeta: "Instalación incluida",
     nombreCorto: "Clasificadora · 2 líneas x 18 salidas",
     precio: "$1,600,000 MXN + IVA",
