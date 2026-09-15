@@ -182,6 +182,7 @@ export const PRODUCTOS: Producto[] = [
     estatus: "disponible",
     marcaFabricante: "Meganics",
     zona: "Sinaloa",
+    videoYoutube: "https://youtube.com/shorts/kA3yeo5ZDRw",
     resumenTarjeta: "Instalación incluida",
     nombreCorto: "Clasificadora · 2 líneas x 18 salidas",
     precio: "$1,600,000 MXN + IVA",
