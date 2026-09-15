@@ -185,7 +185,7 @@ export const PRODUCTOS: Producto[] = [
     videoYoutube: "https://youtube.com/shorts/kA3yeo5ZDRw",
     resumenTarjeta: "Instalación incluida",
     nombreCorto: "Clasificadora · 2 líneas x 18 salidas",
-    precio: "$1,600,000 MXN + IVA",
+    precio: "Precio a consultar",
     facilidades:
       "Incluye instalación mecánica y eléctrica si el empaque está en la zona del Bajío o de Culiacán. No incluye flete. Pago de contado antes de embarque.",
     fichaTecnica: [
