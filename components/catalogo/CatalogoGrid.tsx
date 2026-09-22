@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ProductoCard } from "./ProductoCard";
 import { FiltrosLaterales, FILTROS_VACIOS, type FiltrosSeleccion } from "./FiltrosLaterales";
 import { BarraSuperior } from "./BarraSuperior";
+import { SeguirViendo } from "./SeguirViendo";
 import { CONFIG } from "@/lib/config";
 import { PRODUCTOS } from "@/lib/productos";
 import { useLang } from "@/lib/i18n";
@@ -74,6 +75,13 @@ export function CatalogoGrid({ vendedorSlug, modoTecnico, modoDueno }: CatalogoG
   return (
     <>
       <BarraSuperior busqueda={busqueda} onBusquedaChange={setBusqueda} modoTecnico={modoTecnico} modoDueno={modoDueno} />
+
+      {/* Las máquinas que esta persona ya había abierto. Si no ha abierto
+          ninguna, no dibuja nada. Va hasta arriba a propósito: es lo que
+          andaba viendo. Mientras busca algo no sale, para no estorbar. */}
+      {busqueda.trim().length === 0 && (
+        <SeguirViendo vendedorSlug={vendedorSlug} modoTecnico={modoTecnico} />
+      )}
 
       <section className="mx-auto max-w-6xl px-5 pb-24 pt-8">
       <div className="md:grid md:grid-cols-[220px_1fr] md:items-start md:gap-10">

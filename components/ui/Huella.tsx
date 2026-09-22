@@ -15,6 +15,7 @@
  */
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { apuntarVisto, slugDeRuta } from "@/lib/loQueVio";
 
 const LLAVE = "elfco-clave";
 const CLAVE = /^[a-z0-9]{4,8}$/i;
@@ -23,6 +24,12 @@ export function Huella() {
   const ruta = usePathname();
 
   useEffect(() => {
+    /* Se apunta la máquina que abrió, para acomodarle la portada la próxima
+       vez. Esto va ANTES de lo de la clave y no depende de ella: funciona
+       aunque haya entrado sin liga. */
+    const slug = slugDeRuta(ruta);
+    if (slug) apuntarVisto(slug);
+
     let c: string | null = null;
     try {
       const u = new URL(window.location.href);

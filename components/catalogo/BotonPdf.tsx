@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
 import { generarCatalogoPdf } from "@/lib/generarPdf";
+import { avisar } from "@/lib/avisar";
 import type { Producto } from "@/lib/tipos";
 
 interface BotonPdfProps {
@@ -22,6 +23,11 @@ export function BotonPdf({ productos, etiqueta, nombreArchivo, className }: Boto
     setGenerando(true);
     try {
       const archivo = await generarCatalogoPdf(CONFIG, productos, nombreArchivo);
+      /* Se avisa en cuanto el PDF está hecho, no al final: si la persona
+         cancela el menú de compartir del teléfono, de todos modos ya se tomó
+         la molestia de generarlo, y eso ya dice que le interesa. El detalle
+         es qué descargó: el catálogo entero o una sola máquina. */
+      avisar("descargo", nombreArchivo);
       if (navigator.canShare?.({ files: [archivo] })) {
         await navigator.share({ files: [archivo], title: etiqueta });
       } else {

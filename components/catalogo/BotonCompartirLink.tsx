@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { avisar } from "@/lib/avisar";
 
 interface BotonCompartirLinkProps {
   etiqueta: string;
@@ -22,6 +23,11 @@ export function BotonCompartirLink({ etiqueta, className }: BotonCompartirLinkPr
         ? `${actual.origin}${actual.pathname}?modo=tecnico`
         : `${actual.origin}${actual.pathname}`;
     }
+    /* Se avisa al picar, no al terminar: el menú de compartir del teléfono no
+       nos dice si de veras mandó algo, y de todos modos picar el botón ya es
+       señal. Qué compartió va en el detalle: la ruta de la página. */
+    avisar("compartio", url.replace(/^https?:\/\/[^/]+/, "") || "/");
+
     if (navigator.share) {
       try {
         await navigator.share({ title: document.title, url });

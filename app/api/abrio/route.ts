@@ -19,11 +19,23 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-/* Los nombres de las variables los puso Vercel al conectar la base. */
-const redis = new Redis({
-  url: process.env.KV_REST_API_URL!,
-  token: process.env.KV_REST_API_TOKEN!,
-});
+/**
+ * La base se abre DENTRO de cada llamada, no al cargar el archivo.
+ *
+ * Por qué: las llaves están marcadas "Sensitive" en Vercel, así que la máquina
+ * de Eduardo las baja como el texto "[SENSITIVE]". Si el cliente de Redis se
+ * construía arriba, `next build` tronaba aquí en su computadora —"invalid URL,
+ * received [SENSITIVE]"— aunque en Vercel, donde sí están las de verdad,
+ * funcionara. Así el build local pasa y en producción trabaja igual.
+ *
+ * Los nombres de las variables los puso Vercel al conectar la base.
+ */
+function abrirBase() {
+  return new Redis({
+    url: process.env.KV_REST_API_URL!,
+    token: process.env.KV_REST_API_TOKEN!,
+  });
+}
 
 /** La clave son 6 letras/números; cualquier otra cosa se ignora sin ruido. */
 const CLAVE = /^[a-z0-9]{4,8}$/;
@@ -45,24 +57,39 @@ export async function GET(req: Request) {
   if (!esperado || auth !== "Bearer " + esperado) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
+  const redis = abrirBase();
   const dias = Number(new URL(req.url).searchParams.get("dias") ?? 0) || 0;
   const desde = dias ? Date.now() - dias * 86400000 : 0;
 
   const claves = await redis.smembers("claves");
-  const salida: { c: string; vistas: { ruta: string; t: string }[] }[] = [];
+  /* accion y detalle van sólo en los renglones de descarga o de compartida;
+     los de visita simple no los traen, y así quedaron los de antes. */
+  type Vista = { ruta: string; t: string; accion?: string; detalle?: string };
+  const salida: { c: string; vistas: Vista[] }[] = [];
   for (const c of claves) {
-    const crudo = await redis.lrange<string | { ruta: string; t: string }>(`abrio:${c}`, 0, 199);
+    const crudo = await redis.lrange<string | Vista>(`abrio:${c}`, 0, 199);
     /* el cliente de Upstash a veces ya devuelve el JSON convertido */
     const vistas = crudo
-      .map((s) => (typeof s === "string" ? (JSON.parse(s) as { ruta: string; t: string }) : s))
+      .map((s) => (typeof s === "string" ? (JSON.parse(s) as Vista) : s))
       .filter((v) => new Date(v.t).getTime() >= desde);
     if (vistas.length) salida.push({ c, vistas });
   }
   return NextResponse.json({ ok: true, claves: salida }, { headers: { "cache-control": "no-store" } });
 }
 
+/**
+ * Las acciones que se apuntan además de abrir, desde el 22 de septiembre de
+ * 2026. Eduardo las pidió porque valen más que una visita: el que descarga el
+ * PDF se lo va a enseñar a alguien, y el que comparte la liga ya la está
+ * moviendo adentro de su empresa.
+ *
+ * Cualquier otra palabra se guarda como visita normal, para que una versión
+ * vieja del catálogo abierta en el teléfono de alguien nunca rompa nada.
+ */
+const ACCIONES = new Set(["descargo", "compartio"]);
+
 export async function POST(req: Request) {
-  let cuerpo: { c?: unknown; ruta?: unknown } = {};
+  let cuerpo: { c?: unknown; ruta?: unknown; accion?: unknown; detalle?: unknown } = {};
   try {
     cuerpo = await req.json();
   } catch {
@@ -72,10 +99,15 @@ export async function POST(req: Request) {
   const ruta = String(cuerpo.ruta ?? "/").slice(0, 120);
   if (!CLAVE.test(c)) return NextResponse.json({ ok: false }, { status: 400 });
 
+  const bruta = String(cuerpo.accion ?? "");
+  const accion = ACCIONES.has(bruta) ? bruta : "";
+  const detalle = String(cuerpo.detalle ?? "").slice(0, 80);
+
+  const redis = abrirBase();
   const t = new Date().toISOString();
   await Promise.all([
     /* la lista de lo que vio, la más reciente primero; se guardan las últimas 200 */
-    redis.lpush(`abrio:${c}`, JSON.stringify({ ruta, t })),
+    redis.lpush(`abrio:${c}`, JSON.stringify(accion ? { ruta, t, accion, detalle } : { ruta, t })),
     redis.ltrim(`abrio:${c}`, 0, 199),
     /* el conjunto de claves que han abierto algo, para recorrerlas después */
     redis.sadd("claves", c),
