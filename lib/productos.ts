@@ -101,7 +101,12 @@ export const PRODUCTOS: Producto[] = [
     videoYoutube: "https://youtu.be/TctLsLShK0A",
     verificada: true,
     zona: "Noroeste de México",
-    precio: "$4,500,000 MXN + IVA",
+    /* ⚠️ SIN PRECIO A PROPÓSITO. El 25 de septiembre de 2026 se puso en
+       $4,500,000 y ese mismo día Eduardo lo quitó: la máquina es de un
+       tercero y la exclusividad es de palabra, sin firmar. Con el precio
+       público, el dueño ve el margen y el comprador puede irse directo con
+       él. No se vuelve a poner hasta que haya convenio firmado. */
+    precio: "Precio a consultar",
     facilidades: "Pago de contado antes de embarque. Sin instalar.",
     fichaTecnica: [
       { etiqueta: "Clasifica por", valor: "Primera y segunda calidad (en las mesas de selección manual)" },
