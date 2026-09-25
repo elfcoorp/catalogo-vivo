@@ -101,7 +101,7 @@ export const PRODUCTOS: Producto[] = [
     videoYoutube: "https://youtu.be/TctLsLShK0A",
     verificada: true,
     zona: "Noroeste de México",
-    precio: "Precio a consultar",
+    precio: "$4,500,000 MXN + IVA",
     facilidades: "Pago de contado antes de embarque. Sin instalar.",
     fichaTecnica: [
       { etiqueta: "Clasifica por", valor: "Primera y segunda calidad (en las mesas de selección manual)" },
