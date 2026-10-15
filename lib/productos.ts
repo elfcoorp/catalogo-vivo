@@ -164,6 +164,66 @@ export const PRODUCTOS: Producto[] = [
       "Se vende como está y se puede ver antes. Pregunte lo que quiera — modelos, números de serie, qué trae por dentro — y le mandamos foto de lo que pida. Lo que le decimos con seguridad es de dónde salió: de una línea Ferba 4 x 18 de tomate que estaba trabajando.",
   },
   {
+    slug: "linea-ciu-2x7-tomate-aguacate",
+    nombre: "Línea completa CIU para tomate y aguacate — clasificadora por peso 2 líneas x 7 salidas, con cámaras",
+    categoria: "Líneas de empaque usadas",
+    imagen: "/productos/ciu-2x7-1.jpg",
+    galeria: [
+      "/productos/ciu-2x7-2.jpg",
+      "/productos/ciu-2x7-3.jpg",
+      "/productos/ciu-2x7-4.jpg",
+      "/productos/ciu-2x7-5.jpg",
+      "/productos/ciu-2x7-6.jpg",
+      "/productos/ciu-2x7-7.jpg",
+      "/productos/ciu-2x7-8.jpg",
+      "/productos/ciu-2x7-9.jpg",
+      "/productos/ciu-2x7-10.jpg",
+      "/productos/ciu-2x7-11.jpg",
+      "/productos/ciu-2x7-12.jpg",
+    ],
+    paraQuien:
+      "Empaques chicos y medianos de tomate o aguacate que quieren una línea completa, con clasificación por peso y cámaras, lista para arrancar esta temporada sin esperar los meses que tarda una nueva.",
+    beneficio:
+      "No es solo la clasificadora: es la línea entera, de la entrada a la caja. Elevador, cepilladora, singulador, clasificadora computarizada por peso con sistema de visión, banda de retorno, bancos de llenado y la caseta de control. Se vende completa, como se ve en las fotos y en los videos, corriendo con tomate y con aguacate.",
+    caracteristicas: [
+      "Marca CIU · 2 líneas x 7 salidas · rodillos paso 3¾\"",
+      "Por peso, con cámaras (sistema Real Vision)",
+      "Línea completa: elevador, cepilladora, singulador, retorno, bancos y caseta",
+    ],
+    frutas: ["tomate", "aguacate"],
+    clasificaPor: ["peso", "color"],
+    tipoCopita: "rodillo-clip",
+    estatus: "disponible",
+    marcaFabricante: "CIU",
+    zona: "Yucatán",
+    videoYoutube: [
+      "https://youtube.com/shorts/A0jlSgtlcp0", // clasificando tomate
+      "https://youtube.com/shorts/zlGHfejb2us", // clasificando aguacate
+    ],
+    resumenTarjeta: "Línea completa con cámaras",
+    nombreCorto: "Línea completa · 2 líneas x 7 salidas",
+    pasoCopita: "Rodillos paso 3¾\" · 7 salidas @ 22½\"",
+    /* ⚠️ SIN PRECIO A PROPÓSITO (14-oct-2026): máquina de un tercero, sin
+       convenio firmado todavía. El precio se da en privado. Ver el ERP. */
+    precio: "Precio a consultar",
+    facilidades: "Pago de contado antes de embarque. Sin instalar. No incluye flete.",
+    fichaTecnica: [
+      { etiqueta: "Clasificadora", valor: "Computarizada de rodillos @ 3¾\", 2 líneas x 7 salidas @ 22½\" · clasifica por peso · descarga a un solo lado · mesa de control · motor trifásico 220/440 V" },
+      { etiqueta: "Sistema de visión", valor: "Real Vision para 2 líneas paso 3¾\": cajón de video, cámaras industriales de alta resolución, iluminación LED, tarjetas de control, software CIU" },
+      { etiqueta: "Entrada", valor: "Base para soporte de caja de 0.90 m · elevador de rodillos de 0.90 x 3.0 m (contacto en inoxidable, tubos de PVC) · guías de desecho a un costado y cajón de desecho lateral acojinado · andamio lateral con pasamanos" },
+      { etiqueta: "Cepilladora", valor: "0.60 m de ancho x 15 cepillos @ 119 mm, cepillos de 4½\" de diámetro corte recto, contacto en inoxidable, motor trifásico" },
+      { etiqueta: "Singulador", valor: "De bandas en V, 2 líneas x 3.05 m, para clasificadora de rodillos paso 3¾\"" },
+      { etiqueta: "Retorno y llenado", valor: "Banda de retorno de 12\" x 10 m (banda sanitaria blanca de PVC) · 7 bancos para llenado de caja de 0.30 x 0.45 m con patas ajustables" },
+      { etiqueta: "Caseta de control", valor: "2.20 x 2.20 m con escalera (no incluye cristales)" },
+      { etiqueta: "Tablero", valor: "Gabinete con 5 variadores PowerFlex, contactores y guardamotores, con ventilación" },
+      { etiqueta: "Acabado", valor: "Acero al carbón con pintura electrostática; todo lo que toca la fruta en acero inoxidable" },
+      { etiqueta: "Para qué fruta", valor: "Tomate (se ve en video) y aguacate (se ve en video). Rodillos paso 3¾\"" },
+      { etiqueta: "Dónde está", valor: "Yucatán, bajo techo, armada. Se puede ver trabajando" },
+    ],
+    garantia:
+      "Antes de que te la lleves, la encendemos frente a ti: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
+  },
+  {
     slug: "clasificadora-meganics-2x18",
     nombre: "Clasificadora Meganics en inoxidable — 2 líneas x 18 salidas",
     categoria: "Líneas de empaque usadas",
