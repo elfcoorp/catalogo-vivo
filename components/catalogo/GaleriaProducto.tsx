@@ -9,7 +9,7 @@ interface GaleriaProductoProps {
   imagen?: string;
   galeria?: string[];
   video?: string;
-  videoYoutube?: string;
+  videoYoutube?: string | string[];
   alt: string;
   className?: string;
 }
@@ -20,10 +20,13 @@ interface GaleriaProductoProps {
  */
 export function GaleriaProducto({ imagen, galeria, video, videoYoutube, alt, className }: GaleriaProductoProps) {
   const fotos = [imagen, ...(galeria ?? [])].filter((f): f is string => Boolean(f));
-  const youtubeEmbed = videoYoutube ? urlIncrustadaYoutube(videoYoutube) : null;
+  /* Una o varias ligas de YouTube; cada una es una miniatura con su botón de play. */
+  const youtubeEmbeds = (Array.isArray(videoYoutube) ? videoYoutube : videoYoutube ? [videoYoutube] : [])
+    .map((u) => urlIncrustadaYoutube(u))
+    .filter((u): u is string => Boolean(u));
   const items = [
     ...fotos.map((src) => ({ tipo: "foto" as const, src })),
-    ...(youtubeEmbed ? [{ tipo: "youtube" as const, src: youtubeEmbed }] : []),
+    ...youtubeEmbeds.map((src) => ({ tipo: "youtube" as const, src })),
     ...(video ? [{ tipo: "video" as const, src: video }] : []),
   ];
   const [activo, setActivo] = useState(0);

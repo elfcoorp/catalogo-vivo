@@ -187,7 +187,10 @@ export const PRODUCTOS: Producto[] = [
     estatus: "disponible",
     marcaFabricante: "Meganics",
     zona: "Sinaloa",
-    videoYoutube: "https://youtube.com/shorts/kA3yeo5ZDRw",
+    videoYoutube: [
+      "https://youtube.com/shorts/c-dvKtBhnZY", // corriendo con tomate (14-oct-2026)
+      "https://youtube.com/shorts/kA3yeo5ZDRw",
+    ],
     resumenTarjeta: "Instalación incluida",
     nombreCorto: "Clasificadora · 2 líneas x 18 salidas",
     precio: "Precio a consultar",

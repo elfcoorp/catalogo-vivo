@@ -114,8 +114,8 @@ export interface Producto {
   marcaFabricante?: string;
   /** Zona general de ubicación (nunca ciudad ni domicilio exacto). Opcional. */
   zona?: string;
-  /** URL de YouTube (shorts o normal) con el video de la máquina funcionando. Opcional. */
-  videoYoutube?: string;
+  /** URL de YouTube (shorts o normal) con el video de la máquina funcionando. Puede ser una o varias: la primera es la que sale primero en la galería. Opcional. */
+  videoYoutube?: string | string[];
   /**
    * URL del TikTok de la máquina. Solo se LIGA (botón "Ver en TikTok"): TikTok
    * no se puede meter dentro de la ficha como YouTube, y aunque se pudiera,
