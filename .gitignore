@@ -55,3 +55,6 @@ GENERADOR-DE-LAYOUTS.md
 
 .vercel
 .env*
+
+# Los planos en PDF si se publican (el boton "Descargar plano" los usa)
+!public/planos/*.pdf
