@@ -126,7 +126,8 @@ export function FichaProductoContenido({ producto: productoOriginal, relacionado
         <section className="mt-16">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-display text-2xl font-semibold">{t("planoDeLaMaquina")}</h2>
-            <a href={producto.plano} download className="btn-ghost inline-flex items-center gap-2 text-sm">
+            {/* PDF en pestaña nueva: en el teléfono (y desde WhatsApp) el PNG con `download` no bajaba nada (Eduardo, 14-oct-2026). El PDF se abre y desde ahí se guarda o comparte. */}
+            <a href={producto.plano.replace(".png", ".pdf")} target="_blank" rel="noopener" className="btn-ghost inline-flex items-center gap-2 text-sm">
               <Icon name="lucide:download" size={16} /> {t("descargarPlano")}
             </a>
           </div>
