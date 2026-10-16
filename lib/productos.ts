@@ -168,6 +168,7 @@ export const PRODUCTOS: Producto[] = [
     nombre: "Línea completa CIU para tomate y aguacate — clasificadora por peso 2 líneas x 7 salidas, con cámaras",
     categoria: "Líneas de empaque usadas",
     imagen: "/productos/ciu-2x7-1.jpg",
+    plano: "/planos/linea-ciu-2x7-plano.png",
     galeria: [
       "/productos/ciu-2x7-2.jpg",
       "/productos/ciu-2x7-3.jpg",
@@ -218,6 +219,10 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Tablero", valor: "Gabinete con 5 variadores PowerFlex, contactores y guardamotores, con ventilación" },
       { etiqueta: "Acabado", valor: "Acero al carbón con pintura electrostática; todo lo que toca la fruta en acero inoxidable" },
       { etiqueta: "Para qué fruta", valor: "Tomate (se ve en video) y aguacate (se ve en video). Rodillos paso 3¾\"" },
+      /* Del layout que mandó Ramón el 16 de octubre de 2026: 14,056.46 x 6,833.02 mm.
+         Va en la ficha porque es de lo primero que pregunta el comprador —si le
+         cabe en su nave— y hasta hoy no estaba por ningún lado. */
+      { etiqueta: "Espacio que ocupa", valor: "14.06 m de largo x 6.83 m de ancho, en forma de L. En el plano viene el acomodo completo con la caseta de control" },
       { etiqueta: "Dónde está", valor: "Yucatán, bajo techo, armada. Se puede ver trabajando" },
     ],
     garantia:
