@@ -43,8 +43,6 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
   ${flecha(560, 290, 700, 190)}
   ${txt(300, 300, "CURVAS DE BANDA TERMOPLÁSTICA 90°")}
   ${txt(300, 334, "unen dos tramos en esquina, sin golpear la fruta")}
-  ${flecha(700, 480, 560, 560)}
-  ${txt(720, 470, "otra curva", "start")}
   ${flecha(300, 1110, 420, 1180)}
   ${txt(60, 1100, "TRANSPORTADORES DE RODILLOS")}
   ${txt(60, 1134, "llevan la caja de una máquina a otra")}
