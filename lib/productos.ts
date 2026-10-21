@@ -229,6 +229,81 @@ export const PRODUCTOS: Producto[] = [
       "Antes de que te la lleves, la encendemos frente a ti: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
   {
+    slug: "curva-banda-termoplastica-90",
+    nombre: "Curva de banda termoplástica 90° — 0.90 m de ancho (CIU)",
+    categoria: "Líneas de empaque usadas",
+    imagen: "/productos/curva-termoplastica-1.jpg",
+    galeria: [
+      "/productos/curva-termoplastica-2.jpg",
+      "/productos/curva-termoplastica-3.jpg",
+      "/productos/curva-termoplastica-layout.jpg",
+    ],
+    paraQuien:
+      "Empaques que necesitan dar vuelta a la línea en una esquina sin golpear la fruta ni frenar el flujo: donde un transportador recto termina contra una pared y la línea tiene que seguir en otra dirección.",
+    beneficio:
+      "Una curva de 90° con banda termoplástica de polipropileno: la fruta da la vuelta sobre la misma banda, sin caídas ni transferencias. Es la pieza que une dos tramos de línea en esquina. En el layout de la galería se ve dónde van.",
+    caracteristicas: [
+      "Marca CIU · banda termoplástica de polipropileno de 2\"",
+      "0.90 m de ancho · 90° · motorreductor trifásico 1 HP",
+      "Contacto con la fruta en acero inoxidable",
+    ],
+    frutas: ["tomate", "mango", "aguacate", "cítricos", "cebolla"],
+    estatus: "disponible",
+    marcaFabricante: "CIU",
+    resumenTarjeta: "Da la vuelta sin golpear la fruta",
+    nombreCorto: "Curva termoplástica · 0.90 m · 90°",
+    /* Sin precio a propósito (Eduardo, 21-oct-2026). Lo interno está en el ERP. */
+    precio: "Precio a consultar",
+    facilidades: "Pago de contado antes de embarque. Sin instalar. No incluye flete.",
+    fichaTecnica: [
+      { etiqueta: "Qué es", valor: "Curva de banda termoplástica de 90°, modelo de 0.90 m de ancho" },
+      { etiqueta: "Banda", valor: "Termoplástica de polipropileno de 2\", una sola pieza en toda la curva" },
+      { etiqueta: "Estructura", valor: "Acero al carbón con pintura electrostática; lo que toca la fruta, en acero inoxidable" },
+      { etiqueta: "Motor", valor: "Motorreductor trifásico 220/440 V, 1 HP (0.74 kW), 60 Hz" },
+      { etiqueta: "Capacidad", valor: "10 a 14 toneladas por hora (dato del fabricante para este ancho)" },
+      { etiqueta: "Peso", valor: "Aprox. 527 kg" },
+      { etiqueta: "Altura", valor: "Ajustable en las patas, según la línea donde se conecte" },
+      { etiqueta: "Para qué sirve", valor: "Unir dos transportadores en esquina. Ver el layout en la galería: las curvas van donde la línea da vuelta" },
+    ],
+    garantia:
+      "Antes de que te la lleves, la encendemos frente a ti: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
+  },
+  {
+    slug: "transportadores-rodillos-motorizados-16in",
+    nombre: "Transportadores de rodillos motorizados — 16\" x 3.00 m, 6 tramos (CIU, sin motor ni patas)",
+    categoria: "Refacciones y equipo",
+    imagen: "/productos/transportador-rodillos-1.jpg",
+    galeria: ["/productos/curva-termoplastica-layout.jpg"],
+    paraQuien:
+      "Empaques que necesitan llevar la caja de una máquina a otra, o armar la mesa de llenado, y tienen quien les ponga motor y patas: se llevan el transportador hecho y le ahorran la fabricación.",
+    beneficio:
+      "Seis tramos de 3 metros de transportador de rodillos motorizado, con barandal, con sus rodillos y sus ligas de transmisión. Les falta el motorreductor y las patas: se consiguen aparte. Se venden por tramo o todos juntos.",
+    caracteristicas: [
+      "Marca CIU · 16\" de ancho x 3.00 m de largo · con barandal",
+      "6 tramos · con rodillos y ligas de transmisión",
+      "Faltan motor y patas (se consiguen aparte)",
+    ],
+    frutas: ["tomate", "mango", "aguacate", "cítricos", "chile morrón", "cebolla"],
+    estatus: "disponible",
+    marcaFabricante: "CIU",
+    resumenTarjeta: "6 tramos de 3 m · sin motor ni patas",
+    nombreCorto: "Transportador de rodillos · 16\" x 3 m",
+    precio: "Precio a consultar",
+    facilidades: "Por tramo o los seis. Pago de contado antes de embarque. No incluye flete.",
+    fichaTecnica: [
+      { etiqueta: "Qué es", valor: "Transportador de rodillos motorizado (de los que mueven la caja con rodillos encadenados por ligas), no de gravedad" },
+      { etiqueta: "Medidas", valor: "16\" (40 cm) de ancho útil x 3.00 m de largo por tramo" },
+      { etiqueta: "Cuántos", valor: "6 tramos iguales. Se pueden unir en línea recta o combinar con curvas" },
+      { etiqueta: "Estructura", valor: "100 % acero al carbón con pintura electrostática, con barandal" },
+      { etiqueta: "Lo que traen", valor: "Rodillos y ligas de transmisión completos" },
+      { etiqueta: "Lo que NO traen", valor: "Motorreductor (trifásico 220/440 V) y patas. Se cotizan aparte, o se los pone el comprador" },
+      { etiqueta: "Para qué sirven", valor: "Llevar la caja de una máquina a otra, o armar el tramo de llenado de caja. Ver el layout en la galería" },
+      { etiqueta: "Cómo están", valor: "Guardados y envueltos, sin uso reciente. Se pueden ver antes de comprar" },
+    ],
+    garantia:
+      "Se venden como están y se pueden ver antes de comprar. Pregunte lo que quiera y le mandamos foto de lo que pida. Como no traen motor, no se prenden en la bodega: lo que sí revisamos frente a usted es que los rodillos giren y las ligas estén completas.",
+  },
+  {
     slug: "clasificadora-meganics-2x18",
     nombre: "Clasificadora Meganics en inoxidable — 2 líneas x 18 salidas",
     categoria: "Líneas de empaque usadas",
