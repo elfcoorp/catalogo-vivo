@@ -308,6 +308,7 @@ export const PRODUCTOS: Producto[] = [
     nombre: "Clasificadora Meganics en inoxidable — 2 líneas x 18 salidas",
     categoria: "Líneas de empaque usadas",
     imagen: "/productos/meganics-2x18-4.jpg",
+    plano: "/planos/meganics-2x18-plano.png",
     galeria: [
       "/productos/meganics-2x18-2.jpg",
       "/productos/meganics-2x18-3.jpg",
@@ -341,7 +342,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Qué se vende", valor: "Singulador de bandas en V, clasificadora electrónica de 2 líneas x 18 salidas y banda de retorno. Estructura atornillada en acero inoxidable; transmisión en acero negro (cadenas, catarinas, flechas y chumaceras)" },
       { etiqueta: "Para qué fruta", valor: "Tomate bola y tomate saladette" },
       { etiqueta: "Clasifica por", valor: "Diámetro y color, con cámaras inteligentes de alta gama. Interfaz en pantalla táctil industrial para trabajo continuo" },
-      { etiqueta: "Paso y salidas", valor: "Rodillos negros paso 3¾\" (95.25 mm) · 2 líneas x 18 salidas · caídas a ambos lados" },
+      { etiqueta: "Paso y salidas", valor: "Rodillos negros paso 3¾\" (95.25 mm) · 2 líneas x 18 salidas a cada 22½\", alternadas: caídas a los dos lados" },
       { etiqueta: "Velocidad", valor: "12 frutos por segundo por línea · 69,120 frutos por hora al 80 % de llenado" },
       { etiqueta: "Medidas de la clasificadora", valor: "13.1 m de largo x 91.4 cm de ancho x 1.5 m de alto" },
       { etiqueta: "Singulador", valor: "2 líneas, 91.4 cm de ancho x 2.1 m de largo, bandas de PVC sanitario blanco, motor montado en flecha" },
