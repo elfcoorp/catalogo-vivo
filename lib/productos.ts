@@ -233,6 +233,7 @@ export const PRODUCTOS: Producto[] = [
     nombre: "Curva de banda termoplástica 90° — 0.90 m de ancho (CIU)",
     categoria: "Líneas de empaque usadas",
     imagen: "/productos/curva-termoplastica-1.jpg",
+    plano: "/planos/curva-termoplastica-plano.png",
     galeria: [
       "/productos/curva-termoplastica-2.jpg",
       "/productos/curva-termoplastica-3.jpg",
@@ -273,6 +274,7 @@ export const PRODUCTOS: Producto[] = [
     nombre: "Transportadores de rodillos motorizados — 16\" x 3.00 m, 6 tramos (CIU, sin motor ni patas)",
     categoria: "Refacciones y equipo",
     imagen: "/productos/transportador-rodillos-1.jpg",
+    plano: "/planos/transportador-rodillos-plano.png",
     galeria: ["/productos/curva-termoplastica-layout.jpg"],
     paraQuien:
       "Empaques que necesitan llevar la caja de una máquina a otra, o armar la mesa de llenado, y tienen quien les ponga motor y patas: se llevan el transportador hecho y le ahorran la fabricación.",
