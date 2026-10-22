@@ -314,15 +314,16 @@ export const PRODUCTOS: Producto[] = [
       "/productos/meganics-2x18-1.jpg",
     ],
     paraQuien:
-      "Empaques de tomate o durazno del Bajío o de la zona de Culiacán que quieren clasificadora de rodillos en inoxidable, instalada y corriendo, sin pagar precio de nueva.",
+      "Empaques de tomate bola o saladette del Bajío o de la zona de Culiacán que quieren clasificadora electrónica de rodillos en inoxidable, con cámaras, instalada y corriendo, sin pagar precio de nueva.",
     beneficio:
-      "Se vende el corazón de la línea: singulador, clasificadora y los bancos donde cae la fruta, todo en acero inoxidable. Y a diferencia de otras del catálogo, ésta va con la instalación mecánica y eléctrica incluida.",
+      "Se vende el corazón de la línea: singulador de bandas en V, clasificadora electrónica de 2 líneas x 18 salidas con cámaras inteligentes y pantalla táctil, y la banda de retorno, todo con estructura en acero inoxidable. Clasifica por diámetro y color, a 12 frutos por segundo por línea. Y a diferencia de otras del catálogo, ésta va con la instalación mecánica y eléctrica incluida.",
     caracteristicas: [
-      "Marca Meganics · 2 líneas x 18 salidas",
-      "Acero inoxidable",
+      "Marca Meganics · 2 líneas x 18 salidas · paso 3¾\"",
+      "Estructura inoxidable · cámaras · pantalla táctil",
       "Instalación mecánica y eléctrica incluida (Bajío o Culiacán)",
     ],
-    frutas: ["tomate", "durazno"],
+    frutas: ["tomate"],
+    clasificaPor: ["diametro", "color"],
     tipoCopita: "rodillo-clip",
     estatus: "disponible",
     marcaFabricante: "Meganics",
@@ -337,15 +338,18 @@ export const PRODUCTOS: Producto[] = [
     facilidades:
       "Incluye instalación mecánica y eléctrica si el empaque está en la zona del Bajío o de Culiacán. No incluye flete. Pago de contado antes de embarque.",
     fichaTecnica: [
-      { etiqueta: "Qué se vende", valor: "El singulador, la clasificadora de rodillos y los bancos de salida. Todo en acero inoxidable" },
-      { etiqueta: "Líneas y salidas", valor: "2 líneas x 18 salidas (las salidas se confirman en sitio)" },
-      { etiqueta: "Para qué fruta", valor: "Tomate o durazno" },
-      { etiqueta: "Lo que se ve", valor: "Gabinete de control con pantalla táctil · gabinete grande sobre la línea · elevador de banda a la entrada · nave techada, instalación limpia" },
-      { etiqueta: "Lo que falta confirmar", valor: "Si clasifica por color, el paso de rodillo, el año y la capacidad. Pregunte y lo averiguamos antes de que venga a verla" },
+      { etiqueta: "Qué se vende", valor: "Singulador de bandas en V, clasificadora electrónica de 2 líneas x 18 salidas y banda de retorno. Estructura atornillada en acero inoxidable; transmisión en acero negro (cadenas, catarinas, flechas y chumaceras)" },
+      { etiqueta: "Para qué fruta", valor: "Tomate bola y tomate saladette" },
+      { etiqueta: "Clasifica por", valor: "Diámetro y color, con cámaras inteligentes de alta gama. Interfaz en pantalla táctil industrial para trabajo continuo" },
+      { etiqueta: "Paso y salidas", valor: "Rodillos negros paso 3¾\" (95.25 mm) · 2 líneas x 18 salidas · caídas a ambos lados" },
+      { etiqueta: "Velocidad", valor: "12 frutos por segundo por línea · 69,120 frutos por hora al 80 % de llenado" },
+      { etiqueta: "Medidas de la clasificadora", valor: "13.1 m de largo x 91.4 cm de ancho x 1.5 m de alto" },
+      { etiqueta: "Singulador", valor: "2 líneas, 91.4 cm de ancho x 2.1 m de largo, bandas de PVC sanitario blanco, motor montado en flecha" },
+      { etiqueta: "Banda de retorno", valor: "Estructura atornillada en inoxidable, banda sanitaria de PVC blanco" },
       { etiqueta: "Instalación", valor: "Mecánica y eléctrica, incluida en el precio, en zona del Bajío o Culiacán" },
     ],
     garantia:
-      "Ésta la estamos publicando con lo que hay: fotos de la máquina en su nave y lo que nos dijo el dueño. Antes de que usted la compre, la vamos a ver y le decimos cómo está de verdad. Lo que sí es seguro es lo que ve en las fotos: inoxidable, bajo techo, con su gabinete de control.",
+      "Los datos son los del técnico que la atiende. Antes de que usted la compre, la vemos trabajando juntos y le decimos cómo está de verdad. Se entrega instalada y corriendo.",
   },
   {
     slug: "clasificadora-maf-2x22-tomate",
