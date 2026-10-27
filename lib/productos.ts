@@ -413,7 +413,7 @@ export const PRODUCTOS: Producto[] = [
   },
   {
     slug: "clasificadora-6-lineas",
-    nombre: "Clasificadora 6 líneas x 12 salidas (mango, chile morrón, aguacate)",
+    nombre: "Clasificadora 6 líneas x 12 salidas (mango, chile morrón, aguacate, cebolla)",
     categoria: "Líneas de empaque usadas",
     imagen: "/productos/clasificadora-6-lineas.jpg",
     plano: "/planos/clasificadora-6-lineas-plano.png",
@@ -426,11 +426,11 @@ export const PRODUCTOS: Producto[] = [
       "/productos/clasificadora-6-lineas-detalle-6.jpg",
     ],
     paraQuien:
-      "Empacadoras de mango, chile morrón o aguacate que clasifican a mano y quieren pasar a clasificación automática por peso, sin pagar precio de una nueva.",
+      "Empacadoras de mango, chile morrón, aguacate o cebolla que clasifican a mano y quieren pasar a clasificación automática por peso, sin pagar precio de una nueva.",
     beneficio:
       "Clasifica por peso con singulador de cepillos; motor, cadenas, cableado y sistema de pesaje nuevos.",
     caracteristicas: ["Marca CIU · 6 líneas x 12 salidas x 1 de error", "Capacidad 1.9 ton/línea por hora", "Pintura electrostática nueva (gris)"],
-    frutas: ["mango", "chile morrón", "aguacate"],
+    frutas: ["mango", "chile morrón", "aguacate", "cebolla"],
     tipoCopita: "charola",
     clasificaPor: ["peso"],
     estatus: "disponible",
