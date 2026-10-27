@@ -32,10 +32,10 @@ const BANDA = 740;            // arriba de esto va la banda del costado (se deja
 /* la entrada termina en x = 0; las salidas empiezan ahí */
 let segs = blo("INICIAL", T0);
 
-/* singulador de bandas en V (archivo suelto de Gus, 3.3 m): antes de los rodillos, que empiezan en x ≈ -4750 */
+/* singulador de bandas en V (archivo suelto de Gus, 3.3 m): pegado a la entrada de rodillos, sin hueco */
 const FS = F.replace("CLASIFICADORA 2L", "SINGULADOR 2L");
 const SG = leer(parejas(FS));
-const X_SING = -7900, Y_SING = 49; // la línea de centro del singulador (y 335) con la de los rodillos (y 384)
+const X_SING = -4487 - 3110, Y_SING = 49; // pegado: el marco del singulador (termina en x 3110) toca el de la clasificadora (empieza en -4487); las caídas entran sobre los rodillos. Centros: singulador y 335, rodillos y 384
 segs = segs.concat(aplanar(SG.dibujo, SG.bloques, { x: X_SING, y: Y_SING, ex: 1, ey: 1, r: 0 }));
 
 /* recorta un segmento al tramo x0..x1 */
