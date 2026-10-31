@@ -521,6 +521,32 @@ export const PRODUCTOS: Producto[] = [
     garantia: "Antes de que te la lleves, la encendemos frente a ti en la bodega: prendemos y probamos cada función para que la veas trabajar. Se vende como está — puede faltarle un detalle menor (un tornillo, una lámina, o como vaya pintada), nunca algo que afecte su funcionamiento. Tú decides viéndola encendida. No se entrega instalada, salvo que contrates la instalación aparte. Trabajamos con contrato firmado: se cubre un anticipo antes de iniciar la carga, y el resto se liquida antes de que la máquina salga del empaque.",
   },
   {
+    slug: "linea-aweta-pepino-europeo",
+    nombre: "Línea Aweta para pepino europeo — seleccionadora de 12 salidas y 2 emplayadoras SK1",
+    categoria: "Líneas de empaque usadas",
+    paraQuien:
+      "Empaques de pepino europeo que quieren clasificar y emplayar en línea con equipo de marca, sin esperar los meses que tarda una línea nueva.",
+    beneficio:
+      "Marca Aweta, de Holanda, de las más respetadas en pepino: la seleccionadora de 12 salidas con sus bancos y su singulador, más las dos emplayadoras SK1 que envuelven cada pepino en película y la encogen con calor, listo para el supermercado.",
+    caracteristicas: ["Marca Aweta · seleccionadora de 12 salidas", "2 emplayadoras SK1 (los hornos de emplayado)", "Con bancos y singulador"],
+    frutas: ["pepino"],
+    estatus: "disponible",
+    marcaFabricante: "Aweta",
+    resumenTarjeta: "Seleccionadora + 2 emplayadoras · fotos en camino",
+    nombreCorto: "Línea Aweta · pepino europeo",
+    zona: "Noroeste de México",
+    precio: "Precio a consultar",
+    facilidades: "Se vende la seleccionadora con bancos y singulador, y las dos emplayadoras. No incluye bandas ni otros accesorios, ni instalación ni flete.",
+    fichaTecnica: [
+      { etiqueta: "Qué se lleva", valor: "Seleccionadora Aweta de 12 salidas con sus bancos de llenado y su singulador · 2 máquinas de emplayado Aweta SK1" },
+      { etiqueta: "Emplayadoras SK1", valor: "Envuelven cada pepino en película y la encogen con calor (por eso les dicen hornos). Sirven también para poro, zanahoria grande, calabacita y elote. Capacidad y año exactos por confirmar con factura" },
+      { etiqueta: "Seleccionadora", valor: "Marca Aweta, 12 salidas, para pepino europeo. Modelo, año y capacidad por confirmar con factura" },
+      { etiqueta: "Lo que no incluye", valor: "Bandas, curvas y demás accesorios de la línea: se quedan con el dueño" },
+      { etiqueta: "Estado", valor: "Se puede ver antes de decidir. Fotos de la seleccionadora y de las emplayadoras en camino" },
+    ],
+    garantia: "Se vende tal como está, vista por el comprador. Trabajamos con contrato firmado: anticipo antes de iniciar la carga y el resto antes de que la máquina salga.",
+  },
+  {
     slug: "criba-kerian-speed-sizer-x72",
     nombre: "Criba Kerian Speed Sizer X72 — clasificadora de rodillos para pepinillo, jalapeño y tomate",
     categoria: "Líneas de empaque usadas",
