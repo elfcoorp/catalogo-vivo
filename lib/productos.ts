@@ -555,7 +555,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Abertura actual", valor: "Leída en las fotos con cinta: los rodillos van a unas 1¾\" a 1⅞\" entre centros, con una abertura de alrededor de ¾\" a 1\" (19 a 25 mm). Se confirma midiendo en sitio: así se sabe qué tamaños saca hoy" },
       { etiqueta: "Para abrir más", valor: "La abertura la da el mecanismo de ajuste de la máquina. Para fruta más grande (cebolla, hasta 4½\") se le pide a Kerian la pieza de ajuste correspondiente; con la placa a la vista cualquier comprador puede pedirla directo" },
       { etiqueta: "Para qué sirve hoy", valor: "Pepinillo (pickle), chile jalapeño, tomate chico y producto de ese tamaño" },
-      { etiqueta: "Medidas", valor: "Aproximadamente 3 m de largo (por confirmar). El modelo X72 indica rodillos de 72\" (1.83 m) de largo" },
+      { etiqueta: "Medidas", valor: "Aproximadamente 3 m de largo x 1.80 m de ancho (rodillos de 72\", como indica el modelo X72). Medidas exactas por confirmar" },
       { etiqueta: "Material", valor: "Rodillos y todo lo que toca la fruta en acero inoxidable; estructura de acero pintado" },
       { etiqueta: "Estado", valor: "Funcionando. Se puede ver trabajar antes de decidir" },
       { etiqueta: "Motor", valor: "Motorreductor con transmisión por cadena (se ve en las fotos). Datos eléctricos por confirmar" },
