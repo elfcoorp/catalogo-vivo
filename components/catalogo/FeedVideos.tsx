@@ -103,6 +103,8 @@ export function FeedVideos({ slides: slidesOriginales, vendedorSlug, modoTecnico
     try {
       const q = new URLSearchParams(window.location.search);
       setSlides(ordenarParaQuienVe(slidesOriginales, q.get("m"), q.get("f"), leerVistos()));
+      setActivo(0);
+      contenedor.current?.scrollTo({ top: 0 });
     } catch { /* sin ventana: queda el orden del catálogo */ }
     try { if (localStorage.getItem(LLAVE_SONIDO) === "1") setConSonido(true); } catch { /* nada */ }
   }, [slidesOriginales]);
@@ -133,7 +135,7 @@ export function FeedVideos({ slides: slidesOriginales, vendedorSlug, modoTecnico
     );
     el.querySelectorAll("[data-indice]").forEach((n) => obs.observe(n));
     return () => obs.disconnect();
-  }, [slides.length]);
+  }, [slides]);
 
   /* la barra de arriba estorba al video (Eduardo, 31-oct): se esconde sola a
      los 2.5 s y vuelve a salir con cualquier toque o al cambiar de video */
