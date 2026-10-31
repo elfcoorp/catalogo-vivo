@@ -550,11 +550,11 @@ export const PRODUCTOS: Producto[] = [
     clasificaPor: ["peso", "diametro", "color"],
     estatus: "disponible",
     marcaFabricante: "CIU",
-    resumenTarjeta: "50 salidas · peso y visión · en venta o renta",
+    resumenTarjeta: "50 salidas · peso y visión · acero inoxidable",
     nombreCorto: "Calibrador inox · 6 líneas x 50 salidas",
     pasoCopita: "Charola 6\"",
     precio: "Precio a consultar",
-    facilidades: "En venta o en renta. No incluye instalación ni flete.",
+    facilidades: "No incluye instalación ni flete.",
     fichaTecnica: [
       { etiqueta: "Qué clasifica", valor: "Tomate bola (su configuración original) y tomate saladette por peso y visión (diámetro y color). Chile morrón, cebolla, mango y aguacate solo por peso, más lento. Productos distintos en lotes separados" },
       { etiqueta: "Clasificadora", valor: "6 líneas de charolas paso 6\" x 50 salidas (confirmado por factura). Pesaje individual de cada fruta. Marca CIU" },
