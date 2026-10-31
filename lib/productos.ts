@@ -524,6 +524,9 @@ export const PRODUCTOS: Producto[] = [
     slug: "linea-aweta-pepino-europeo",
     nombre: "Línea Aweta para pepino europeo — seleccionadora de 12 salidas y 2 emplayadoras SK1",
     categoria: "Líneas de empaque usadas",
+    imagen: "/productos/aweta-emplayadora-1.jpg",
+    galeria: ["/productos/aweta-emplayadora-2.jpg"],
+    videoYoutube: "https://youtu.be/kMzMbRJ4g7c",
     paraQuien:
       "Empaques de pepino europeo que quieren clasificar y emplayar en línea con equipo de marca, sin esperar los meses que tarda una línea nueva.",
     beneficio:
@@ -532,7 +535,7 @@ export const PRODUCTOS: Producto[] = [
     frutas: ["pepino"],
     estatus: "disponible",
     marcaFabricante: "Aweta",
-    resumenTarjeta: "Seleccionadora + 2 emplayadoras · fotos en camino",
+    resumenTarjeta: "Seleccionadora de 12 salidas + 2 emplayadoras",
     nombreCorto: "Línea Aweta · pepino europeo",
     zona: "Noroeste de México",
     precio: "Precio a consultar",
@@ -542,7 +545,7 @@ export const PRODUCTOS: Producto[] = [
       { etiqueta: "Emplayadoras SK1", valor: "Envuelven cada pepino en película y la encogen con calor (por eso les dicen hornos). Sirven también para poro, zanahoria grande, calabacita y elote. Capacidad y año exactos por confirmar con factura" },
       { etiqueta: "Seleccionadora", valor: "Marca Aweta, 12 salidas, para pepino europeo. Modelo, año y capacidad por confirmar con factura" },
       { etiqueta: "Lo que no incluye", valor: "Bandas, curvas y demás accesorios de la línea: se quedan con el dueño" },
-      { etiqueta: "Estado", valor: "Se puede ver antes de decidir. Fotos de la seleccionadora y de las emplayadoras en camino" },
+      { etiqueta: "Estado", valor: "Se puede ver antes de decidir. Las bandas blancas que salen en las fotos no están en venta; solo las emplayadoras" },
     ],
     garantia: "Se vende tal como está, vista por el comprador. Trabajamos con contrato firmado: anticipo antes de iniciar la carga y el resto antes de que la máquina salga.",
   },
