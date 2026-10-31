@@ -552,11 +552,12 @@ export const PRODUCTOS: Producto[] = [
     marcaFabricante: "CIU",
     resumenTarjeta: "50 salidas · peso y visión · en venta o renta",
     nombreCorto: "Calibrador inox · 6 líneas x 50 salidas",
+    pasoCopita: "Charola 6\"",
     precio: "Precio a consultar",
     facilidades: "En venta o en renta. No incluye instalación ni flete.",
     fichaTecnica: [
       { etiqueta: "Qué clasifica", valor: "Tomate bola (su configuración original) y tomate saladette por peso y visión (diámetro y color). Chile morrón, cebolla, mango y aguacate solo por peso, más lento. Productos distintos en lotes separados" },
-      { etiqueta: "Clasificadora", valor: "6 líneas de charolas x 50 salidas (confirmado por factura). Pesaje individual de cada fruta. Marca CIU" },
+      { etiqueta: "Clasificadora", valor: "6 líneas de charolas paso 6\" x 50 salidas (confirmado por factura). Pesaje individual de cada fruta. Marca CIU" },
       { etiqueta: "Visión", valor: "Cajón de cámaras montado sobre el singulador: lee diámetro y color de cada fruta" },
       { etiqueta: "Velocidad", valor: "Velocidad de diseño: 4.5 charolas por segundo por línea" },
       { etiqueta: "Mesa de selección manual", valor: "Antes de la clasificadora. Banda superior donde el personal sube la fruta de segunda, que cae en 2 de las 6 líneas; las otras 4 reciben la primera. Banda adicional con banco y chutes para apartar a mano una tercera calidad" },
