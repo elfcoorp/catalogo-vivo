@@ -437,7 +437,7 @@ export const PRODUCTOS: Producto[] = [
     marcaFabricante: "CIU",
     resumenTarjeta: "Capacidad 1.9 ton/línea por hora",
     nombreCorto: "Calibrador · 6 líneas x 12 salidas",
-    pasoCopita: "Charola 6\"",
+    pasoCopita: "Charola 7½\"",
     videoYoutube: "https://youtube.com/shorts/n_vXUN2YyXk",
     verificada: true,
     zona: "Noroeste de México",
@@ -445,7 +445,7 @@ export const PRODUCTOS: Producto[] = [
     facilidades: "Con facilidades de pago: se acuerda un anticipo y el resto antes de que la máquina salga. Sin instalación.",
     bono: "Incluye caseta de vigilancia y, de regalo, el descanicador de tubos ajustable que le saca la galleta al morrón — se entrega tal como está, armarlo y ponerlo a andar corre por cuenta del comprador. Nada más hay uno, y se va con la primera máquina que se venda.",
     fichaTecnica: [
-      { etiqueta: "Tipo", valor: "Clasificadora de charolas paso 6\", 6 líneas x 12+1 salidas @ 30\"" },
+      { etiqueta: "Tipo", valor: "Clasificadora de charolas paso 7½\", 6 líneas x 12+1 salidas @ 30\"" },
       { etiqueta: "Acabado", valor: "Pintura electrostática nueva, color gris" },
       { etiqueta: "Velocidad", valor: "3 charolas por segundo" },
       { etiqueta: "Capacidad", valor: "1.9 ton/línea por hora (fruta de 300 g)" },
