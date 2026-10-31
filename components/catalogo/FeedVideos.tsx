@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { CONFIG } from "@/lib/config";
 import { linkLoQuiero } from "@/lib/whatsapp";
+import { leerVistos } from "@/lib/loQueVio";
 import type { SlideVideo } from "@/lib/feed";
 
 /*
@@ -63,11 +64,62 @@ interface Props {
   totalMaquinas?: number;
 }
 
-export function FeedVideos({ slides, vendedorSlug, modoTecnico, totalMaquinas }: Props) {
+/* quita acentos y pone en minúsculas, para comparar frutas */
+const plano = (t: string) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+
+/**
+ * EL ORDEN DEPENDE DE QUIÉN VE (Eduardo, 31-oct-2026: "que le salga primero el
+ * video a quien le esté interesado"). Tres pistas, en este orden:
+ *   1. ?m=<slug>   → esa máquina va primero (liga directa a una máquina).
+ *   2. ?f=<fruta>  → primero las máquinas de esa fruta (las rondas de WhatsApp
+ *                    ya mandan la fruta de cada contacto en la liga).
+ *   3. Lo que ya vio en este teléfono (lib/loQueVio.ts), la más reciente primero.
+ * Lo demás queda en el orden del catálogo.
+ */
+function ordenarParaQuienVe(slides: SlideVideo[], m: string | null, f: string | null, vistos: string[]): SlideVideo[] {
+  const fruta = f ? plano(f) : "";
+  const peso = (s: SlideVideo) => {
+    const p = s.producto;
+    if (m && p.slug === m) return 0;
+    if (fruta && (p.frutas ?? []).some((x) => plano(x).includes(fruta) || fruta.includes(plano(x)))) return 1;
+    const i = vistos.indexOf(p.slug);
+    if (i >= 0) return 2 + i / 100;
+    return 3;
+  };
+  return slides.map((s, i) => ({ s, i, w: peso(s) })).sort((a, b) => a.w - b.w || a.i - b.i).map((x) => x.s);
+}
+
+const LLAVE_SONIDO = "elfco-sonido";
+
+export function FeedVideos({ slides: slidesOriginales, vendedorSlug, modoTecnico, totalMaquinas }: Props) {
+  const [slides, setSlides] = useState(slidesOriginales);
   const [conSonido, setConSonido] = useState(false);
   const [activo, setActivo] = useState(0);
   const contenedor = useRef<HTMLDivElement>(null);
   const params = vendedorSlug ? `?v=${vendedorSlug}` : modoTecnico ? "?modo=tecnico" : "";
+
+  /* al cargar en el teléfono: acomodar el orden y recordar si ya había pedido sonido */
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      setSlides(ordenarParaQuienVe(slidesOriginales, q.get("m"), q.get("f"), leerVistos()));
+    } catch { /* sin ventana: queda el orden del catálogo */ }
+    try { if (localStorage.getItem(LLAVE_SONIDO) === "1") setConSonido(true); } catch { /* nada */ }
+  }, [slidesOriginales]);
+
+  /* recordar la preferencia de sonido para la próxima vez */
+  useEffect(() => { try { localStorage.setItem(LLAVE_SONIDO, conSonido ? "1" : "0"); } catch { /* nada */ } }, [conSonido]);
+
+  /* el PRIMER toque en cualquier parte prende el sonido (el navegador no deja
+     arrancar con sonido sin que la persona toque la pantalla) */
+  useEffect(() => {
+    if (conSonido) return;
+    const el = contenedor.current;
+    if (!el) return;
+    const prender = () => setConSonido(true);
+    el.addEventListener("pointerdown", prender, { once: true });
+    return () => el.removeEventListener("pointerdown", prender);
+  }, [conSonido]);
 
   /* cuál pantalla está a la vista */
   useEffect(() => {
@@ -83,20 +135,36 @@ export function FeedVideos({ slides, vendedorSlug, modoTecnico, totalMaquinas }:
     return () => obs.disconnect();
   }, [slides.length]);
 
+  /* la barra de arriba estorba al video (Eduardo, 31-oct): se esconde sola a
+     los 2.5 s y vuelve a salir con cualquier toque o al cambiar de video */
+  const [barra, setBarra] = useState(true);
+  useEffect(() => {
+    setBarra(true);
+    const t = setTimeout(() => setBarra(false), 2500);
+    return () => clearTimeout(t);
+  }, [activo]);
+  const mostrarBarra = useCallback(() => setBarra(true), []);
+
   return (
-    <div ref={contenedor} className="feed-videos h-[100dvh] w-full snap-y snap-mandatory overflow-y-scroll bg-black text-white">
-      {/* barra de arriba */}
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-4 pt-[max(12px,env(safe-area-inset-top))]">
-        <Link href={`/catalogo${params}`} className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/50 px-3 py-2 text-sm backdrop-blur">
-          <Icon name="lucide:layout-grid" size={16} /> Catálogo
+    <div ref={contenedor} onPointerDown={mostrarBarra} className="feed-videos h-[100dvh] w-full snap-y snap-mandatory overflow-y-scroll bg-black text-white">
+      {/* barra de arriba: chica, translúcida y se esconde sola */}
+      <div
+        className={`pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-500 ${barra ? "opacity-100" : "opacity-0"}`}
+      >
+        <Link
+          href={`/catalogo${params}`}
+          className={`${barra ? "pointer-events-auto" : ""} flex items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-1.5 text-xs backdrop-blur-sm`}
+          aria-label="Ver el catálogo completo"
+        >
+          <Icon name="lucide:layout-grid" size={14} /> Catálogo
         </Link>
-        <span className="rounded-full bg-black/50 px-3 py-2 text-xs backdrop-blur">{Math.min(activo + 1, slides.length)} / {slides.length}</span>
+        <span className="rounded-full bg-black/35 px-2.5 py-1.5 text-[11px] backdrop-blur-sm">{Math.min(activo + 1, slides.length)} / {slides.length}</span>
         <button
           onClick={() => setConSonido((v) => !v)}
-          className="pointer-events-auto rounded-full bg-black/50 p-2.5 backdrop-blur"
+          className={`${barra ? "pointer-events-auto" : ""} rounded-full bg-black/35 p-2 backdrop-blur-sm`}
           aria-label={conSonido ? "Quitar sonido" : "Poner sonido"}
         >
-          <Icon name={conSonido ? "lucide:volume-2" : "lucide:volume-x"} size={18} />
+          <Icon name={conSonido ? "lucide:volume-2" : "lucide:volume-x"} size={16} />
         </button>
       </div>
 
@@ -145,13 +213,18 @@ function Pantalla({
   const [listo, setListo] = useState(!!mp4);
   const [pausado, setPausado] = useState(false);
 
-  /* archivo propio (.mp4): corre solo, en silencio, sin nada de YouTube */
+  /* archivo propio (.mp4): corre solo, sin nada de YouTube. Con sonido si la
+     persona ya lo pidió; si el navegador no deja arrancar con sonido, arranca
+     en silencio y el primer toque lo prende. */
   useEffect(() => {
     const v = videoEl.current;
     if (!mp4 || !v) return;
+    if (!(activa && !pausado)) { v.pause(); return; }
     v.muted = !conSonido;
-    if (activa && !pausado) v.play().catch(() => { /* el navegador lo bloqueó; el toque lo arranca */ });
-    else v.pause();
+    v.play().catch(() => {
+      v.muted = true;
+      v.play().catch(() => { /* ni en silencio: el toque lo arranca */ });
+    });
   }, [mp4, activa, pausado, conSonido]);
 
   /* crear el reproductor de YouTube una vez (solo si no hay archivo propio) */
