@@ -138,14 +138,25 @@ function Pantalla({
   slide: SlideVideo; indice: number; activa: boolean; conSonido: boolean; params: string;
   modoTecnico: boolean; vendedorSlug?: string | null; onPedirSonido: () => void;
 }) {
-  const { producto, videoId } = slide;
+  const { producto, videoId, mp4 } = slide;
   const caja = useRef<HTMLDivElement>(null);
   const player = useRef<YTPlayer | null>(null);
-  const [listo, setListo] = useState(false);
+  const videoEl = useRef<HTMLVideoElement>(null);
+  const [listo, setListo] = useState(!!mp4);
   const [pausado, setPausado] = useState(false);
 
-  /* crear el reproductor una vez */
+  /* archivo propio (.mp4): corre solo, en silencio, sin nada de YouTube */
   useEffect(() => {
+    const v = videoEl.current;
+    if (!mp4 || !v) return;
+    v.muted = !conSonido;
+    if (activa && !pausado) v.play().catch(() => { /* el navegador lo bloqueó; el toque lo arranca */ });
+    else v.pause();
+  }, [mp4, activa, pausado, conSonido]);
+
+  /* crear el reproductor de YouTube una vez (solo si no hay archivo propio) */
+  useEffect(() => {
+    if (mp4 || !videoId) return;
     let vivo = true;
     cargarApiYoutube().then((YT) => {
       if (!vivo || !caja.current) return;
@@ -156,22 +167,29 @@ function Pantalla({
       });
     });
     return () => { vivo = false; try { player.current?.destroy(); } catch { /* nada */ } player.current = null; };
-  }, [videoId]);
+  }, [videoId, mp4]);
 
-  /* correr o pausar según esté a la vista */
+  /* correr o pausar el de YouTube según esté a la vista */
   useEffect(() => {
     const p = player.current;
-    if (!p || !listo) return;
+    if (mp4 || !p || !listo) return;
     if (activa && !pausado) { if (conSonido) p.unMute(); else p.mute(); p.playVideo(); }
     else p.pauseVideo();
-  }, [activa, listo, pausado, conSonido]);
+  }, [mp4, activa, listo, pausado, conSonido]);
 
   const alternar = useCallback(() => {
+    if (mp4) {
+      const v = videoEl.current;
+      if (!v) return;
+      if (pausado) { v.play().catch(() => {}); setPausado(false); }
+      else { v.pause(); setPausado(true); }
+      return;
+    }
     const p = player.current;
     if (!p) return;
     if (pausado) { p.playVideo(); setPausado(false); }
     else { p.pauseVideo(); setPausado(true); }
-  }, [pausado]);
+  }, [mp4, pausado]);
 
   const plano = producto.plano ? producto.plano.replace(".png", ".pdf") : null;
   const fotos = (producto.galeria?.length ?? 0) + (producto.imagen ? 1 : 0);
@@ -181,9 +199,22 @@ function Pantalla({
     <section data-indice={indice} className="relative h-[100dvh] w-full snap-start overflow-hidden">
       {/* el video, centrado y llenando la altura (los shorts son 9:16) */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative h-full" style={{ aspectRatio: "9 / 16", minWidth: "100%", maxWidth: "max(100%, calc(100dvh * 9 / 16))" }}>
-          <div ref={caja} className="absolute inset-0 h-full w-full [&>iframe]:h-full [&>iframe]:w-full" />
-        </div>
+        {mp4 ? (
+          <video
+            ref={videoEl}
+            src={mp4}
+            className="h-full w-full object-contain"
+            muted
+            loop
+            playsInline
+            preload={activa ? "auto" : "metadata"}
+            poster={producto.imagen}
+          />
+        ) : (
+          <div className="relative h-full" style={{ aspectRatio: "9 / 16", minWidth: "100%", maxWidth: "max(100%, calc(100dvh * 9 / 16))" }}>
+            <div ref={caja} className="absolute inset-0 h-full w-full [&>iframe]:h-full [&>iframe]:w-full" />
+          </div>
+        )}
       </div>
       {/* capa que recibe el toque (el iframe no deja pasar los toques) */}
       <button

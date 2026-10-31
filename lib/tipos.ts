@@ -63,8 +63,8 @@ export interface Producto {
   imagen?: string;
   /** Fotos extra para la ficha del producto (además de `imagen`). Opcional. */
   galeria?: string[];
-  /** Ruta del video en /public (ej. "/videos/tu-video.mp4"). Opcional. */
-  video?: string;
+  /** Ruta del video propio en /public (ej. "/videos/tu-video.mp4"). Puede ser uno o varios. En la portada en video manda sobre videoYoutube: arranca solo, sin logo de YouTube. Opcional. */
+  video?: string | string[];
   /**
    * Para quién es y qué "trabajo" le resuelve (Jobs-to-be-done, Christensen).
    * Ej.: "Para el que quiere un regalo que se vea caro sin gastar de más".

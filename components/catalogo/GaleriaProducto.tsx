@@ -8,7 +8,7 @@ import { urlIncrustadaYoutube } from "@/lib/youtube";
 interface GaleriaProductoProps {
   imagen?: string;
   galeria?: string[];
-  video?: string;
+  video?: string | string[];
   videoYoutube?: string | string[];
   alt: string;
   className?: string;
@@ -27,7 +27,7 @@ export function GaleriaProducto({ imagen, galeria, video, videoYoutube, alt, cla
   const items = [
     ...fotos.map((src) => ({ tipo: "foto" as const, src })),
     ...youtubeEmbeds.map((src) => ({ tipo: "youtube" as const, src })),
-    ...(video ? [{ tipo: "video" as const, src: video }] : []),
+    ...(Array.isArray(video) ? video : video ? [video] : []).map((src) => ({ tipo: "video" as const, src })),
   ];
   const [activo, setActivo] = useState(0);
 
