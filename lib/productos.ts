@@ -545,6 +545,7 @@ export const PRODUCTOS: Producto[] = [
     marcaFabricante: "Kerian",
     resumenTarjeta: "Criba de rodillos Kerian · funcionando",
     nombreCorto: "Criba Kerian X72",
+    videoYoutube: "https://youtu.be/vK5I0eCme7M",
     zona: "Noroeste de México",
     precio: "Precio a consultar",
     facilidades: "No incluye instalación ni flete. Se puede ver funcionando.",
