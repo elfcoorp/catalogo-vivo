@@ -38,7 +38,7 @@ export function BarraSuperior({ busqueda, onBusquedaChange, modoTecnico, modoDue
   return (
     <div className="sticky top-0 z-40 border-b border-line bg-bg-2/90 backdrop-blur no-print">
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3">
-        <Link href="/" className="shrink-0">
+        <Link href="/catalogo" className="shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={CONFIG.marca.logo} alt={CONFIG.marca.negocio} className="h-9 w-9 rounded-full object-cover" />
         </Link>

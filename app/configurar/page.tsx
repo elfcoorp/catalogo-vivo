@@ -61,7 +61,7 @@ export default function Configurar() {
 
   return (
     <main className="mx-auto min-h-screen max-w-3xl px-5 py-10">
-      <Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm text-ink-soft hover:text-marca">
+      <Link href="/catalogo" className="mb-8 inline-flex items-center gap-2 text-sm text-ink-soft hover:text-marca">
         <Icon name="lucide:arrow-left" size={16} /> Volver al catálogo
       </Link>
 

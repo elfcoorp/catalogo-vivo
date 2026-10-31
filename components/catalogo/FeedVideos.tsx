@@ -59,9 +59,11 @@ interface Props {
   slides: SlideVideo[];
   vendedorSlug?: string | null;
   modoTecnico?: boolean;
+  /** Cuántas máquinas hay en total en el catálogo (con y sin video), para la última pantalla. */
+  totalMaquinas?: number;
 }
 
-export function FeedVideos({ slides, vendedorSlug, modoTecnico }: Props) {
+export function FeedVideos({ slides, vendedorSlug, modoTecnico, totalMaquinas }: Props) {
   const [conSonido, setConSonido] = useState(false);
   const [activo, setActivo] = useState(0);
   const contenedor = useRef<HTMLDivElement>(null);
@@ -85,10 +87,10 @@ export function FeedVideos({ slides, vendedorSlug, modoTecnico }: Props) {
     <div ref={contenedor} className="feed-videos h-[100dvh] w-full snap-y snap-mandatory overflow-y-scroll bg-black text-white">
       {/* barra de arriba */}
       <div className="pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-4 pt-[max(12px,env(safe-area-inset-top))]">
-        <Link href={`/${params}`} className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/50 px-3 py-2 text-sm backdrop-blur">
+        <Link href={`/catalogo${params}`} className="pointer-events-auto flex items-center gap-2 rounded-full bg-black/50 px-3 py-2 text-sm backdrop-blur">
           <Icon name="lucide:layout-grid" size={16} /> Catálogo
         </Link>
-        <span className="rounded-full bg-black/50 px-3 py-2 text-xs backdrop-blur">{activo + 1} / {slides.length}</span>
+        <span className="rounded-full bg-black/50 px-3 py-2 text-xs backdrop-blur">{Math.min(activo + 1, slides.length)} / {slides.length}</span>
         <button
           onClick={() => setConSonido((v) => !v)}
           className="pointer-events-auto rounded-full bg-black/50 p-2.5 backdrop-blur"
@@ -111,6 +113,21 @@ export function FeedVideos({ slides, vendedorSlug, modoTecnico }: Props) {
           onPedirSonido={() => setConSonido(true)}
         />
       ))}
+
+      {/* última pantalla: al catálogo completo, donde están también las máquinas sin video */}
+      <section data-indice={slides.length} className="relative flex h-[100dvh] w-full snap-start flex-col items-center justify-center gap-5 px-8 text-center">
+        <Icon name="lucide:layout-grid" size={56} className="text-white/80" />
+        <h2 className="font-display text-3xl font-semibold">¿Quieres ver todas?</h2>
+        <p className="max-w-sm text-white/75">
+          {totalMaquinas ? `${totalMaquinas} máquinas y equipos disponibles` : "Todas las máquinas y equipos"}, con filtros por fruta, ficha técnica, planos y fotos.
+        </p>
+        <Link href={`/catalogo${params}`} className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-black">
+          <Icon name="lucide:layout-grid" size={18} /> Ver el catálogo completo
+        </Link>
+        <button onClick={() => contenedor.current?.scrollTo({ top: 0, behavior: "smooth" })} className="mt-2 inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-sm backdrop-blur">
+          <Icon name="lucide:arrow-up" size={16} /> Volver al primer video
+        </button>
+      </section>
     </div>
   );
 }

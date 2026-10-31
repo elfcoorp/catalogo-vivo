@@ -11,7 +11,7 @@ export default function Imprimir() {
   return (
     <main className="mx-auto min-h-screen max-w-4xl px-5 py-10">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-3 no-print">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-marca">
+        <Link href="/catalogo" className="inline-flex items-center gap-2 text-sm text-ink-soft hover:text-marca">
           <Icon name="lucide:arrow-left" size={16} /> Volver al catálogo
         </Link>
         <button onClick={() => window.print()} className="btn-marca">
