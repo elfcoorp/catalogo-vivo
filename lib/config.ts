@@ -16,7 +16,10 @@ export const CONFIG: Config = {
   // Cuando contrates vendedores, agrégalos aquí:
   // { slug: "nombre", nombre: "Nombre Apellido", whatsapp: "521..." }
   // Mientras esté vacío, todo "Lo quiero" llega al WhatsApp principal.
-  vendedores: [],
+  vendedores: [
+    /* Don Gus (Uruapan), 2-nov-2026: revisa el catalogo y lo mueve con sus contactos; 7% por maquina vendida por su liga ?v=gus */
+    { slug: "gus", nombre: "Gus", whatsapp: "524525457886" },
+  ],
   categorias: ["Líneas de empaque usadas", "Refacciones y equipo", "Materiales de embalaje", "Servicios"],
   mensajePlantilla:
     "{saludo}vi tu catálogo y me interesa {producto}. ¿Me pueden dar más información y precio?",
