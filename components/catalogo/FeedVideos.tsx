@@ -154,7 +154,7 @@ export function FeedVideos({ slides: slidesOriginales, vendedorSlug, modoTecnico
         className={`pointer-events-none fixed inset-x-0 top-0 z-30 flex items-center justify-between px-3 pt-[max(10px,env(safe-area-inset-top))] transition-opacity duration-500 ${barra ? "opacity-100" : "opacity-0"}`}
       >
         <Link
-          href={`/catalogo${params}`}
+          href={`/${params}`}
           className={`${barra ? "pointer-events-auto" : ""} flex items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-1.5 text-xs backdrop-blur-sm`}
           aria-label="Ver el catálogo completo"
         >
@@ -191,7 +191,7 @@ export function FeedVideos({ slides: slidesOriginales, vendedorSlug, modoTecnico
         <p className="max-w-sm text-white/75">
           {totalMaquinas ? `${totalMaquinas} máquinas y equipos disponibles` : "Todas las máquinas y equipos"}, con filtros por fruta, ficha técnica, planos y fotos.
         </p>
-        <Link href={`/catalogo${params}`} className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-black">
+        <Link href={`/${params}`} className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-base font-semibold text-black">
           <Icon name="lucide:layout-grid" size={18} /> Ver el catálogo completo
         </Link>
         <button onClick={() => contenedor.current?.scrollTo({ top: 0, behavior: "smooth" })} className="mt-2 inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-sm backdrop-blur">

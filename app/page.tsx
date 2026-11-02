@@ -1,19 +1,12 @@
-import { FeedVideos } from "@/components/catalogo/FeedVideos";
-import { slidesDeVideo } from "@/lib/feed";
-import { PRODUCTOS } from "@/lib/productos";
-import { esModoTecnico } from "@/lib/modo";
+import { MarcaHeader } from "@/components/catalogo/MarcaHeader";
+import { CatalogoGrid } from "@/components/catalogo/CatalogoGrid";
+import { Pie } from "@/components/catalogo/Pie";
+import { esModoTecnico, esModoDueno } from "@/lib/modo";
 
 /**
- * LA PORTADA ES EL CATÁLOGO EN VIDEO (desde el 31 de octubre de 2026).
- *
- * Un scroll vertical tipo TikTok: una máquina por pantalla, con su video
- * corriendo, y abajo los botones de ficha, plano, fotos y "Lo quiero". Al
- * final, una pantalla que lleva al catálogo completo en tarjetas (/catalogo),
- * donde están también las máquinas que todavía no tienen video.
- *
- * Pedido de Eduardo: "Que el catálogo sea un scroll: primera máquina en venta,
- * segunda, tercera… y abajo una barrita". Respeta ?v=<vendedor> (los botones
- * "Lo quiero" abren el WhatsApp de ese vendedor) y ?modo=tecnico (sin WhatsApp).
+ * El catálogo vivo. Si la liga trae ?v=<vendedor>, todos los botones
+ * "Lo quiero" abren el WhatsApp de ese vendedor. Si trae ?modo=tecnico,
+ * no se muestra ningún botón ni liga de WhatsApp (versión para técnicos aliados).
  */
 export default async function Home({
   searchParams,
@@ -21,13 +14,14 @@ export default async function Home({
   searchParams: Promise<{ v?: string; modo?: string }>;
 }) {
   const { v, modo } = await searchParams;
-  const disponibles = PRODUCTOS.filter((p) => p.estatus !== "apartada").length;
+  const modoTecnico = esModoTecnico(modo);
+  /* el menú de herramientas solo se ve con la liga privada ?modo=dueno */
+  const modoDueno = esModoDueno(modo);
   return (
-    <FeedVideos
-      slides={slidesDeVideo()}
-      vendedorSlug={v ?? null}
-      modoTecnico={esModoTecnico(modo)}
-      totalMaquinas={disponibles}
-    />
+    <main className="min-h-screen">
+      <MarcaHeader />
+      <CatalogoGrid vendedorSlug={v ?? null} modoTecnico={modoTecnico} modoDueno={modoDueno} />
+      <Pie modoTecnico={modoTecnico} />
+    </main>
   );
 }
